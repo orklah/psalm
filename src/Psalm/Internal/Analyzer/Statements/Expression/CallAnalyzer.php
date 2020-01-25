@@ -242,11 +242,11 @@ class CallAnalyzer
     }
 
     /**
-     * @param  string|null                      $method_id
+     * @param  lowercase-string|null            $method_id
      * @param  array<int, PhpParser\Node\Arg>   $args
      * @param  Context                          $context
      * @param  CodeLocation                     $code_location
-     * @param  StatementsAnalyzer                $statements_analyzer
+     * @param  StatementsAnalyzer               $statements_analyzer
      *
      * @return false|null
      */
@@ -290,7 +290,7 @@ class CallAnalyzer
         if (isset($class_storage->declaring_method_ids[strtolower($method_name)])) {
             $declaring_method_id = $class_storage->declaring_method_ids[strtolower($method_name)];
 
-            list($declaring_fq_class_name, $declaring_method_name) = explode('::', $declaring_method_id);
+            list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
 
             if ($declaring_fq_class_name !== $fq_class_name) {
                 $declaring_class_storage = $codebase->classlike_storage_provider->get($declaring_fq_class_name);
@@ -1183,9 +1183,15 @@ class CallAnalyzer
 
         $codebase = $statements_analyzer->getCodebase();
 
+        $method_id_parts = null;
+
+        if ($method_id && strpos($method_id, '::')) {
+            $method_id_parts = explode('::', $method_id);
+        }
+
         if ($method_id) {
-            if (!$in_call_map && strpos($method_id, '::')) {
-                $fq_class_name = explode('::', $method_id)[0];
+            if (!$in_call_map && $method_id_parts !== null) {
+                $fq_class_name = $method_id_parts[0];
             }
 
             if ($function_storage) {
@@ -1212,18 +1218,24 @@ class CallAnalyzer
         $static_fq_class_name = $fq_class_name;
         $self_fq_class_name = $fq_class_name;
 
-        if ($method_id && strpos($method_id, '::')) {
-            $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
+        if ($method_id && $method_id_parts !== null) {
+            $declaring_method_id = $codebase->methods->getDeclaringMethodId(
+                $method_id_parts[0],
+                $method_id_parts[1]
+            );
 
-            if ($declaring_method_id && $declaring_method_id !== $method_id) {
-                list($self_fq_class_name) = explode('::', $declaring_method_id);
+            if ($declaring_method_id && $declaring_method_id !== $method_id_parts) {
+                list($self_fq_class_name) = $declaring_method_id[0];
                 $class_storage = $codebase->classlike_storage_provider->get($self_fq_class_name);
             }
 
-            $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
+            $appearing_method_id = $codebase->methods->getAppearingMethodId(
+                $method_id_parts[0],
+                $method_id_parts[1]
+            );
 
             if ($appearing_method_id && $declaring_method_id !== $appearing_method_id) {
-                list($self_fq_class_name) = explode('::', $appearing_method_id);
+                list($self_fq_class_name) = $appearing_method_id[0];
             }
         }
 

@@ -172,7 +172,7 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
             $method_id = (string)$this->getMethodId($context->self);
 
             $fq_class_name = (string)$context->self;
-            $appearing_class_storage = $classlike_storage_provider->get($fq_class_name);
+            $appearing_class_storage = $classlike_storage_provider->get(strtolower($fq_class_name));
 
             if ($add_mutations) {
                 $hash = md5($real_method_id . '::' . $context->getScopeSummary());
@@ -245,15 +245,21 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
                 && !$context->collect_mutations
             ) {
                 foreach ($overridden_method_ids as $overridden_method_id) {
-                    $parent_method_storage = $codebase->methods->getStorage($overridden_method_id);
+                    $parent_method_storage = $codebase->methods->getStorage(
+                        $overridden_method_id[0],
+                        $overridden_method_id[1]
+                    );
 
-                    list($overridden_fq_class_name) = explode('::', $overridden_method_id);
+                    $overridden_fq_class_name = $overridden_method_id[0];
 
                     $parent_storage = $classlike_storage_provider->get($overridden_fq_class_name);
 
                     $implementer_visibility = $storage->visibility;
 
-                    $implementer_appearing_method_id = $codebase->methods->getAppearingMethodId($cased_method_id);
+                    $implementer_appearing_method_id = $codebase->methods->getAppearingMethodId(
+                        \strtolower($fq_class_name),
+                        \strtolower($storage->cased_name)
+                    );
                     $implementer_declaring_method_id = $real_method_id;
 
                     $declaring_class_storage = $appearing_class_storage;
@@ -261,15 +267,10 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
                     if ($implementer_appearing_method_id
                         && $implementer_appearing_method_id !== $implementer_declaring_method_id
                     ) {
-                        list($appearing_fq_class_name, $appearing_method_name) = explode(
-                            '::',
-                            $implementer_appearing_method_id
-                        );
+                        $appearing_fq_class_name = $implementer_appearing_method_id[0];
+                        $appearing_method_name = $implementer_appearing_method_id[1];
 
-                        list($declaring_fq_class_name) = explode(
-                            '::',
-                            $implementer_declaring_method_id
-                        );
+                        $declaring_fq_class_name = $implementer_declaring_method_id[0];
 
                         $appearing_class_storage = $classlike_storage_provider->get(
                             $appearing_fq_class_name
@@ -1456,7 +1457,7 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
         if ($this->function instanceof ClassMethod) {
             $function_name = (string)$this->function->name;
 
-            return ($context_self ?: $this->source->getFQCLN()) . '::' . strtolower($function_name);
+            return strtolower($context_self ?: $this->source->getFQCLN()) . '::' . strtolower($function_name);
         }
 
         if ($this->function instanceof Function_) {
@@ -1505,16 +1506,16 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
             $codebase_methods = $codebase->methods;
 
             try {
-                return $codebase_methods->getStorage($method_id);
+                return $codebase_methods->getStorage(...explode('::', $method_id));
             } catch (\UnexpectedValueException $e) {
                 $declaring_method_id = $codebase_methods->getDeclaringMethodId($method_id);
 
-                if (!$declaring_method_id) {
+                if ($declaring_method_id === null) {
                     throw new \UnexpectedValueException('Cannot get storage for function that doesn‘t exist');
                 }
 
                 // happens for fake constructors
-                return $codebase_methods->getStorage($declaring_method_id);
+                return $codebase_methods->getStorage($declaring_method_id[0], $declaring_method_id[1]);
             }
         }
 

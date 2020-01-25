@@ -157,7 +157,7 @@ class Properties
             }
         }
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
+        $class_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name));
 
         if (isset($class_storage->declaring_property_ids[$property_name])) {
             return $class_storage->declaring_property_ids[$property_name];

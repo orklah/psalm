@@ -73,7 +73,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     $child_fq_class_name = $context->self;
 
                     $class_storage = $child_fq_class_name
-                        ? $codebase->classlike_storage_provider->get($child_fq_class_name)
+                        ? $codebase->classlike_storage_provider->get(strtolower($child_fq_class_name))
                         : null;
 
                     if (!$class_storage || !$class_storage->parent_class) {

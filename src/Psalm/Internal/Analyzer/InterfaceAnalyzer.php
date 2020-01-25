@@ -93,7 +93,7 @@ class InterfaceAnalyzer extends ClassLikeAnalyzer
             throw new \UnexpectedValueException('bad');
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get($fq_interface_name);
+        $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_interface_name));
 
         foreach ($this->class->stmts as $stmt) {
             if ($stmt instanceof PhpParser\Node\Stmt\ClassMethod) {

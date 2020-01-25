@@ -759,10 +759,11 @@ class Scanner
         }
 
         $new_fq_class_name = $reflected_class->getName();
+        $new_fq_class_name_lc = strtolower($new_fq_class_name);
 
-        if (strtolower($new_fq_class_name) !== strtolower($fq_class_name)) {
-            $classlikes->addClassAlias($new_fq_class_name, strtolower($fq_class_name));
-            $fq_class_name_lc = strtolower($new_fq_class_name);
+        if ($new_fq_class_name_lc !== $fq_class_name_lc) {
+            $classlikes->addClassAlias($new_fq_class_name_lc, $fq_class_name_lc);
+            $fq_class_name_lc = $new_fq_class_name_lc;
         }
 
         $fq_class_name = $new_fq_class_name;

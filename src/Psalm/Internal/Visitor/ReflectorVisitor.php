@@ -952,8 +952,8 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
 
             if ($first_arg_value && $second_arg_value) {
                 $this->codebase->classlikes->addClassAlias(
-                    $first_arg_value,
-                    $second_arg_value
+                    strtolower($first_arg_value),
+                    strtolower($second_arg_value)
                 );
 
                 $this->file_storage->classlike_aliases[strtolower($second_arg_value)] = $first_arg_value;
@@ -985,10 +985,12 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
             $fq_classlike_name =
                 ($this->aliases->namespace ? $this->aliases->namespace . '\\' : '') . $node->name->name;
 
+            $fq_classlike_name_lc = strtolower($fq_classlike_name);
+
             $class_name = $node->name->name;
 
-            if ($this->codebase->classlike_storage_provider->has($fq_classlike_name)) {
-                $duplicate_storage = $this->codebase->classlike_storage_provider->get($fq_classlike_name);
+            if ($this->codebase->classlike_storage_provider->has($fq_classlike_name_lc)) {
+                $duplicate_storage = $this->codebase->classlike_storage_provider->get($fq_classlike_name_lc);
 
                 if (!$this->codebase->register_stub_files) {
                     if (!$duplicate_storage->stmt_location
@@ -1719,7 +1721,9 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
 
             $fq_classlike_name = $this->fq_classlike_names[count($this->fq_classlike_names) - 1];
 
-            $function_id = $fq_classlike_name . '::' . strtolower($stmt->name->name);
+            $method_name_lc = strtolower($stmt->name->name);
+
+            $function_id = $fq_classlike_name . '::' . $method_name_lc;
             $cased_function_id = $fq_classlike_name . '::' . $stmt->name->name;
 
             if (!$this->classlike_storages) {
@@ -1730,9 +1734,9 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
 
             $storage = null;
 
-            if (isset($class_storage->methods[strtolower($stmt->name->name)])) {
+            if (isset($class_storage->methods[$method_name_lc])) {
                 if (!$this->codebase->register_stub_files) {
-                    $duplicate_method_storage = $class_storage->methods[strtolower($stmt->name->name)];
+                    $duplicate_method_storage = $class_storage->methods[$method_name_lc];
 
                     if (IssueBuffer::accepts(
                         new DuplicateMethod(
@@ -1753,11 +1757,11 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
                     return false;
                 }
 
-                $storage = $class_storage->methods[strtolower($stmt->name->name)];
+                $storage = $class_storage->methods[$method_name_lc];
             }
 
             if (!$storage) {
-                $storage = $class_storage->methods[strtolower($stmt->name->name)] = new MethodStorage();
+                $storage = $class_storage->methods[$method_name_lc] = new MethodStorage();
             }
 
             $storage->defining_fqcln = $fq_classlike_name;
@@ -1765,29 +1769,46 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
             $class_name_parts = explode('\\', $fq_classlike_name);
             $class_name = array_pop($class_name_parts);
 
-            if (strtolower($stmt->name->name) === strtolower($class_name) &&
+            $fq_classlike_name_lc = strtolower($fq_classlike_name);
+
+            if ($method_name_lc === strtolower($class_name) &&
                 !isset($class_storage->methods['__construct']) &&
                 strpos($fq_classlike_name, '\\') === false
             ) {
                 $this->codebase->methods->setDeclaringMethodId(
-                    $fq_classlike_name . '::__construct',
-                    $function_id
+                    $fq_classlike_name,
+                    '::__construct',
+                    $fq_classlike_name_lc,
+                    $method_name_lc
                 );
+
                 $this->codebase->methods->setAppearingMethodId(
-                    $fq_classlike_name . '::__construct',
-                    $function_id
+                    $fq_classlike_name,
+                    '::__construct',
+                    $fq_classlike_name_lc,
+                    $method_name_lc
                 );
             }
 
-            $class_storage->declaring_method_ids[strtolower($stmt->name->name)] = $function_id;
-            $class_storage->appearing_method_ids[strtolower($stmt->name->name)] = $function_id;
+            $class_storage->declaring_method_ids[$method_name_lc] = [
+                $fq_classlike_name_lc,
+                $method_name_lc
+            ];
 
-            if (!$stmt->isPrivate() || $stmt->name->name === '__construct' || $class_storage->is_trait) {
-                $class_storage->inheritable_method_ids[strtolower($stmt->name->name)] = $function_id;
+            $class_storage->appearing_method_ids[$method_name_lc] = [
+                $fq_classlike_name_lc,
+                $method_name_lc
+            ];
+
+            if (!$stmt->isPrivate() || $method_name_lc === '__construct' || $class_storage->is_trait) {
+                $class_storage->inheritable_method_ids[$method_name_lc] = [
+                    $fq_classlike_name_lc,
+                    $method_name_lc
+                ];
             }
 
-            if (!isset($class_storage->overridden_method_ids[strtolower($stmt->name->name)])) {
-                $class_storage->overridden_method_ids[strtolower($stmt->name->name)] = [];
+            if (!isset($class_storage->overridden_method_ids[$method_name_lc])) {
+                $class_storage->overridden_method_ids[$method_name_lc] = [];
             }
 
             $storage->is_static = $stmt->isStatic();

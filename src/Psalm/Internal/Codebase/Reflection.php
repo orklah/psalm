@@ -75,17 +75,18 @@ class Reflection
         if ($reflected_parent_class) {
             $parent_class_name = $reflected_parent_class->getName();
             $this->registerClass($reflected_parent_class);
+            $parent_class_name_lc = strtolower($parent_class_name);
 
-            $parent_storage = $this->storage_provider->get($parent_class_name);
+            $parent_storage = $this->storage_provider->get($parent_class_name_lc);
 
-            $this->registerInheritedMethods($class_name, $parent_class_name);
-            $this->registerInheritedProperties($class_name, $parent_class_name);
+            $this->registerInheritedMethods($class_name_lower, $parent_class_name_lc);
+            $this->registerInheritedProperties($class_name_lower, $parent_class_name_lc);
 
             $storage->class_implements = $parent_storage->class_implements;
 
             $storage->public_class_constants = $parent_storage->public_class_constants;
             $storage->protected_class_constants = $parent_storage->protected_class_constants;
-            $parent_class_name_lc = strtolower($parent_class_name);
+            $parent_class_name_lc = $parent_class_name_lc;
             $storage->parent_classes = array_merge(
                 [$parent_class_name_lc => $parent_class_name],
                 $parent_storage->parent_classes
@@ -193,14 +194,21 @@ class Reflection
             if ($reflection_method->class !== $class_name
                 && ($class_name !== 'SoapFault' || $reflection_method->name !== '__construct')
             ) {
+                $reflection_method_name = strtolower($reflection_method->name);
+                $reflection_method_class = strtolower($reflection_method->class);
+
                 $this->codebase->methods->setDeclaringMethodId(
-                    $class_name . '::' . strtolower($reflection_method->name),
-                    $reflection_method->class . '::' . strtolower($reflection_method->name)
+                    $class_name_lower,
+                    $reflection_method_name,
+                    $reflection_method_class,
+                    $reflection_method_name
                 );
 
                 $this->codebase->methods->setAppearingMethodId(
-                    $class_name . '::' . strtolower($reflection_method->name),
-                    $reflection_method->class . '::' . strtolower($reflection_method->name)
+                    $class_name_lower,
+                    $reflection_method_name,
+                    $reflection_method_class,
+                    $reflection_method_name
                 );
             }
         }
@@ -213,29 +221,35 @@ class Reflection
      */
     public function extractReflectionMethodInfo(\ReflectionMethod $method)
     {
-        $method_name = strtolower($method->getName());
+        $method_name_lc = strtolower($method->getName());
 
-        $class_storage = $this->storage_provider->get($method->class);
+        $fq_class_name_lc = strtolower($method->class);
 
-        if (isset($class_storage->methods[strtolower($method_name)])) {
+        $class_storage = $this->storage_provider->get($fq_class_name_lc);
+
+        if (isset($class_storage->methods[$method_name_lc])) {
             return;
         }
 
-        $method_id = $method->class . '::' . $method_name;
+        $method_id = $method->class . '::' . $method_name_lc;
 
-        $storage = $class_storage->methods[strtolower($method_name)] = new MethodStorage();
+        $storage = $class_storage->methods[$method_name_lc] = new MethodStorage();
 
         $storage->cased_name = $method->name;
         $storage->defining_fqcln = $method->class;
 
-        if (strtolower((string)$method->name) === strtolower((string)$method->class)) {
+        if ($method_name_lc === $fq_class_name_lc) {
             $this->codebase->methods->setDeclaringMethodId(
-                $method->class . '::__construct',
-                $method->class . '::' . $method_name
+                $fq_class_name_lc,
+                '__construct',
+                $fq_class_name_lc,
+                $method_name_lc
             );
             $this->codebase->methods->setAppearingMethodId(
-                $method->class . '::__construct',
-                $method->class . '::' . $method_name
+                $fq_class_name_lc,
+                '__construct',
+                $fq_class_name_lc,
+                $method_name_lc
             );
         }
 
@@ -243,15 +257,20 @@ class Reflection
 
         $storage->is_static = $method->isStatic();
         $storage->abstract = $method->isAbstract();
-        $storage->mutation_free = $storage->external_mutation_free = $method_name === '__construct';
+        $storage->mutation_free = $storage->external_mutation_free = $method_name_lc === '__construct';
 
-        $declaring_method_id = $declaring_class->name . '::' . strtolower((string)$method->getName());
+        $declaring_method_id = $declaring_class->name . '::' . $method_name_lc;
 
-        $class_storage->declaring_method_ids[$method_name] = $declaring_method_id;
+        $class_storage->declaring_method_ids[$method_name_lc] = [
+            strtolower($declaring_class->name),
+            $method_name_lc
+        ];
 
-        $class_storage->inheritable_method_ids[$method_name] = $class_storage->declaring_method_ids[$method_name];
-        $class_storage->appearing_method_ids[$method_name] = $class_storage->declaring_method_ids[$method_name];
-        $class_storage->overridden_method_ids[$method_name] = [];
+        $class_storage->inheritable_method_ids[$method_name_lc]
+            = $class_storage->declaring_method_ids[$method_name_lc];
+        $class_storage->appearing_method_ids[$method_name_lc]
+            = $class_storage->declaring_method_ids[$method_name_lc];
+        $class_storage->overridden_method_ids[$method_name_lc] = [];
 
         $storage->visibility = $method->isPrivate()
             ? ClassLikeAnalyzer::VISIBILITY_PRIVATE
@@ -403,8 +422,8 @@ class Reflection
     }
 
     /**
-     * @param string $fq_class_name
-     * @param string $parent_class
+     * @param lowercase-string $fq_class_name
+     * @param lowercase-string $parent_class
      *
      * @return void
      */
@@ -424,8 +443,8 @@ class Reflection
         foreach ($parent_storage->inheritable_method_ids as $method_name => $declaring_method_id) {
             $storage->declaring_method_ids[$method_name] = $declaring_method_id;
             $storage->inheritable_method_ids[$method_name] = $declaring_method_id;
-
-            $storage->overridden_method_ids[$method_name][$declaring_method_id] = $declaring_method_id;
+            $storage->overridden_method_ids[$method_name][$declaring_method_id[0]]
+                = $declaring_method_id;
         }
     }
 

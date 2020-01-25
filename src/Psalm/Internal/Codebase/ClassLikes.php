@@ -703,6 +703,7 @@ class ClassLikes
     }
 
     /**
+     * @param lowercase-string $fq_class_name
      * @return void
      */
     public function addClassAlias(string $fq_class_name, string $alias_name)
@@ -711,17 +712,15 @@ class ClassLikes
     }
 
     /**
-     * @return string
+     * @return lowercase-string
      */
-    public function getUnAliasedName(string $alias_name)
+    public function getUnAliasedName(string $alias_name_lc)
     {
-        $alias_name_lc = strtolower($alias_name);
-
         if ($this->existing_classlikes_lc[$alias_name_lc] ?? false) {
-            return $alias_name;
+            return $alias_name_lc;
         }
 
-        return $this->classlike_aliases[$alias_name_lc] ?? $alias_name;
+        return $this->classlike_aliases[$alias_name_lc] ?? $alias_name_lc;
     }
 
     /**
@@ -2175,7 +2174,7 @@ class ClassLikes
     }
 
     /**
-     * @param  string $fq_classlike_name_lc
+     * @param  lowercase-string $fq_classlike_name_lc
      *
      * @return void
      */
@@ -2185,7 +2184,7 @@ class ClassLikes
     }
 
     /**
-     * @param  string $fq_classlike_name_lc
+     * @param  lowercase-string $fq_classlike_name_lc
      *
      * @return bool
      */
@@ -2196,7 +2195,7 @@ class ClassLikes
     }
 
     /**
-     * @param  string $fq_classlike_name_lc
+     * @param  lowercase-string $fq_classlike_name_lc
      *
      * @return bool
      */
@@ -2207,13 +2206,12 @@ class ClassLikes
     }
 
     /**
-     * @param string $fq_class_name
+     * @param lowercase-string $fq_class_name
      *
      * @return void
      */
     public function removeClassLike($fq_class_name)
     {
-        $fq_class_name_lc = strtolower($fq_class_name);
         unset(
             $this->existing_classlikes_lc[$fq_class_name_lc],
             $this->existing_classes_lc[$fq_class_name_lc],

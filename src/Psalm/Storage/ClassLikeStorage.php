@@ -153,14 +153,14 @@ class ClassLikeStorage
     /**
      * Interfaces this class implements explicitly and implicitly
      *
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $class_implements = [];
 
     /**
      * Parent interfaces listed explicitly
      *
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $direct_interface_parents = [];
 
@@ -211,7 +211,7 @@ class ClassLikeStorage
     public $final = false;
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $used_traits = [];
 
@@ -246,47 +246,47 @@ class ClassLikeStorage
     public $mutation_free = false;
 
     /**
-     * @var array<string, MethodStorage>
+     * @var array<lowercase-string, MethodStorage>
      */
     public $methods = [];
 
     /**
-     * @var array<string, MethodStorage>
+     * @var array<lowercase-string, MethodStorage>
      */
     public $pseudo_methods = [];
 
     /**
-     * @var array<string, MethodStorage>
+     * @var array<lowercase-string, MethodStorage>
      */
     public $pseudo_static_methods = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
      */
     public $declaring_method_ids = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
      */
     public $appearing_method_ids = [];
 
     /**
-     * @var array<string, array<string, string>>
+     * @var array<lowercase-string, array<string, string>>
      */
     public $overridden_method_ids = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
      */
     public $documenting_method_ids = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
      */
     public $inheritable_method_ids = [];
 
     /**
-     * @var array<string, array<string, bool>>
+     * @var array<lowercase-string, array<string, bool>>
      */
     public $potential_declaring_method_ids = [];
 

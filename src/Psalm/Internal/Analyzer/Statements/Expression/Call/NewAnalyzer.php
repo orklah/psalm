@@ -327,7 +327,7 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
             if (strtolower($fq_class_name) !== 'stdclass' &&
                 $codebase->classlikes->classExists($fq_class_name)
             ) {
-                $storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                $storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                 // if we're not calling this constructor via new static()
                 if ($storage->abstract && !$can_extend) {
@@ -393,7 +393,7 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
                     null,
                     $statements_analyzer->getFilePath()
                 )) {
-                    $method_id = $fq_class_name . '::__construct';
+                    $method_id = strtolower($fq_class_name) . '::__construct';
 
                     if ($codebase->store_node_types
                         && !$context->collect_initializations
@@ -453,10 +453,10 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
                     $generic_param_types = null;
 
                     if ($storage->template_types) {
-                        $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
+                        $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $method_id));
 
                         $declaring_fq_class_name = $declaring_method_id
-                            ? explode('::', $declaring_method_id)[0]
+                            ? $declaring_method_id[0]
                             : $fq_class_name;
 
                         foreach ($storage->template_types as $template_name => $base_type) {

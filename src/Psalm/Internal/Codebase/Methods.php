@@ -125,7 +125,7 @@ class Methods
         $fq_class_name = $this->classlikes->getUnAliasedName($fq_class_name);
 
         try {
-            $class_storage = $this->classlike_storage_provider->get($fq_class_name);
+            $class_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name));
         } catch (\InvalidArgumentException $e) {
             return false;
         }
@@ -133,7 +133,7 @@ class Methods
         if (isset($class_storage->declaring_method_ids[$method_name])) {
             $declaring_method_id = $class_storage->declaring_method_ids[$method_name];
 
-            $declaring_method_id_lc = strtolower($declaring_method_id);
+            $declaring_method_id_lc = $declaring_method_id[0] . '::' . $declaring_method_id[1];
 
             if ($calling_function_id === $declaring_method_id_lc) {
                 return true;
@@ -202,7 +202,7 @@ class Methods
                 }
             }
 
-            list($declaring_method_class, $declaring_method_name) = explode('::', $declaring_method_id);
+            list($declaring_method_class, $declaring_method_name) = $declaring_method_id;
 
             $declaring_class_storage = $this->classlike_storage_provider->get($declaring_method_class);
 
@@ -286,7 +286,7 @@ class Methods
     }
 
     /**
-     * @param  string $method_id
+     * @param  lowercase-string $method_id
      * @param  array<int, PhpParser\Node\Arg> $args
      *
      * @return array<int, FunctionLikeParameter>
@@ -297,7 +297,9 @@ class Methods
         array $args = null,
         Context $context = null
     ) : array {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $method_id = explode('::', $method_id);
+
+        list($fq_class_name, $method_name) = $method_id;
 
         if ($this->params_provider->has($fq_class_name)) {
             $method_params = $this->params_provider->getMethodParams(
@@ -313,20 +315,25 @@ class Methods
             }
         }
 
-        $declaring_method_id = $this->getDeclaringMethodId($method_id);
+        $declaring_method_id = $this->getDeclaringMethodId($fq_class_name, $method_name);
+
+        $callmap_id = $declaring_method_id !== null
+            ? $declaring_method_id
+            : $method_id;
 
         // functions
-        if (CallMap::inCallMap($declaring_method_id ?: $method_id)) {
-            $declaring_fq_class_name = explode('::', $declaring_method_id ?: $method_id)[0];
-
-            $class_storage = $this->classlike_storage_provider->get($declaring_fq_class_name);
+        if (CallMap::inCallMap($callmap_id[0] . '::' . $callmap_id[1])) {
+            $class_storage = $this->classlike_storage_provider->get($callmap_id[0]);
 
             if (!$class_storage->stubbed) {
-                $function_callables = CallMap::getCallablesFromCallMap($declaring_method_id ?: $method_id);
+                $function_callables = CallMap::getCallablesFromCallMap(
+                    $callmap_id[0] . '::' . $callmap_id[1]
+                );
 
                 if ($function_callables === null) {
                     throw new \UnexpectedValueException(
-                        'Not expecting $function_callables to be null for ' . $declaring_method_id
+                        'Not expecting $function_callables to be null for '
+                            . $callmap_id[0] . '::' . $callmap_id[1]
                     );
                 }
 
@@ -368,7 +375,7 @@ class Methods
         }
 
         if ($declaring_method_id) {
-            $storage = $this->getStorage($declaring_method_id);
+            $storage = $this->getStorage($declaring_method_id[0], $declaring_method_id[1]);
 
             $params = $storage->params;
 
@@ -376,13 +383,13 @@ class Methods
                 return $params;
             }
 
-            $appearing_method_id = $this->getAppearingMethodId($declaring_method_id);
+            $appearing_method_id = $this->getAppearingMethodId($declaring_method_id[0], $declaring_method_id[1]);
 
             if (!$appearing_method_id) {
                 return $params;
             }
 
-            list($appearing_fq_class_name, $appearing_method_name) = explode('::', $appearing_method_id);
+            list($appearing_fq_class_name, $appearing_method_name) = $appearing_method_id;
 
             $class_storage = $this->classlike_storage_provider->get($appearing_fq_class_name);
 
@@ -533,15 +540,13 @@ class Methods
      */
     public function isVariadic($method_id)
     {
-        $declaring_method_id = $this->getDeclaringMethodId($method_id);
+        $declaring_method_id = $this->getDeclaringMethodId(explode('::', $method_id));
 
         if (!$declaring_method_id) {
             return false;
         }
 
-        $method_id = $declaring_method_id;
-
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        list($fq_class_name, $method_name) = $declaring_method_id;
 
         return $this->classlike_storage_provider->get($fq_class_name)->methods[$method_name ?: '']->variadic;
     }
@@ -569,13 +574,13 @@ class Methods
             return $original_class_storage->pseudo_methods[strtolower($original_method_name)]->return_type;
         }
 
-        $declaring_method_id = $this->getDeclaringMethodId($method_id);
+        $declaring_method_id = $this->getDeclaringMethodId($original_fq_class_name, $original_method_name);
 
         if (!$declaring_method_id) {
             return null;
         }
 
-        $appearing_method_id = $this->getAppearingMethodId($method_id);
+        $appearing_method_id = $this->getAppearingMethodId($original_fq_class_name, $original_method_name);
 
         if (!$appearing_method_id) {
             list($fq_class_name, $method_name) = explode('::', $method_id);
@@ -591,7 +596,7 @@ class Methods
             }
         }
 
-        list($appearing_fq_class_name, $appearing_method_name) = explode('::', $appearing_method_id);
+        list($appearing_fq_class_name, $appearing_method_name) = $appearing_method_id;
 
         $appearing_fq_class_storage = $this->classlike_storage_provider->get($appearing_fq_class_name);
 
@@ -647,7 +652,7 @@ class Methods
             return $return_type_candidate;
         }
 
-        $storage = $this->getStorage($declaring_method_id);
+        $storage = $this->getStorage($declaring_method_id[0], $declaring_method_id[1]);
 
         if ($storage->return_type) {
             $self_class = $appearing_fq_class_storage->name;
@@ -762,13 +767,13 @@ class Methods
         $method_id,
         CodeLocation &$defined_location = null
     ) {
-        $method_id = $this->getDeclaringMethodId($method_id);
+        $method_id = $this->getDeclaringMethodId(...explode('::', $method_id));
 
         if ($method_id === null) {
             return null;
         }
 
-        $storage = $this->getStorage($method_id);
+        $storage = $this->getStorage($method_id[0], $method_id[1]);
 
         if (!$storage->return_type_location) {
             $overridden_method_ids = $this->getOverriddenMethodIds($method_id);
@@ -787,53 +792,60 @@ class Methods
     }
 
     /**
-     * @param string $method_id
-     * @param string $declaring_method_id
+     * @param lowercase-string $fq_class_name_lc
+     * @param lowercase-string $method_name_lc
+     * @param lowercase-string $declaring_fq_class_name_lc
+     * @param lowercase-string $declaring_method_name_lc
      *
      * @return void
      */
     public function setDeclaringMethodId(
-        $method_id,
-        $declaring_method_id
+        $fq_class_name_lc,
+        $method_name_lc,
+        $declaring_fq_class_name_lc,
+        $declaring_method_name_lc
     ) {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
-
-        $class_storage->declaring_method_ids[$method_name] = $declaring_method_id;
+        $class_storage->declaring_method_ids[$method_name_lc] = [
+            $declaring_fq_class_name_lc,
+            $declaring_method_name_lc
+        ];
     }
 
     /**
-     * @param string $method_id
-     * @param string $appearing_method_id
+     * @param lowercase-string $fq_class_name_lc
+     * @param lowercase-string $method_name_lc
+     * @param lowercase-string $appearing_fq_class_name_lc
+     * @param lowercase-string $appearing_method_name_lc
      *
      * @return void
      */
     public function setAppearingMethodId(
-        $method_id,
-        $appearing_method_id
+        $fq_class_name_lc,
+        $method_name_lc,
+        $appearing_fq_class_name_lc,
+        $appearing_method_name_lc
     ) {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
-
-        $class_storage->appearing_method_ids[$method_name] = $appearing_method_id;
+        $class_storage->appearing_method_ids[$method_name_lc] = [
+            $appearing_fq_class_name_lc,
+            $appearing_method_name_lc
+        ];
     }
 
     /**
-     * @param  string $method_id
+     * @param  lowercase-string $fq_class_name_lc
+     * @param  lowercase-string $method_name
      *
-     * @return string|null
+     * @return array{0: lowercase-string, 1: lowercase-string}|null
      */
-    public function getDeclaringMethodId($method_id)
+    public function getDeclaringMethodId($fq_class_name_lc, $method_name)
     {
-        $method_id = strtolower($method_id);
+        $fq_class_name_lc = $this->classlikes->getUnAliasedName($fq_class_name_lc);
 
-        list($fq_class_name, $method_name) = explode('::', $method_id);
-
-        $fq_class_name = $this->classlikes->getUnAliasedName($fq_class_name);
-
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
+        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
         if (isset($class_storage->declaring_method_ids[$method_name])) {
             return $class_storage->declaring_method_ids[$method_name];
@@ -847,22 +859,19 @@ class Methods
     /**
      * Get the class this method appears in (vs is declared in, which could give a trait)
      *
-     * @param  string $method_id
+     * @param  lowercase-string $fq_class_name_lc
+     * @param  lowercase-string $method_name_lc
      *
-     * @return string|null
+     * @return array{0: lowercase-string, 1: lowercase-string}|null
      */
-    public function getAppearingMethodId($method_id)
+    public function getAppearingMethodId($fq_class_name_lc, $method_name_lc)
     {
-        $method_id = strtolower($method_id);
+        $fq_class_name_lc = $this->classlikes->getUnAliasedName($fq_class_name_lc);
 
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
-        $fq_class_name = $this->classlikes->getUnAliasedName($fq_class_name);
-
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
-
-        if (isset($class_storage->appearing_method_ids[$method_name])) {
-            return $class_storage->appearing_method_ids[$method_name];
+        if (isset($class_storage->appearing_method_ids[$method_name_lc])) {
+            return $class_storage->appearing_method_ids[$method_name_lc];
         }
     }
 
@@ -891,16 +900,17 @@ class Methods
      */
     public function getCasedMethodId($original_method_id)
     {
-        $method_id = $this->getDeclaringMethodId($original_method_id);
+        list($old_fq_class_name, $old_method_name) = explode('::', $original_method_id);
+
+        $method_id = $this->getDeclaringMethodId($old_fq_class_name, $old_method_name);
 
         if ($method_id === null) {
             return $original_method_id;
         }
 
-        $storage = $this->getStorage($method_id);
+        list($fq_class_name, $new_method_name) = $method_id;
 
-        list($old_fq_class_name, $old_method_name) = explode('::', $original_method_id);
-        list($fq_class_name, $new_method_name) = explode('::', $method_id);
+        $storage = $this->getStorage($fq_class_name, $new_method_name);
 
         if (strtolower($old_method_name) === strtolower($new_method_name)
             && strtolower($old_fq_class_name) !== $old_fq_class_name
@@ -953,9 +963,9 @@ class Methods
             }
         }
 
-        $declaring_method_id = $this->getDeclaringMethodId($method_id);
+        $declaring_method_id = $this->getDeclaringMethodId($fq_class_name, $method_name);
 
-        if (!$declaring_method_id) {
+        if ($declaring_method_id === null) {
             if (CallMap::inCallMap($method_id)) {
                 $declaring_method_id = $method_id;
             } else {
@@ -963,30 +973,29 @@ class Methods
             }
         }
 
-        list($declaring_fq_class_name) = explode('::', $declaring_method_id);
+        list($declaring_fq_class_name) = $declaring_method_id;
 
         return $this->classlike_storage_provider->get($declaring_fq_class_name);
     }
 
     /**
-     * @param  string $method_id
+     * @param  lowercase-string $fq_class_name_lc
+     * @param  lowercase-string $method_name_lc
      *
      * @return MethodStorage
      */
-    public function getStorage($method_id)
+    public function getStorage($fq_class_name_lc, $method_name_lc)
     {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
-
         try {
-            $class_storage = $this->classlike_storage_provider->get($fq_class_name);
+            $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
         } catch (\InvalidArgumentException $e) {
             throw new \UnexpectedValueException($e->getMessage());
         }
 
-        $method_name_lc = strtolower($method_name);
-
         if (!isset($class_storage->methods[$method_name_lc])) {
-            throw new \UnexpectedValueException('$storage should not be null for ' . $method_id);
+            throw new \UnexpectedValueException(
+                '$storage should not be null for ' . $fq_class_name_lc . '::' . $method_name_lc
+            );
         }
 
         return $class_storage->methods[$method_name_lc];

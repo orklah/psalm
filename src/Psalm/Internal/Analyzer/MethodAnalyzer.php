@@ -43,26 +43,31 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     ) {
         $codebase = $source->getCodebase();
 
-        $real_method_id = $source->getFQCLN() . '::' . strtolower((string) $function->name);
+        $method_name_lc = strtolower((string) $function->name);
+
+        $source_fqcln_lc = strtolower($source->getFQCLN());
 
         if (!$storage) {
             try {
-                $storage = $codebase->methods->getStorage($real_method_id);
+                $storage = $codebase->methods->getStorage($source_fqcln_lc, $method_name_lc);
             } catch (\UnexpectedValueException $e) {
-                $class_storage = $codebase->classlike_storage_provider->get((string) $source->getFQCLN());
+                $class_storage = $codebase->classlike_storage_provider->get($source_fqcln_lc);
 
                 if (!$class_storage->parent_classes) {
                     throw $e;
                 }
 
-                $declaring_method_id = $codebase->methods->getDeclaringMethodId($real_method_id);
+                $declaring_method_id = $codebase->methods->getDeclaringMethodId(
+                    $source_fqcln_lc,
+                    $method_name_lc
+                );
 
                 if (!$declaring_method_id) {
                     throw $e;
                 }
 
                 // happens for fake constructors
-                $storage = $codebase->methods->getStorage($declaring_method_id);
+                $storage = $codebase->methods->getStorage($declaring_method_id[0], $declaring_method_id[1]);
             }
         }
 
@@ -301,7 +306,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             }
         }
 
-        $declaring_method_id = $codebase_methods->getDeclaringMethodId($method_id);
+        $declaring_method_id = $codebase_methods->getDeclaringMethodId($fq_classlike_name, $method_name);
 
         if (!$declaring_method_id) {
             $method_name = explode('::', $method_id)[1];
@@ -316,14 +321,14 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             throw new \UnexpectedValueException('$declaring_method_id not expected to be null here');
         }
 
-        $appearing_method_id = $codebase_methods->getAppearingMethodId($method_id);
+        $appearing_method_id = $codebase_methods->getAppearingMethodId($fq_classlike_name, $method_name);
 
         $appearing_method_class = null;
         $appearing_class_storage = null;
         $appearing_method_name = null;
 
         if ($appearing_method_id) {
-            list($appearing_method_class, $appearing_method_name) = explode('::', $appearing_method_id);
+            list($appearing_method_class, $appearing_method_name) = $appearing_method_id;
 
             // if the calling class is the same, we know the method exists, so it must be visible
             if ($appearing_method_class === $context->self) {
@@ -333,13 +338,13 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             $appearing_class_storage = $codebase->classlike_storage_provider->get($appearing_method_class);
         }
 
-        list($declaring_method_class) = explode('::', $declaring_method_id);
+        list($declaring_method_class) = $declaring_method_id;
 
         if ($source->getSource() instanceof TraitAnalyzer && $declaring_method_class === $source->getFQCLN()) {
             return null;
         }
 
-        $storage = $codebase->methods->getStorage($declaring_method_id);
+        $storage = $codebase->methods->getStorage($declaring_method_id[0], $declaring_method_id[1]);
         $visibility = $storage->visibility;
 
         if ($appearing_method_name
@@ -438,33 +443,35 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             }
         }
 
-        $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
+        $declaring_method_id = $codebase->methods->getDeclaringMethodId($fq_classlike_name, $method_name);
 
         if (!$declaring_method_id) {
             // this can happen for methods in the callmap that were not reflected
             return true;
         }
 
-        $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
+        $appearing_method_id = $codebase->methods->getAppearingMethodId($fq_classlike_name, $method_name);
 
         $appearing_method_class = null;
 
         if ($appearing_method_id) {
-            list($appearing_method_class) = explode('::', $appearing_method_id);
+            list($appearing_method_class) = $appearing_method_id;
 
             // if the calling class is the same, we know the method exists, so it must be visible
-            if ($appearing_method_class === $context->self) {
+            if ($appearing_method_class === strtolower($context->self)) {
                 return true;
             }
         }
 
-        list($declaring_method_class) = explode('::', $declaring_method_id);
+        list($declaring_method_class) = $declaring_method_id;
 
-        if ($source->getSource() instanceof TraitAnalyzer && $declaring_method_class === $source->getFQCLN()) {
+        if ($source->getSource() instanceof TraitAnalyzer
+            && $declaring_method_class === strtolower($source->getFQCLN())
+        ) {
             return true;
         }
 
-        $storage = $codebase->methods->getStorage($declaring_method_id);
+        $storage = $codebase->methods->getStorage($declaring_method_id[0], $declaring_method_id[1]);
 
         switch ($storage->visibility) {
             case ClassLikeAnalyzer::VISIBILITY_PUBLIC:
@@ -521,10 +528,10 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     ) {
         $config = $codebase->config;
 
-        $implementer_method_id = $implementer_classlike_storage->name . '::'
-            . strtolower($guide_method_storage->cased_name ?: '');
-
-        $implementer_declaring_method_id = $codebase->methods->getDeclaringMethodId($implementer_method_id);
+        $implementer_declaring_method_id = $codebase->methods->getDeclaringMethodId(
+            strtolower($implementer_classlike_storage->name),
+            strtolower($guide_method_storage->cased_name ?: '')
+        );
 
         $cased_implementer_method_id = $implementer_classlike_storage->name . '::'
             . $implementer_method_storage->cased_name;
@@ -658,7 +665,9 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             if (IssueBuffer::accepts(
                 new MissingImmutableAnnotation(
                     $cased_guide_method_id . ' is marked immutable, but '
-                        . $implementer_method_id . ' is not marked immutable',
+                        . $implementer_classlike_storage->name . '::'
+                        . ($guide_method_storage->cased_name ?: '')
+                        . ' is not marked immutable',
                     $code_location
                 ),
                 $suppressed_issues

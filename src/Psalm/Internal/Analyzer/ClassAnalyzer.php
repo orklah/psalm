@@ -242,7 +242,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             }
 
             try {
-                $parent_class_storage = $classlike_storage_provider->get($parent_fq_class_name);
+                $parent_class_storage = $classlike_storage_provider->get(strtolower($parent_fq_class_name));
 
                 $code_location = new CodeLocation(
                     $this,
@@ -404,8 +404,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 null
             );
 
+            $fq_interface_name_lc = strtolower($fq_interface_name);
+
             try {
-                $interface_storage = $classlike_storage_provider->get($fq_interface_name);
+                $interface_storage = $classlike_storage_provider->get($fq_interface_name_lc);
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
@@ -430,8 +432,8 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 }
             }
 
-            if (isset($storage->template_type_implements_count[strtolower($fq_interface_name)])) {
-                $expected_param_count = $storage->template_type_implements_count[strtolower($fq_interface_name)];
+            if (isset($storage->template_type_implements_count[$fq_interface_name_lc])) {
+                $expected_param_count = $storage->template_type_implements_count[$fq_interface_name_lc];
 
                 $this->checkTemplateParams(
                     $codebase,
@@ -530,10 +532,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 }
             }
 
-            foreach ($interface_storage->methods as $method_name => $interface_method_storage) {
+            foreach ($interface_storage->methods as $interface_method_name_lc => $interface_method_storage) {
                 if ($interface_method_storage->visibility === self::VISIBILITY_PUBLIC) {
                     $implementer_declaring_method_id = $codebase->methods->getDeclaringMethodId(
-                        $this->fq_class_name . '::' . $method_name
+                        $this->fq_class_name . '::' . $interface_method_name_lc
                     );
 
                     $implementer_method_storage = null;
@@ -552,7 +554,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     if (!$implementer_method_storage) {
                         if (IssueBuffer::accepts(
                             new UnimplementedInterfaceMethod(
-                                'Method ' . $method_name . ' is not defined on class ' .
+                                'Method ' . $interface_method_name_lc . ' is not defined on class ' .
                                 $storage->name,
                                 $code_location
                             ),
@@ -565,7 +567,8 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     }
 
                     $implementer_appearing_method_id = $codebase->methods->getAppearingMethodId(
-                        $this->fq_class_name . '::' . $method_name
+                        strtolower($this->fq_class_name),
+                        $interface_method_name_lc
                     );
 
                     $implementer_visibility = $implementer_method_storage->visibility;
@@ -655,14 +658,18 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
         if (!$storage->abstract) {
             foreach ($storage->declaring_method_ids as $declaring_method_id) {
-                $method_storage = $codebase->methods->getStorage($declaring_method_id);
+                $method_storage = $codebase->methods->getStorage(
+                    $declaring_method_id[0],
+                    $declaring_method_id[1]
+                );
 
-                list($declaring_class_name, $method_name) = explode('::', $declaring_method_id);
+                $declaring_class_name = $declaring_method_id[0];
+                $method_name_lc = $declaring_method_id[1];
 
                 if ($method_storage->abstract) {
                     if (IssueBuffer::accepts(
                         new UnimplementedAbstractMethod(
-                            'Method ' . $method_name . ' is not defined on class ' .
+                            'Method ' . $method_name_lc . ' is not defined on class ' .
                             $this->fq_class_name . ', defined abstract in ' . $declaring_class_name,
                             new CodeLocation(
                                 $this,
@@ -684,14 +691,14 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 $appearing_property_id,
                 true
             );
-            $property_class_storage = $classlike_storage_provider->get((string)$property_class_name);
+            $property_class_storage = $classlike_storage_provider->get(strtolower((string)$property_class_name));
 
             $property_storage = $property_class_storage->properties[$property_name];
 
             if (isset($storage->overridden_property_ids[$property_name])) {
                 foreach ($storage->overridden_property_ids[$property_name] as $overridden_property_id) {
                     list($guide_class_name) = explode('::$', $overridden_property_id);
-                    $guide_class_storage = $classlike_storage_provider->get($guide_class_name);
+                    $guide_class_storage = $classlike_storage_provider->get(strtolower($guide_class_name));
                     $guide_property_storage = $guide_class_storage->properties[$property_name];
 
                     if ($property_storage->visibility > $guide_property_storage->visibility
@@ -1379,7 +1386,9 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 }
 
                 $fq_trait_name_resolved = $codebase->classlikes->getUnAliasedName($fq_trait_name);
-                $trait_storage = $codebase->classlike_storage_provider->get($fq_trait_name_resolved);
+                $trait_storage = $codebase->classlike_storage_provider->get(
+                    strtolower($fq_trait_name_resolved)
+                );
 
                 if ($trait_storage->deprecated) {
                     if (IssueBuffer::accepts(
@@ -1690,7 +1699,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         $return_type_location = null;
         $secondary_return_type_location = null;
 
-        $actual_method_storage = $codebase->methods->getStorage($actual_method_id);
+        $actual_method_storage = $codebase->methods->getStorage(...explode('::', $actual_method_id));
 
         if ($actual_method_id) {
             $return_type_location = $codebase->methods->getMethodReturnTypeLocation(
