@@ -92,7 +92,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
                     $fq_class_name = $class_storage->parent_class;
 
-                    $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                     $fq_class_name = $class_storage->name;
                 } elseif ($context->self) {
@@ -362,7 +362,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
             if ($stmt->name instanceof PhpParser\Node\Identifier && !$is_mock) {
                 $method_name_lc = strtolower($stmt->name->name);
-                $method_id = $fq_class_name . '::' . $method_name_lc;
+                $method_id = strtolower($fq_class_name) . '::' . $method_name_lc;
                 $cased_method_id = $fq_class_name . '::' . $stmt->name->name;
 
                 if ($codebase->store_node_types
@@ -387,7 +387,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             continue;
                         }
 
-                        $intersection_method_id = $intersection_type->value . '::' . $method_name_lc;
+                        $intersection_method_id = strtolower($intersection_type->value) . '::' . $method_name_lc;
 
                         if ($codebase->methods->methodExists($intersection_method_id)) {
                             $method_id = $intersection_method_id;
@@ -501,7 +501,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             new PhpParser\Node\Arg(new PhpParser\Node\Expr\Array_($array_values)),
                         ];
 
-                        $method_id = $fq_class_name . '::__callstatic';
+                        $method_id = strtolower($fq_class_name) . '::__callstatic';
                     }
 
                     if (!$context->check_methods) {
@@ -551,7 +551,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     return;
                 }
 
-                $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                 if ($class_storage->user_defined
                     && $context->self
@@ -832,10 +832,10 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     );
                 }
 
-                $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
+                $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $method_id));
 
                 if (!$return_type_candidate && $declaring_method_id && $declaring_method_id !== $method_id) {
-                    list($declaring_fq_class_name, $declaring_method_name) = explode('::', $declaring_method_id);
+                    list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
 
                     if ($codebase->methods->return_type_provider->has($declaring_fq_class_name)) {
                         $return_type_candidate = $codebase->methods->return_type_provider->getReturnType(

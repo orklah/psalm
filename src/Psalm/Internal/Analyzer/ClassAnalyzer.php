@@ -1093,7 +1093,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 $appearing_property_id,
                 true
             );
-            $property_class_storage = $classlike_storage_provider->get($property_class_name);
+            $property_class_storage = $classlike_storage_provider->get(strtolower($property_class_name));
 
             $property = $property_class_storage->properties[$property_name];
 
@@ -1717,10 +1717,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         );
 
         if ($return_type && $class_storage->template_type_extends) {
-            $declaring_method_id = $codebase->methods->getDeclaringMethodId($analyzed_method_id);
+            $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $analyzed_method_id));
 
             if ($declaring_method_id) {
-                $declaring_class_name = explode('::', $declaring_method_id)[0];
+                $declaring_class_name = $declaring_method_id[0];
 
                 $class_storage = $codebase->classlike_storage_provider->get($declaring_class_name);
             }

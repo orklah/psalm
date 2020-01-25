@@ -1715,7 +1715,7 @@ class ClassLikes
         Type\Union $type,
         $visibility
     ) {
-        $storage = $this->classlike_storage_provider->get($class_name);
+        $storage = $this->classlike_storage_provider->get(strtolower($class_name));
 
         if ($visibility === ReflectionProperty::IS_PUBLIC) {
             $storage->public_class_constants[$const_name] = $type;
@@ -1735,7 +1735,7 @@ class ClassLikes
         $codebase = $project_analyzer->getCodebase();
 
         foreach ($classlike_storage->appearing_method_ids as $method_name => $appearing_method_id) {
-            list($appearing_fq_classlike_name) = explode('::', $appearing_method_id);
+            list($appearing_fq_classlike_name) = $appearing_method_id;
 
             if ($appearing_fq_classlike_name !== $classlike_storage->name) {
                 continue;

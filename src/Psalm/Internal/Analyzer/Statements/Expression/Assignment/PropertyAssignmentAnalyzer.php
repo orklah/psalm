@@ -97,7 +97,7 @@ class PropertyAssignmentAnalyzer
             );
 
             if ($class_property_type) {
-                $class_storage = $codebase->classlike_storage_provider->get($context->self);
+                $class_storage = $codebase->classlike_storage_provider->get(strtolower($context->self));
 
                 $class_property_type = ExpressionAnalyzer::fleshOutType(
                     $codebase,
@@ -590,7 +590,7 @@ class PropertyAssignmentAnalyzer
                     }
                 }
 
-                $class_storage = $codebase->classlike_storage_provider->get($declaring_property_class);
+                $class_storage = $codebase->classlike_storage_provider->get(strtolower($declaring_property_class));
 
                 $property_storage = null;
 

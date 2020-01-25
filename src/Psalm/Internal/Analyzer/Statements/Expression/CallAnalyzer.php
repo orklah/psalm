@@ -310,7 +310,10 @@ class CallAnalyzer
             ) {
                 $documenting_method_id = $declaring_class_storage->documenting_method_ids[$method_name];
 
-                $documenting_method_storage = $codebase->methods->getStorage($documenting_method_id);
+                $documenting_method_storage = $codebase->methods->getStorage(
+                    $documenting_method_id[0],
+                    $documenting_method_id[1]
+                );
 
                 if ($documenting_method_storage->template_types) {
                     $method_storage = $documenting_method_storage;
@@ -1225,7 +1228,7 @@ class CallAnalyzer
             );
 
             if ($declaring_method_id && $declaring_method_id !== $method_id_parts) {
-                list($self_fq_class_name) = $declaring_method_id[0];
+                $self_fq_class_name = $declaring_method_id[0];
                 $class_storage = $codebase->classlike_storage_provider->get($self_fq_class_name);
             }
 

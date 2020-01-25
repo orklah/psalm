@@ -1603,7 +1603,7 @@ class TypeAnalyzer
                         true
                     );
 
-                    $class_storage = $codebase->classlike_storage_provider->get($property_declaring_class);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($property_declaring_class));
 
                     $input_property_storage = $class_storage->properties[$property_name];
 

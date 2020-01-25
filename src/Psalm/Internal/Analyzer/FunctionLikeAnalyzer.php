@@ -421,7 +421,7 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
             );
 
             if ($types_without_docblocks) {
-                $params = $codebase->methods->getMethodParams($cased_method_id, $this);
+                $params = $codebase->methods->getMethodParams(strtolower($cased_method_id), $this);
             }
         }
 

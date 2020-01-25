@@ -195,7 +195,7 @@ class ReturnAnalyzer
                     $local_return_type = $source->getLocalReturnType($storage->return_type);
 
                     if ($storage instanceof \Psalm\Storage\MethodStorage) {
-                        list($fq_class_name, $method_name) = explode('::', $cased_method_id);
+                        list($fq_class_name, $method_name) = explode('::', strtolower($cased_method_id));
 
                         $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
 

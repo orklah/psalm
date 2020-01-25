@@ -103,13 +103,13 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
 
         $original_method_id = $method_id;
 
-        $method_id = $codebase_methods->getDeclaringMethodId($method_id);
+        $method_id = $codebase_methods->getDeclaringMethodId(...explode('::', $method_id));
 
         if (!$method_id) {
             throw new \LogicException('Declaring method for ' . $original_method_id . ' should not be null');
         }
 
-        $storage = $codebase_methods->getStorage($method_id);
+        $storage = $codebase_methods->getStorage($method_id[0], $method_id[1]);
 
         if (!$storage->is_static) {
             if ($self_call) {
@@ -197,8 +197,9 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     ) {
         $codebase_methods = $codebase->methods;
 
-        $method_id = (string) $codebase_methods->getDeclaringMethodId($method_id);
-        $storage = $codebase_methods->getStorage($method_id);
+        list($fq_classlike_name, $method_name) = explode('::', $method_id);
+        list($fq_classlike_name, $method_name) = $codebase_methods->getDeclaringMethodId($fq_classlike_name, $method_name);
+        $storage = $codebase_methods->getStorage($fq_classlike_name, $method_name);
 
         if ($storage->deprecated) {
             if (IssueBuffer::accepts(

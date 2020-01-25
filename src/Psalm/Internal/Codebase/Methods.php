@@ -221,12 +221,12 @@ class Methods
                         // also store failures in case the method is added later
                         $this->file_reference_provider->addMethodReferenceToClassMember(
                             $calling_function_id,
-                            strtolower($overridden_method_id)
+                            $overridden_method_id[0] . '::' . $overridden_method_id[1]
                         );
                     } elseif ($file_path) {
                         $this->file_reference_provider->addFileReferenceToClassMember(
                             $file_path,
-                            strtolower($overridden_method_id)
+                            $overridden_method_id[0] . '::' . $overridden_method_id[1]
                         );
                     }
                 }
@@ -403,9 +403,9 @@ class Methods
 
             $overridden_method_id = $class_storage->documenting_method_ids[$appearing_method_name];
 
-            $overridden_storage = $this->getStorage($overridden_method_id);
+            $overridden_storage = $this->getStorage($overridden_method_id[0], $overridden_method_id[1]);
 
-            list($overriding_fq_class_name) = explode('::', $overridden_method_id);
+            list($overriding_fq_class_name) = $overridden_method_id;
 
             foreach ($params as $i => $param) {
                 if (isset($overridden_storage->params[$i]->type)
@@ -439,7 +439,7 @@ class Methods
             return $params;
         }
 
-        throw new \UnexpectedValueException('Cannot get method params for ' . $method_id);
+        throw new \UnexpectedValueException('Cannot get method params for ' . $method_id[0] . '::' . $method_id[1]);
     }
 
     public static function localizeType(
@@ -448,7 +448,7 @@ class Methods
         string $appearing_fq_class_name,
         string $base_fq_class_name
     ) : Type\Union {
-        $class_storage = $codebase->classlike_storage_provider->get($appearing_fq_class_name);
+        $class_storage = $codebase->classlike_storage_provider->get(strtolower($appearing_fq_class_name));
         $extends = $class_storage->template_type_extends;
 
         if (!$extends) {
@@ -540,7 +540,7 @@ class Methods
      */
     public function isVariadic($method_id)
     {
-        $declaring_method_id = $this->getDeclaringMethodId(explode('::', $method_id));
+        $declaring_method_id = $this->getDeclaringMethodId(...explode('::', $method_id));
 
         if (!$declaring_method_id) {
             return false;
@@ -602,7 +602,7 @@ class Methods
 
         if (!$appearing_fq_class_storage->user_defined
             && !$appearing_fq_class_storage->stubbed
-            && CallMap::inCallMap($appearing_method_id)
+            && CallMap::inCallMap($appearing_method_id[0] . '::' . $appearing_method_id[1])
         ) {
             if ($appearing_method_id === 'Closure::fromcallable'
                 && isset($args[0])
@@ -637,7 +637,7 @@ class Methods
                 }
             }
 
-            $callmap_callables = CallMap::getCallablesFromCallMap($appearing_method_id);
+            $callmap_callables = CallMap::getCallablesFromCallMap($appearing_method_id[0] . '::' . $appearing_method_id[1]);
 
             if (!$callmap_callables || $callmap_callables[0]->return_type === null) {
                 throw new \UnexpectedValueException('Shouldn’t get here');
@@ -669,7 +669,7 @@ class Methods
         $candidate_type = null;
 
         foreach ($class_storage->overridden_method_ids[$appearing_method_name] as $overridden_method_id) {
-            $overridden_storage = $this->getStorage($overridden_method_id);
+            $overridden_storage = $this->getStorage($overridden_method_id[0], $overridden_method_id[1]);
 
             if ($overridden_storage->return_type) {
                 if ($overridden_storage->return_type->isNull()) {
@@ -681,7 +681,7 @@ class Methods
                     continue;
                 }
 
-                list($fq_overridden_class) = explode('::', $overridden_method_id);
+                list($fq_overridden_class) = $overridden_method_id;
 
                 $overridden_class_storage =
                     $this->classlike_storage_provider->get($fq_overridden_class);
@@ -776,10 +776,10 @@ class Methods
         $storage = $this->getStorage($method_id[0], $method_id[1]);
 
         if (!$storage->return_type_location) {
-            $overridden_method_ids = $this->getOverriddenMethodIds($method_id);
+            $overridden_method_ids = $this->getOverriddenMethodIds($method_id[0] . '::' . $method_id[1]);
 
             foreach ($overridden_method_ids as $overridden_method_id) {
-                $overridden_storage = $this->getStorage($overridden_method_id);
+                $overridden_storage = $this->getStorage($overridden_method_id[0], $overridden_method_id[1]);
 
                 if ($overridden_storage->return_type_location) {
                     $defined_location = $overridden_storage->return_type_location;
@@ -845,7 +845,7 @@ class Methods
     {
         $fq_class_name_lc = $this->classlikes->getUnAliasedName($fq_class_name_lc);
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
+        $class_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name_lc));
 
         if (isset($class_storage->declaring_method_ids[$method_name])) {
             return $class_storage->declaring_method_ids[$method_name];
@@ -868,7 +868,7 @@ class Methods
     {
         $fq_class_name_lc = $this->classlikes->getUnAliasedName($fq_class_name_lc);
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
+        $class_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name_lc));
 
         if (isset($class_storage->appearing_method_ids[$method_name_lc])) {
             return $class_storage->appearing_method_ids[$method_name_lc];
@@ -928,13 +928,13 @@ class Methods
      */
     public function getUserMethodStorage($method_id)
     {
-        $declaring_method_id = $this->getDeclaringMethodId($method_id);
+        $declaring_method_id = $this->getDeclaringMethodId(...explode('::', $method_id));
 
         if (!$declaring_method_id) {
             throw new \UnexpectedValueException('$storage should not be null for ' . $method_id);
         }
 
-        $storage = $this->getStorage($declaring_method_id);
+        $storage = $this->getStorage($declaring_method_id[0], $declaring_method_id[1]);
 
         if (!$storage->location) {
             return null;

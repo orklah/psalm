@@ -582,7 +582,7 @@ abstract class ClassLikeAnalyzer extends SourceAnalyzer implements StatementsSou
             return $emit_issues ? null : true;
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get($declaring_property_class);
+        $class_storage = $codebase->classlike_storage_provider->get(strtolower($declaring_property_class));
 
         if (!isset($class_storage->properties[$property_name])) {
             throw new \UnexpectedValueException('$storage should not be null for ' . $property_id);

@@ -892,7 +892,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             || ($config->use_phpdoc_method_without_magic_or_parent
                 && isset($class_storage->pseudo_methods[$method_name_lc]))
         ) {
-            $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+            $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
             if (($is_interface || $config->use_phpdoc_method_without_magic_or_parent)
                 && isset($class_storage->pseudo_methods[$method_name_lc])
@@ -1079,9 +1079,9 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
         $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $method_id));
 
-        $call_map_id = strtolower(
-            $declaring_method_id ?: $method_id
-        );
+        $call_map_id = $declaring_method_id !== null
+            ? $declaring_method_id[0] . '::' . $declaring_method_id[1]
+            : $method_id;
 
         $can_memoize = false;
 
@@ -1103,7 +1103,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             }
 
             if (!$return_type_candidate && $declaring_method_id && $declaring_method_id !== $method_id) {
-                list($declaring_fq_class_name, $declaring_method_name) = explode('::', $declaring_method_id);
+                list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
 
                 if ($codebase->methods->return_type_provider->has($declaring_fq_class_name)) {
                     $return_type_candidate = $codebase->methods->return_type_provider->getReturnType(
@@ -1575,7 +1575,10 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 || $class_storage->methods[$method_name]->inherited_return_type)
         ) {
             foreach ($non_trait_class_storage->overridden_method_ids[$method_name] as $overridden_method_id) {
-                $overridden_storage = $codebase->methods->getStorage($overridden_method_id);
+                $overridden_storage = $codebase->methods->getStorage(
+                    $overridden_method_id[0],
+                    $overridden_method_id[1]
+                );
 
                 if (!$overridden_storage->return_type) {
                     continue;
@@ -1585,7 +1588,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     continue;
                 }
 
-                list($fq_overridden_class) = explode('::', $overridden_method_id);
+                $fq_overridden_class = $overridden_method_id[0];
 
                 $overridden_class_storage = $codebase->classlike_storage_provider->get($fq_overridden_class);
 

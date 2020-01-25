@@ -297,7 +297,7 @@ class ClassConstFetchAnalyzer
                 }
             }
 
-            $class_const_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+            $class_const_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
             if ($class_const_storage->deprecated && $fq_class_name !== $context->self) {
                 if (IssueBuffer::accepts(
