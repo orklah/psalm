@@ -1037,15 +1037,15 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 if ($config->after_method_checks) {
                     $file_manipulations = [];
 
-                    $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
+                    $appearing_method_id = $codebase->methods->getAppearingMethodId(...explode('::', $method_id));
 
-                    if ($appearing_method_id && $declaring_method_id) {
+                    if ($appearing_method_id !== null && $declaring_method_id) {
                         foreach ($config->after_method_checks as $plugin_fq_class_name) {
                             $plugin_fq_class_name::afterMethodCallAnalysis(
                                 $stmt,
                                 $method_id,
-                                $appearing_method_id,
-                                $declaring_method_id,
+                                $appearing_method_id[0] . '::' . $appearing_method_id[1],
+                                $declaring_method_id[0] . '::' . $declaring_method_id[1],
                                 $context,
                                 $source,
                                 $codebase,

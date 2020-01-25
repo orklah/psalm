@@ -622,7 +622,7 @@ class Scanner
             }
 
             foreach ($file_storage->classlikes_in_file as $fq_classlike_name) {
-                $this->codebase->exhumeClassLikeStorage($fq_classlike_name, $file_path);
+                $this->codebase->exhumeClassLikeStorage(strtolower($fq_classlike_name), $file_path);
             }
 
             foreach ($file_storage->required_classes as $fq_classlike_name) {

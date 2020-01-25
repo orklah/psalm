@@ -46,7 +46,7 @@ class FunctionCasingChecker implements AfterFunctionCallAnalysisInterface, After
         }
 
         try {
-            $function_storage = $codebase->methods->getStorage($declaring_method_id);
+            $function_storage = $codebase->methods->getStorage(...explode('::', $declaring_method_id));
 
             if ($function_storage->cased_name === '__call') {
                 return;

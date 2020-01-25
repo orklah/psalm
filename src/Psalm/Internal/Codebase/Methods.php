@@ -738,21 +738,21 @@ class Methods
      */
     public function getMethodReturnsByRef($method_id)
     {
-        $method_id = $this->getDeclaringMethodId($method_id);
+        $method_id = $this->getDeclaringMethodId(...explode('::', $method_id));
 
         if (!$method_id) {
             return false;
         }
 
-        list($fq_class_name) = explode('::', $method_id);
+        list($fq_class_name) = $method_id;
 
         $fq_class_storage = $this->classlike_storage_provider->get($fq_class_name);
 
-        if (!$fq_class_storage->user_defined && CallMap::inCallMap($method_id)) {
+        if (!$fq_class_storage->user_defined && CallMap::inCallMap($method_id[0] . '::' . $method_id[1])) {
             return false;
         }
 
-        $storage = $this->getStorage($method_id);
+        $storage = $this->getStorage($method_id[0], $method_id[1]);
 
         return $storage->returns_by_ref;
     }
