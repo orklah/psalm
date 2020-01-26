@@ -92,7 +92,7 @@ class Context
     public $include_location = null;
 
     /**
-     * @var string|null
+     * @var lowercase-string|null
      */
     public $self;
 
@@ -343,7 +343,7 @@ class Context
     public $error_suppressing = false;
 
     /**
-     * @param string|null $self
+     * @param lowercase-string|null $self
      */
     public function __construct($self = null)
     {

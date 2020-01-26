@@ -139,7 +139,7 @@ class Properties
     /**
      * @param  string $property_id
      *
-     * @return string|null
+     * @return lowercase-string|null
      */
     public function getDeclaringClassForProperty($property_id, bool $read_mode, StatementsSource $source = null)
     {
@@ -153,7 +153,7 @@ class Properties
                 $source,
                 null
             )) {
-                return $fq_class_name;
+                return strtolower($fq_class_name);
             }
         }
 
@@ -169,7 +169,7 @@ class Properties
      *
      * @param  string $property_id
      *
-     * @return string|null
+     * @return lowercase-string|null
      */
     public function getAppearingClassForProperty($property_id, bool $read_mode, StatementsSource $source = null)
     {
@@ -183,7 +183,7 @@ class Properties
                 $source,
                 null
             )) {
-                return $fq_class_name;
+                return strtolower($fq_class_name);
             }
         }
 
@@ -208,7 +208,7 @@ class Properties
 
         list($fq_class_name, $property_name) = explode('::$', $property_id);
 
-        $class_storage = $this->classlike_storage_provider->get($fq_class_name);
+        $class_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name));
 
         if (isset($class_storage->declaring_property_ids[$property_name])) {
             $declaring_property_class = $class_storage->declaring_property_ids[$property_name];
@@ -256,7 +256,7 @@ class Properties
 
         if (isset($class_storage->declaring_property_ids[$property_name])) {
             $declaring_property_class = $class_storage->declaring_property_ids[$property_name];
-            $declaring_class_storage = $this->classlike_storage_provider->get(strtolower($declaring_property_class));
+            $declaring_class_storage = $this->classlike_storage_provider->get($declaring_property_class);
 
             if (isset($declaring_class_storage->properties[$property_name])) {
                 $storage = $declaring_class_storage->properties[$property_name];

@@ -375,7 +375,6 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
         if ($no_method_id) {
             return self::checkMethodArgs(
                 null,
-                null,
                 $stmt->args,
                 null,
                 $context,
@@ -1132,7 +1131,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             $class_storage = $codebase->methods->getClassLikeStorageForMethod($method_id);
 
             if (!$return_type_candidate) {
-                if ($call_map_id && CallMap::inCallMap($call_map_id)) {
+                if ($call_map_id && CallMap::inCallMap((string) $call_map_id)) {
                     if (($template_result->generic_params || $class_storage->stubbed)
                         && isset($class_storage->methods[$method_name_lc])
                         && ($method_storage = $class_storage->methods[$method_name_lc])
@@ -1147,7 +1146,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             );
                         }
                     } else {
-                        $callmap_callables = CallMap::getCallablesFromCallMap($call_map_id);
+                        $callmap_callables = CallMap::getCallablesFromCallMap((string) $call_map_id);
 
                         if (!$callmap_callables || $callmap_callables[0]->return_type === null) {
                             throw new \UnexpectedValueException('Shouldn’t get here');
@@ -1177,7 +1176,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                                 new \Psalm\Issue\UnusedMethodCall(
                                     'The call to ' . $cased_method_id . ' is not used',
                                     new CodeLocation($statements_analyzer, $stmt->name),
-                                    $method_id
+                                    (string) $method_id
                                 ),
                                 $statements_analyzer->getSuppressedIssues()
                             )) {

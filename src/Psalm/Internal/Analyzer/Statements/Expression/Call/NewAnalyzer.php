@@ -75,7 +75,8 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
             } else {
                 switch ($stmt->class->parts[0]) {
                     case 'self':
-                        $fq_class_name = $context->self;
+                        $class_storage = $codebase->classlike_storage_provider->get($context->self);
+                        $fq_class_name = $class_storage->name;
                         break;
 
                     case 'parent':
@@ -84,7 +85,8 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
 
                     case 'static':
                         // @todo maybe we can do better here
-                        $fq_class_name = $context->self;
+                        $class_storage = $codebase->classlike_storage_provider->get($context->self);
+                        $fq_class_name = $class_storage->name;
                         $can_extend = true;
                         break;
                 }

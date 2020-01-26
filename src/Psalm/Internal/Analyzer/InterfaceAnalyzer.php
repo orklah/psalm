@@ -101,7 +101,7 @@ class InterfaceAnalyzer extends ClassLikeAnalyzer
 
                 $type_provider = new \Psalm\Internal\Provider\NodeDataProvider();
 
-                $method_analyzer->analyze(new \Psalm\Context($this->getFQCLN()), $type_provider);
+                $method_analyzer->analyze(new \Psalm\Context(strtolower($this->getFQCLN())), $type_provider);
 
                 $actual_method_id = $method_analyzer->getMethodId();
 

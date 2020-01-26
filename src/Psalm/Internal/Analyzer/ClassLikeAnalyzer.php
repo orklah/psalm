@@ -329,7 +329,7 @@ abstract class ClassLikeAnalyzer extends SourceAnalyzer implements StatementsSou
         foreach ($class_storage->invalid_dependencies as $dependency_class_name) {
             // if the implemented/extended class is stubbed, it may not yet have
             // been hydrated
-            if ($codebase->classlike_storage_provider->has($dependency_class_name)) {
+            if ($codebase->classlike_storage_provider->has(strtolower($dependency_class_name))) {
                 continue;
             }
 
@@ -346,19 +346,21 @@ abstract class ClassLikeAnalyzer extends SourceAnalyzer implements StatementsSou
             }
         }
 
-        if (($class_exists && !$codebase->classHasCorrectCasing($fq_class_name)) ||
-            ($interface_exists && !$codebase->interfaceHasCorrectCasing($fq_class_name))
-        ) {
-            if ($codebase->classlikes->isUserDefined(strtolower($aliased_name))) {
-                if (IssueBuffer::accepts(
-                    new InvalidClass(
-                        'Class or interface ' . $fq_class_name . ' has wrong casing',
-                        $code_location,
-                        $fq_class_name
-                    ),
-                    $suppressed_issues
-                )) {
-                    // fall through here
+        if (!$inferred) {
+            if (($class_exists && !$codebase->classHasCorrectCasing($fq_class_name)) ||
+                ($interface_exists && !$codebase->interfaceHasCorrectCasing($fq_class_name))
+            ) {
+                if ($codebase->classlikes->isUserDefined(strtolower($aliased_name))) {
+                    if (IssueBuffer::accepts(
+                        new InvalidClass(
+                            'Class or interface ' . $fq_class_name . ' has wrong casing',
+                            $code_location,
+                            $fq_class_name
+                        ),
+                        $suppressed_issues
+                    )) {
+                        // fall through here
+                    }
                 }
             }
         }
@@ -578,11 +580,13 @@ abstract class ClassLikeAnalyzer extends SourceAnalyzer implements StatementsSou
             return $emit_issues ? null : true;
         }
 
-        if ($source->getSource() instanceof TraitAnalyzer && $declaring_property_class === $source->getFQCLN()) {
+        if ($source->getSource() instanceof TraitAnalyzer
+            && $declaring_property_class === strtolower((string) $source->getFQCLN())
+        ) {
             return $emit_issues ? null : true;
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get(strtolower($declaring_property_class));
+        $class_storage = $codebase->classlike_storage_provider->get($declaring_property_class);
 
         if (!isset($class_storage->properties[$property_name])) {
             throw new \UnexpectedValueException('$storage should not be null for ' . $property_id);

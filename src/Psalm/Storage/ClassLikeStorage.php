@@ -217,7 +217,7 @@ class ClassLikeStorage
     public $used_traits = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $trait_alias_map = [];
 
@@ -272,7 +272,7 @@ class ClassLikeStorage
     public $appearing_method_ids = [];
 
     /**
-     * @var array<lowercase-string, array<string, string>>
+     * @var array<lowercase-string, array<string, MethodIdentifier>>
      */
     public $overridden_method_ids = [];
 
@@ -307,7 +307,7 @@ class ClassLikeStorage
     public $pseudo_property_get_types = [];
 
     /**
-     * @var array<string, string>
+     * @var array<string, lowercase-string>
      */
     public $declaring_property_ids = [];
 

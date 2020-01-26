@@ -613,7 +613,7 @@ class PropertyFetchAnalyzer
                 $context->collect_references ? new CodeLocation($statements_analyzer->getSource(), $stmt) : null
             )
             ) {
-                if ($fq_class_name !== $context->self
+                if (strtolower($fq_class_name) !== $context->self
                     && $context->self
                     && $codebase->properties->propertyExists(
                         $context->self . '::$' . $prop_name,
@@ -697,7 +697,7 @@ class PropertyFetchAnalyzer
             );
 
             if ($codebase->properties_to_rename) {
-                $declaring_property_id = strtolower($declaring_property_class) . '::$' . $prop_name;
+                $declaring_property_id = $declaring_property_class . '::$' . $prop_name;
 
                 foreach ($codebase->properties_to_rename as $original_property_id => $new_property_name) {
                     if ($declaring_property_id === $original_property_id) {
@@ -718,7 +718,7 @@ class PropertyFetchAnalyzer
             }
 
             $declaring_class_storage = $codebase->classlike_storage_provider->get(
-                strtolower($declaring_property_class)
+                $declaring_property_class
             );
 
             if (isset($declaring_class_storage->properties[$prop_name])) {
@@ -792,8 +792,8 @@ class PropertyFetchAnalyzer
                 $class_property_type = ExpressionAnalyzer::fleshOutType(
                     $codebase,
                     clone $class_property_type,
-                    $declaring_property_class,
-                    $declaring_property_class,
+                    $declaring_class_storage->name,
+                    $declaring_class_storage->name,
                     $declaring_class_storage->parent_class
                 );
 
@@ -1155,7 +1155,7 @@ class PropertyFetchAnalyzer
             $statements_analyzer
         );
 
-        $declaring_property_id = strtolower((string) $declaring_property_class) . '::$' . $prop_name;
+        $declaring_property_id = (string) $declaring_property_class . '::$' . $prop_name;
 
         if ($codebase->alter_code && $stmt->class instanceof PhpParser\Node\Name) {
             $moved_class = $codebase->classlikes->handleClassLikeReferenceInMigration(
@@ -1199,7 +1199,7 @@ class PropertyFetchAnalyzer
             }
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get(strtolower((string)$declaring_property_class));
+        $class_storage = $codebase->classlike_storage_provider->get((string)$declaring_property_class);
         $property = $class_storage->properties[$prop_name];
 
         if ($var_id) {
@@ -1207,8 +1207,8 @@ class PropertyFetchAnalyzer
                 $context->vars_in_scope[$var_id] = ExpressionAnalyzer::fleshOutType(
                     $codebase,
                     clone $property->type,
-                    $declaring_property_class,
-                    $declaring_property_class,
+                    $class_storage->name,
+                    $class_storage->name,
                     $class_storage->parent_class
                 );
             } else {

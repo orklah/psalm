@@ -620,6 +620,8 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
 
             $fq_classlike_name = array_pop($this->fq_classlike_names);
 
+            $fq_classlike_name_lc = strtolower($fq_classlike_name);
+
             if (PropertyMap::inPropertyMap($fq_classlike_name)) {
                 $public_mapped_properties = PropertyMap::getPropertyMap()[strtolower($fq_classlike_name)];
 
@@ -641,9 +643,9 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
                     $storage->properties[$property_name]->type = $property_type;
                     $storage->properties[$property_name]->visibility = ClassLikeAnalyzer::VISIBILITY_PUBLIC;
 
-                    $property_id = $fq_classlike_name . '::$' . $property_name;
+                    $property_id = $fq_classlike_name_lc . '::$' . $property_name;
 
-                    $storage->declaring_property_ids[$property_name] = $fq_classlike_name;
+                    $storage->declaring_property_ids[$property_name] = $fq_classlike_name_lc;
                     $storage->appearing_property_ids[$property_name] = $property_id;
                 }
             }
@@ -1778,14 +1780,14 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
                 strpos($fq_classlike_name, '\\') === false
             ) {
                 $this->codebase->methods->setDeclaringMethodId(
-                    $fq_classlike_name,
+                    $fq_classlike_name_lc,
                     '::__construct',
                     $fq_classlike_name_lc,
                     $method_name_lc
                 );
 
                 $this->codebase->methods->setAppearingMethodId(
-                    $fq_classlike_name,
+                    $fq_classlike_name_lc,
                     '::__construct',
                     $fq_classlike_name_lc,
                     $method_name_lc
@@ -3327,9 +3329,11 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
 
             $fq_classlike_name = $this->fq_classlike_names[count($this->fq_classlike_names) - 1];
 
-            $property_id = $fq_classlike_name . '::$' . $property->name->name;
+            $fq_classlike_name_lc = strtolower($fq_classlike_name);
 
-            $storage->declaring_property_ids[$property->name->name] = $fq_classlike_name;
+            $property_id = $fq_classlike_name_lc . '::$' . $property->name->name;
+
+            $storage->declaring_property_ids[$property->name->name] = $fq_classlike_name_lc;
             $storage->appearing_property_ids[$property->name->name] = $property_id;
 
             if ($property_is_initialized) {

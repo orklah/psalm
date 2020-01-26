@@ -90,7 +90,7 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
         }
 
         $this_context = new Context();
-        $this_context->self = $class;
+        $this_context->self = strtolower($class);
         $this_context->vars_in_scope['$this'] = new Type\Union([new Type\Atomic\TNamedObject($class)]);
 
         $constructor_id = $class . '::__construct';
@@ -113,7 +113,7 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
         );
 
         $view_context = new Context();
-        $view_context->self = self::VIEW_CLASS;
+        $view_context->self = strtolower(self::VIEW_CLASS);
 
         // add all $this-> vars to scope
         foreach ($this_context->vars_possibly_in_scope as $var => $_) {

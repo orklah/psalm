@@ -896,7 +896,7 @@ class AssertionFinder
                         $var_type,
                         new CodeLocation($source, $whichclass_expr),
                         $source->getSuppressedIssues(),
-                        false
+                        true
                     ) === false
                     ) {
                         return $if_types;

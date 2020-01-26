@@ -831,7 +831,7 @@ class Codebase
     ) {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = preg_replace('/^\\\\/', '', strtolower($method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -989,7 +989,7 @@ class Codebase
         }
 
         foreach ($file_storage->classlikes_in_file as $fq_classlike_name) {
-            $this->classlike_storage_provider->remove($fq_classlike_name);
+            $this->classlike_storage_provider->remove(strtolower($fq_classlike_name));
             $this->classlikes->removeClassLike($fq_classlike_name);
         }
 

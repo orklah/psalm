@@ -1194,7 +1194,7 @@ class Populator
                 continue;
             }
 
-            $implemented_property_id = $storage->name . '::$' . $property_name;
+            $implemented_property_id = strtolower($storage->name) . '::$' . $property_name;
 
             $storage->appearing_property_ids[$property_name] =
                 $parent_storage->is_trait ? $implemented_property_id : $appearing_property_id;
@@ -1216,7 +1216,7 @@ class Populator
                 continue;
             }
 
-            $storage->declaring_property_ids[$property_name] = $declaring_property_class;
+            $storage->declaring_property_ids[$property_name] = strtolower($declaring_property_class);
         }
 
         // register where they're declared

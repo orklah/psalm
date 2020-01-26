@@ -139,7 +139,8 @@ class ArrayMapReturnTypeProvider implements \Psalm\Plugin\Hook\FunctionReturnTyp
                             }
                         } else {
                             if (strpos($mapping_function_id_part, '::') !== false) {
-                                list($callable_fq_class_name) = explode('::', $mapping_function_id_part);
+                                $method_id_parts = explode('::', $mapping_function_id_part);
+                                $callable_fq_class_name = $method_id_parts[0];
 
                                 if (in_array($callable_fq_class_name, ['self', 'static', 'parent'], true)) {
                                     continue;
@@ -170,7 +171,7 @@ class ArrayMapReturnTypeProvider implements \Psalm\Plugin\Hook\FunctionReturnTyp
                                 $self_class = 'self';
 
                                 $return_type = $codebase->methods->getMethodReturnType(
-                                    $mapping_function_id_part,
+                                    new \Psalm\Interal\MethodIdentifier(...$method_id_parts),
                                     $self_class
                                 ) ?: Type::getMixed();
 

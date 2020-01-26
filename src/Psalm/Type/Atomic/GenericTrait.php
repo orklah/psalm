@@ -261,7 +261,7 @@ trait GenericTrait
 
         if ($this instanceof Type\Atomic\TGenericObject) {
             try {
-                $class_storage = $codebase->classlike_storage_provider->get($this->value);
+                $class_storage = $codebase->classlike_storage_provider->get(strtolower($this->value));
             } catch (\InvalidArgumentException $e) {
                 return;
             }

@@ -640,7 +640,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         }
 
         if (!$class_context) {
-            $class_context = new Context($this->fq_class_name);
+            $class_context = new Context(strtolower($this->fq_class_name));
             $class_context->collect_references = $codebase->collect_references;
             $class_context->parent = $parent_fq_class_name;
         }
@@ -787,7 +787,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             }
 
             if ($property_storage->is_static) {
-                $property_id = $this->fq_class_name . '::$' . $property_name;
+                $property_id = strtolower($this->fq_class_name) . '::$' . $property_name;
 
                 $class_context->vars_in_scope[$property_id] = $fleshed_out_type;
             } else {
@@ -1062,6 +1062,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         }
 
         $fq_class_name = $class_context->self ? $class_context->self : $this->fq_class_name;
+        $fq_class_name_lc = strtolower($fq_class_name);
 
         $included_file_path = $this->getFilePath();
 
@@ -1071,7 +1072,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
         $method_already_analyzed = $codebase->analyzer->isMethodAlreadyAnalyzed(
             $included_file_path,
-            strtolower($fq_class_name) . '::__construct',
+            $fq_class_name_lc . '::__construct',
             true
         );
 
@@ -1083,8 +1084,9 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         /** @var PhpParser\Node\Stmt\Class_ */
         $class = $this->class;
         $classlike_storage_provider = $codebase->classlike_storage_provider;
+        $class_storage = $classlike_storage_provider->get($fq_class_name_lc);
 
-        $constructor_appearing_fqcln = $fq_class_name;
+        $constructor_appearing_fqcln = $fq_class_name_lc;
 
         $uninitialized_variables = [];
         $uninitialized_properties = [];
@@ -1095,7 +1097,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 $appearing_property_id,
                 true
             );
-            $property_class_storage = $classlike_storage_provider->get(strtolower($property_class_name));
+            $property_class_storage = $classlike_storage_provider->get($property_class_name);
 
             $property = $property_class_storage->properties[$property_name];
 
@@ -1130,8 +1132,8 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             }
 
             $codebase->file_reference_provider->addMethodReferenceToMissingClassMember(
-                strtolower($fq_class_name) . '::__construct',
-                strtolower($property_class_name) . '::$' . $property_name
+                $fq_class_name_lc . '::__construct',
+                $property_class_name . '::$' . $property_name
             );
 
             $uninitialized_variables[] = '$this->' . $property_name;
@@ -1246,7 +1248,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         if ($constructor_analyzer) {
             $method_context = clone $class_context;
             $method_context->collect_initializations = true;
-            $method_context->self = $fq_class_name;
+            $method_context->self = $fq_class_name_lc;
             $method_context->vars_in_scope['$this'] = Type::parseString($fq_class_name);
             $method_context->vars_possibly_in_scope['$this'] = true;
 
@@ -1275,7 +1277,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     $error_location = $storage->location ?: $storage->stmt_location;
                 }
 
-                if ($fq_class_name !== $constructor_appearing_fqcln
+                if ($fq_class_name_lc !== $constructor_appearing_fqcln
                     && $property_storage->visibility === ClassLikeAnalyzer::VISIBILITY_PRIVATE
                 ) {
                     $a_class_storage = $classlike_storage_provider->get(
@@ -1298,7 +1300,8 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 ) {
                     if (IssueBuffer::accepts(
                         new PropertyNotSetInConstructor(
-                            'Property ' . $property_id . ' is not defined in constructor of ' .
+                            'Property ' . $class_storage->name . '::$' . $property_name
+                                . ' is not defined in constructor of ' .
                                 $this->fq_class_name . ' and in any methods called in the constructor',
                             $error_location,
                             $property_id
@@ -1312,7 +1315,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
             $codebase->analyzer->setAnalyzedMethod(
                 $included_file_path,
-                strtolower($fq_class_name) . '::__construct',
+                $fq_class_name_lc . '::__construct',
                 true
             );
 
@@ -1325,7 +1328,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             if ($first_uninitialized_property->location) {
                 if (IssueBuffer::accepts(
                     new MissingConstructor(
-                        $fq_class_name . ' has an uninitialized variable ' . $uninitialized_variables[0] .
+                        $class_storage->name . ' has an uninitialized variable ' . $uninitialized_variables[0] .
                             ', but no constructor',
                         $first_uninitialized_property->location
                     ),
@@ -1562,7 +1565,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             $included_file_path = $class_context->include_location->file_path;
         }
 
-        if ($class_context->self && $class_context->self !== $source->getFQCLN()) {
+        if ($class_context->self && $class_context->self !== strtolower($source->getFQCLN())) {
             $analyzed_method_id = $method_analyzer->getMethodId($class_context->self);
 
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($analyzed_method_id);

@@ -1260,7 +1260,7 @@ class TypeCombination
     private static function getClassLikes(Codebase $codebase, string $fq_classlike_name)
     {
         try {
-            $class_storage = $codebase->classlike_storage_provider->get($fq_classlike_name);
+            $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_classlike_name));
         } catch (\InvalidArgumentException $e) {
             return [];
         }

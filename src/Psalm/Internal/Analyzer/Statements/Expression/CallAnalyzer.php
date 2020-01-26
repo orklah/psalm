@@ -85,6 +85,7 @@ class CallAnalyzer
         Context $context
     ) {
         $fq_class_name = (string)$source->getFQCLN();
+        $fq_class_name_lc = strtolower($fq_class_name);
 
         $project_analyzer = $source->getFileAnalyzer()->project_analyzer;
         $codebase = $source->getCodebase();
@@ -92,16 +93,16 @@ class CallAnalyzer
         if ($context->collect_mutations &&
             $context->self &&
             (
-                $context->self === $fq_class_name ||
-                $codebase->classExtends(
+                $context->self === $fq_class_name_lc
+                || $codebase->classExtends(
                     $context->self,
                     $fq_class_name
                 )
             )
         ) {
-            $method_id = $fq_class_name . '::' . strtolower($method_name);
+            $method_id = $fq_class_name_lc . '::' . strtolower($method_name);
 
-            if ($method_id !== $source->getMethodId()) {
+            if ((string) $method_id !== (string) $source->getMethodId()) {
                 if ($context->collect_initializations) {
                     if (isset($context->initialized_methods[$method_id])) {
                         return;
@@ -124,7 +125,7 @@ class CallAnalyzer
         } elseif ($context->collect_initializations &&
             $context->self &&
             (
-                $context->self === $fq_class_name
+                $context->self === $fq_class_name_lc
                 || $codebase->classlikes->classExtends(
                     $context->self,
                     $fq_class_name
@@ -132,7 +133,7 @@ class CallAnalyzer
             ) &&
             $source->getMethodName() !== $method_name
         ) {
-            $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), strtolower($method_name));
+            $method_id = new \Psalm\Internal\MethodIdentifier($fq_class_name_lc, strtolower($method_name));
 
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
@@ -144,7 +145,10 @@ class CallAnalyzer
                         } else {
                             $fq_class_name = $atomic_type->value;
 
-                            $method_id = $fq_class_name . '::' . strtolower($method_name);
+                            $method_id = new \Psalm\Internal\MethodIdentifier(
+                                strtolower($fq_class_name),
+                                strtolower($method_name)
+                            );
 
                             $alt_declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
                         }
@@ -161,7 +165,10 @@ class CallAnalyzer
                         foreach ($atomic_type->extra_types as $intersection_type) {
                             if ($intersection_type instanceof TNamedObject) {
                                 $fq_class_name = $intersection_type->value;
-                                $method_id = $fq_class_name . '::' . strtolower($method_name);
+                                $method_id = new \Psalm\Internal\MethodIdentifier(
+                                    strtolower($fq_class_name),
+                                    strtolower($method_name)
+                                );
 
                                 $alt_declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 

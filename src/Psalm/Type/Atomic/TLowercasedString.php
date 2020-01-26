@@ -8,12 +8,12 @@ class TLowercasedString extends TString
      */
     public function getKey()
     {
-        return 'lowercase-string';
+        return 'string';
     }
 
     public function getId()
     {
-        return $this->getKey();
+        return 'lowercase-string';
     }
 
     /**

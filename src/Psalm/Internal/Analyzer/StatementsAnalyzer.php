@@ -303,7 +303,7 @@ class StatementsAnalyzer extends SourceAnalyzer implements StatementsSource
                         }
                     } else {
                         $this_type = Type::parseString($trimmed);
-                        $context->self = $trimmed;
+                        $context->self = strtolower($trimmed);
                         $context->vars_in_scope['$this'] = $this_type;
                         $this->setFQCLN($trimmed);
                     }

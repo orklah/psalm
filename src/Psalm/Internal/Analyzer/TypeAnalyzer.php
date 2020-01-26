@@ -777,6 +777,12 @@ class TypeAnalyzer
             return false;
         }
 
+        if ($input_type_part instanceof Type\Atomic\TLowercasedString
+            && get_class($container_type_part) === TString::class
+        ) {
+            return true;
+        }
+
         if ($container_type_part instanceof Type\Atomic\TLowercasedString
             && $input_type_part instanceof TString
         ) {
@@ -1411,7 +1417,7 @@ class TypeAnalyzer
                 && $codebase->methods->methodExists(
                     new \Psalm\Internal\MethodIdentifier(
                         strtolower($input_type_part->value),
-                        '::__toString'
+                        '__tostring'
                     )
                 )
             ) {

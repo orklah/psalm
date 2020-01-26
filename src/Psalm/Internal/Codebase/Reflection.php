@@ -119,9 +119,9 @@ class Reflection
                 $storage->properties[$property_name]->visibility = ClassLikeAnalyzer::VISIBILITY_PRIVATE;
             }
 
-            $property_id = (string)$class_property->class . '::$' . $property_name;
+            $property_id = strtolower((string)$class_property->class) . '::$' . $property_name;
 
-            $storage->declaring_property_ids[$property_name] = (string)$class_property->class;
+            $storage->declaring_property_ids[$property_name] = strtolower((string)$class_property->class);
             $storage->appearing_property_ids[$property_name] = $property_id;
 
             if (!$class_property->isPrivate()) {
@@ -135,9 +135,9 @@ class Reflection
                 $storage->properties[$property_name] = new PropertyStorage();
                 $storage->properties[$property_name]->visibility = ClassLikeAnalyzer::VISIBILITY_PUBLIC;
 
-                $property_id = $class_name . '::$' . $property_name;
+                $property_id = strtolower($class_name) . '::$' . $property_name;
 
-                $storage->declaring_property_ids[$property_name] = $class_name;
+                $storage->declaring_property_ids[$property_name] = strtolower($class_name);
                 $storage->appearing_property_ids[$property_name] = $property_id;
                 $storage->inheritable_property_ids[$property_name] = $property_id;
             }
@@ -449,8 +449,8 @@ class Reflection
     }
 
     /**
-     * @param string $fq_class_name
-     * @param string $parent_class
+     * @param lowercase-string $fq_class_name
+     * @param lowercase-string $parent_class
      *
      * @return void
      */
@@ -482,7 +482,7 @@ class Reflection
                 continue;
             }
 
-            $storage->declaring_property_ids[$property_name] = $declaring_property_class;
+            $storage->declaring_property_ids[$property_name] = strtolower($declaring_property_class);
         }
 
         // register where they're declared

@@ -411,8 +411,12 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         $statements_analyzer->getSource()
                     )
                 ) {
+                    $callstatic_id = new \Psalm\Internal\MethodIdentifier(
+                        $fq_class_name,
+                        '__callstatic'
+                    );
                     if ($codebase->methods->methodExists(
-                        $fq_class_name . '::__callStatic',
+                        $callstatic_id,
                         $context->calling_function_id,
                         $codebase->collect_references ? new CodeLocation($source, $stmt->name) : null,
                         null,

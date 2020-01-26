@@ -674,7 +674,7 @@ class UnusedCodeTest extends TestCase
                     /** @psalm-suppress UnimplementedInterfaceMethod */
                     class IterableResult implements \Iterator {
                         public function current() {
-                            return $this->current;
+                            return 5;
                         }
                     }
 

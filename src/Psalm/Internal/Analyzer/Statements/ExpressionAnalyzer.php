@@ -980,7 +980,7 @@ class ExpressionAnalyzer
                     : implode('\\', $stmt->class->parts);
             }
 
-            return $fq_class_name . '::$' . $stmt->name->name;
+            return strtolower($fq_class_name) . '::$' . $stmt->name->name;
         }
 
         if ($stmt instanceof PhpParser\Node\Expr\PropertyFetch && $stmt->name instanceof PhpParser\Node\Identifier) {
@@ -1096,7 +1096,7 @@ class ExpressionAnalyzer
                     $resolved_name = $stmt->dim->class->getAttribute('resolvedName');
 
                     if ($resolved_name) {
-                        $offset = $resolved_name . '::' . $stmt->dim->name;
+                        $offset = strtolower($resolved_name) . '::' . $stmt->dim->name;
                     }
                 }
 
@@ -1134,7 +1134,7 @@ class ExpressionAnalyzer
                     $resolved_name = $this_class_name;
                 }
 
-                return $resolved_name . '::' . $stmt->name;
+                return strtolower($resolved_name) . '::' . $stmt->name;
             }
         }
 

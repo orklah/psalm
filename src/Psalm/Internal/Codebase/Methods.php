@@ -84,7 +84,6 @@ class Methods
     /**
      * Whether or not a given method exists
      *
-     * @param  string       $method_id
      * @param  ?string      $calling_function_id
      * @param  CodeLocation|null $code_location
      *

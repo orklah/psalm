@@ -140,7 +140,7 @@ class ClassLikeStorageProvider
      */
     public function remove($fq_classlike_name_lc)
     {
-        unset(self::$storage[$fq_classlike_name]);
+        unset(self::$storage[$fq_classlike_name_lc]);
     }
 
     /**
