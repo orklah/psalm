@@ -951,12 +951,14 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
             }
 
             if ($first_arg_value && $second_arg_value) {
+                $second_arg_value = strtolower($second_arg_value);
+
                 $this->codebase->classlikes->addClassAlias(
-                    strtolower($first_arg_value),
-                    strtolower($second_arg_value)
+                    $first_arg_value,
+                    $second_arg_value
                 );
 
-                $this->file_storage->classlike_aliases[strtolower($second_arg_value)] = $first_arg_value;
+                $this->file_storage->classlike_aliases[$second_arg_value] = $first_arg_value;
             }
         }
     }
@@ -1790,21 +1792,17 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
                 );
             }
 
-            $class_storage->declaring_method_ids[$method_name_lc] = [
+            $method_id = new \Psalm\Internal\MethodIdentifier(
                 $fq_classlike_name_lc,
                 $method_name_lc
-            ];
+            );
 
-            $class_storage->appearing_method_ids[$method_name_lc] = [
-                $fq_classlike_name_lc,
-                $method_name_lc
-            ];
+            $class_storage->declaring_method_ids[$method_name_lc]
+                = $class_storage->appearing_method_ids[$method_name_lc]
+                = $method_id;
 
             if (!$stmt->isPrivate() || $method_name_lc === '__construct' || $class_storage->is_trait) {
-                $class_storage->inheritable_method_ids[$method_name_lc] = [
-                    $fq_classlike_name_lc,
-                    $method_name_lc
-                ];
+                $class_storage->inheritable_method_ids[$method_name_lc] = $method_id;
             }
 
             if (!isset($class_storage->overridden_method_ids[$method_name_lc])) {

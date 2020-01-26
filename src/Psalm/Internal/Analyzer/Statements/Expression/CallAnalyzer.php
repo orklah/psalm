@@ -132,7 +132,7 @@ class CallAnalyzer
             ) &&
             $source->getMethodName() !== $method_name
         ) {
-            $method_id = $fq_class_name . '::' . strtolower($method_name);
+            $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), strtolower($method_name));
 
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
@@ -180,7 +180,7 @@ class CallAnalyzer
                 return;
             }
 
-            if (isset($context->initialized_methods[$declaring_method_id])) {
+            if (isset($context->initialized_methods[(string) $declaring_method_id])) {
                 return;
             }
 
@@ -188,7 +188,7 @@ class CallAnalyzer
                 $context->initialized_methods = [];
             }
 
-            $context->initialized_methods[$declaring_method_id] = true;
+            $context->initialized_methods[(string) $declaring_method_id] = true;
 
             $method_storage = $codebase->methods->getStorage($declaring_method_id);
 
@@ -215,7 +215,7 @@ class CallAnalyzer
                 if ($fq_class_name === $source->getFQCLN()) {
                     $class_analyzer->getMethodMutations(strtolower($method_name), $context);
                 } else {
-                    list($declaring_fq_class_name) = explode('::', $declaring_method_id);
+                    $declaring_fq_class_name = $declaring_method_id->fq_class_name;
 
                     $old_self = $context->self;
                     $context->self = $declaring_fq_class_name;
@@ -242,7 +242,6 @@ class CallAnalyzer
     }
 
     /**
-     * @param  lowercase-string|null            $method_id
      * @param  array<int, PhpParser\Node\Arg>   $args
      * @param  Context                          $context
      * @param  CodeLocation                     $code_location
@@ -251,7 +250,7 @@ class CallAnalyzer
      * @return false|null
      */
     protected static function checkMethodArgs(
-        $method_id,
+        ?\Psalm\Internal\MethodIdentifier $method_id,
         array $args,
         ?TemplateResult $class_template_result,
         Context $context,
@@ -279,18 +278,20 @@ class CallAnalyzer
             return;
         }
 
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $fq_class_name = $method_id->fq_class_name;
+        $method_name = $method_id->method_name;
 
-        $fq_class_name = $codebase->classlikes->getUnAliasedName($fq_class_name);
+        $fq_class_name = strtolower($codebase->classlikes->getUnAliasedName($fq_class_name));
 
         $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
 
         $method_storage = null;
 
-        if (isset($class_storage->declaring_method_ids[strtolower($method_name)])) {
-            $declaring_method_id = $class_storage->declaring_method_ids[strtolower($method_name)];
+        if (isset($class_storage->declaring_method_ids[$method_name])) {
+            $declaring_method_id = $class_storage->declaring_method_ids[$method_name];
 
-            list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
+            $declaring_fq_class_name = $declaring_method_id->fq_class_name;
+            $declaring_method_name = $declaring_method_id->method_name;
 
             if ($declaring_fq_class_name !== $fq_class_name) {
                 $declaring_class_storage = $codebase->classlike_storage_provider->get($declaring_fq_class_name);
@@ -298,11 +299,11 @@ class CallAnalyzer
                 $declaring_class_storage = $class_storage;
             }
 
-            if (!isset($declaring_class_storage->methods[strtolower($declaring_method_name)])) {
+            if (!isset($declaring_class_storage->methods[$declaring_method_name])) {
                 throw new \UnexpectedValueException('Storage should not be empty here');
             }
 
-            $method_storage = $declaring_class_storage->methods[strtolower($declaring_method_name)];
+            $method_storage = $declaring_class_storage->methods[$declaring_method_name];
 
             if ($declaring_class_storage->user_defined
                 && !$method_storage->has_docblock_param_types
@@ -310,10 +311,7 @@ class CallAnalyzer
             ) {
                 $documenting_method_id = $declaring_class_storage->documenting_method_ids[$method_name];
 
-                $documenting_method_storage = $codebase->methods->getStorage(
-                    $documenting_method_id[0],
-                    $documenting_method_id[1]
-                );
+                $documenting_method_storage = $codebase->methods->getStorage($documenting_method_id);
 
                 if ($documenting_method_storage->template_types) {
                     $method_storage = $documenting_method_storage;
@@ -1156,7 +1154,7 @@ class CallAnalyzer
     /**
      * @param   StatementsAnalyzer                       $statements_analyzer
      * @param   array<int, PhpParser\Node\Arg>          $args
-     * @param   string|null                             $method_id
+     * @param   string|\Psalm\Internal\MethodIdentifier|null  $method_id
      * @param   array<int,FunctionLikeParameter>        $function_params
      * @param   FunctionLikeStorage|null                $function_storage
      * @param   ClassLikeStorage|null                   $class_storage
@@ -1176,9 +1174,9 @@ class CallAnalyzer
         CodeLocation $code_location,
         Context $context
     ) {
-        $in_call_map = $method_id ? CallMap::inCallMap($method_id) : false;
+        $in_call_map = $method_id ? CallMap::inCallMap((string) $method_id) : false;
 
-        $cased_method_id = $method_id;
+        $cased_method_id = (string) $method_id;
 
         $is_variadic = false;
 
@@ -1188,18 +1186,14 @@ class CallAnalyzer
 
         $method_id_parts = null;
 
-        if ($method_id && strpos($method_id, '::')) {
-            $method_id_parts = explode('::', $method_id);
-        }
-
         if ($method_id) {
-            if (!$in_call_map && $method_id_parts !== null) {
-                $fq_class_name = $method_id_parts[0];
+            if (!$in_call_map && $method_id instanceof \Psalm\Internal\MethodIdentifier) {
+                $fq_class_name = $method_id->fq_class_name;
             }
 
             if ($function_storage) {
                 $is_variadic = $function_storage->variadic;
-            } elseif ($fq_class_name === null) {
+            } elseif (is_string($method_id)) {
                 $is_variadic = $codebase->functions->isVariadic(
                     $codebase,
                     strtolower($method_id),
@@ -1210,7 +1204,7 @@ class CallAnalyzer
             }
         }
 
-        if ($method_id && strpos($method_id, '::')) {
+        if ($method_id instanceof \Psalm\Internal\MethodIdentifier) {
             $cased_method_id = $codebase->methods->getCasedMethodId($method_id);
         } elseif ($function_storage) {
             $cased_method_id = $function_storage->cased_name;
@@ -1221,24 +1215,18 @@ class CallAnalyzer
         $static_fq_class_name = $fq_class_name;
         $self_fq_class_name = $fq_class_name;
 
-        if ($method_id && $method_id_parts !== null) {
-            $declaring_method_id = $codebase->methods->getDeclaringMethodId(
-                $method_id_parts[0],
-                $method_id_parts[1]
-            );
+        if ($method_id instanceof \Psalm\Internal\MethodIdentifier) {
+            $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
-            if ($declaring_method_id && $declaring_method_id !== $method_id_parts) {
-                $self_fq_class_name = $declaring_method_id[0];
+            if ($declaring_method_id && (string)$declaring_method_id !== (string)$method_id) {
+                $self_fq_class_name = $declaring_method_id->fq_class_name;
                 $class_storage = $codebase->classlike_storage_provider->get($self_fq_class_name);
             }
 
-            $appearing_method_id = $codebase->methods->getAppearingMethodId(
-                $method_id_parts[0],
-                $method_id_parts[1]
-            );
+            $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
 
             if ($appearing_method_id && $declaring_method_id !== $appearing_method_id) {
-                list($self_fq_class_name) = $appearing_method_id[0];
+                $self_fq_class_name = $appearing_method_id->fq_class_name;
             }
         }
 
@@ -2171,7 +2159,10 @@ class CallAnalyzer
                             return;
                         }
 
-                        $function_id_part = $callable_fq_class_name . '::' . $method_name;
+                        $function_id_part = new \Psalm\Internal\MethodIdentifier(
+                            strtolower($callable_fq_class_name),
+                            $method_name
+                        );
 
                         try {
                             $method_storage = $codebase->methods->getStorage($function_id_part);
@@ -2477,11 +2468,11 @@ class CallAnalyzer
                 && strpos($cased_method_id, '::')
                 && !strpos($cased_method_id, '__')
             ) {
-                $declaring_method_id = $codebase->methods->getDeclaringMethodId($cased_method_id);
+                $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($cased_method_id)));
+                $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
                 if ($declaring_method_id) {
-                    $id_lc = strtolower($declaring_method_id);
-
+                    $id_lc = (string) $declaring_method_id;
                     if (!isset($codebase->analyzer->possible_method_param_types[$id_lc][$argument_offset])) {
                         $codebase->analyzer->possible_method_param_types[$id_lc][$argument_offset]
                             = clone $input_type;
@@ -2658,21 +2649,22 @@ class CallAnalyzer
                     if ($potential_method_id && $potential_method_id !== 'not-callable') {
                         $potential_method_ids[] = $potential_method_id;
                     }
-                } elseif ($input_type_part instanceof Type\Atomic\TLiteralString) {
-                    $potential_method_ids[] = $input_type_part->value;
+                } elseif ($input_type_part instanceof Type\Atomic\TLiteralString
+                    && strpos($input_type_part->value, '::')
+                ) {
+                    $parts = explode('::', $input_type_part->value);
+                    $potential_method_ids[] = new \Psalm\Internal\MethodIdentifier($parts[0], $parts[1]);
                 }
             }
 
             foreach ($potential_method_ids as $potential_method_id) {
-                if (strpos($potential_method_id, '::')) {
-                    $codebase->methods->methodExists(
-                        $potential_method_id,
-                        $context->calling_function_id,
-                        null,
-                        $statements_analyzer,
-                        $statements_analyzer->getFilePath()
-                    );
-                }
+                $codebase->methods->methodExists(
+                    $potential_method_id,
+                    $context->calling_function_id,
+                    null,
+                    $statements_analyzer,
+                    $statements_analyzer->getFilePath()
+                );
             }
         }
 
@@ -2854,8 +2846,6 @@ class CallAnalyzer
                                         $callable_fq_class_name = $container_class;
                                 }
 
-                                $function_id_part = $callable_fq_class_name . '::' . $method_name;
-
                                 if (ClassLikeAnalyzer::checkFullyQualifiedClassLikeName(
                                     $statements_analyzer,
                                     $callable_fq_class_name,
@@ -2866,12 +2856,22 @@ class CallAnalyzer
                                     return;
                                 }
 
+                                $function_id_part = new \Psalm\Internal\MethodIdentifier(
+                                    strtolower($callable_fq_class_name),
+                                    strtolower($method_name)
+                                );
+
+                                $call_method_id = new \Psalm\Internal\MethodIdentifier(
+                                    strtolower($callable_fq_class_name),
+                                    '__call'
+                                );
+
                                 if (!$codebase->classOrInterfaceExists($callable_fq_class_name)) {
                                     return;
                                 }
 
-                                if (!$codebase->methodExists($function_id_part)
-                                    && !$codebase->methodExists($callable_fq_class_name . '::__call')
+                                if (!$codebase->methods->methodExists($function_id_part)
+                                    && !$codebase->methods->methodExists($call_method_id)
                                 ) {
                                     $non_existent_method_ids[] = $function_id_part;
                                 } else {

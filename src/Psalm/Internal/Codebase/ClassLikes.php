@@ -491,7 +491,9 @@ class ClassLikes
             return false;
         }
 
-        $fq_class_name_lc = $this->classlike_aliases[$fq_class_name_lc] ?? $fq_class_name_lc;
+        $fq_class_name = $this->classlike_aliases[$fq_class_name_lc] ?? $fq_class_name;
+
+        $fq_trait_name_lc = strtolower($fq_class_name);
 
         $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
@@ -535,7 +537,7 @@ class ClassLikes
         }
 
         if (isset($this->classlike_aliases[$fq_class_name])) {
-            $fq_class_name = $this->classlike_aliases[$fq_class_name];
+            $fq_class_name = strtolower($this->classlike_aliases[$fq_class_name]);
         }
 
         $class_storage = $this->classlike_storage_provider->get($fq_class_name);
@@ -712,15 +714,17 @@ class ClassLikes
     }
 
     /**
-     * @return lowercase-string
+     * @param lowercase-string $alias_name_lc
+     * @return string
      */
-    public function getUnAliasedName(string $alias_name_lc)
+    public function getUnAliasedName(string $alias_name)
     {
+        $alias_name_lc = strtolower($alias_name);
         if ($this->existing_classlikes_lc[$alias_name_lc] ?? false) {
-            return $alias_name_lc;
+            return $alias_name;
         }
 
-        return $this->classlike_aliases[$alias_name_lc] ?? $alias_name_lc;
+        return $this->classlike_aliases[$alias_name_lc] ?? $alias_name;
     }
 
     /**
@@ -1735,9 +1739,9 @@ class ClassLikes
         $codebase = $project_analyzer->getCodebase();
 
         foreach ($classlike_storage->appearing_method_ids as $method_name => $appearing_method_id) {
-            list($appearing_fq_classlike_name) = $appearing_method_id;
+            $appearing_fq_classlike_name = $appearing_method_id->fq_class_name;
 
-            if ($appearing_fq_classlike_name !== $classlike_storage->name) {
+            if ($appearing_fq_classlike_name !== strtolower($classlike_storage->name)) {
                 continue;
             }
 
@@ -1750,7 +1754,8 @@ class ClassLikes
             } else {
                 $declaring_method_id = $classlike_storage->declaring_method_ids[$method_name];
 
-                list($declaring_fq_classlike_name, $declaring_method_name) = explode('::', $declaring_method_id);
+                $declaring_fq_classlike_name = $declaring_method_id->fq_class_name;
+                $declaring_method_name = $declaring_method_id->method_name;
 
                 try {
                     $declaring_classlike_storage = $this->classlike_storage_provider->get($declaring_fq_classlike_name);
@@ -1949,9 +1954,9 @@ class ClassLikes
         $codebase = $project_analyzer->getCodebase();
 
         foreach ($classlike_storage->appearing_method_ids as $method_name => $appearing_method_id) {
-            list($appearing_fq_classlike_name) = explode('::', $appearing_method_id);
+            $appearing_fq_classlike_name = $appearing_method_id->fq_class_name;
 
-            if ($appearing_fq_classlike_name !== $classlike_storage->name) {
+            if ($appearing_fq_classlike_name !== strtolower($classlike_storage->name)) {
                 continue;
             }
 
@@ -1964,7 +1969,8 @@ class ClassLikes
             } else {
                 $declaring_method_id = $classlike_storage->declaring_method_ids[$method_name];
 
-                list($declaring_fq_classlike_name, $declaring_method_name) = explode('::', $declaring_method_id);
+                $declaring_fq_classlike_name = $declaring_method_id->fq_class_name;
+                $declaring_method_name = $declaring_method_id->method_name;
 
                 try {
                     $declaring_classlike_storage = $this->classlike_storage_provider->get($declaring_fq_classlike_name);

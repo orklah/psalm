@@ -324,12 +324,13 @@ class FileAnalyzer extends SourceAnalyzer implements StatementsSource
      *
      * @return void
      */
-    public function getMethodMutations($method_id, Context $this_context, bool $from_project_analyzer = false)
+    public function getMethodMutations(\Psalm\Internal\MethodIdentifier $method_id, Context $this_context, bool $from_project_analyzer = false)
     {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $fq_class_name = $method_id->fq_class_name;
+        $method_name = $method_id->method_name;
 
-        if (isset($this->class_analyzers_to_analyze[strtolower($fq_class_name)])) {
-            $class_analyzer_to_examine = $this->class_analyzers_to_analyze[strtolower($fq_class_name)];
+        if (isset($this->class_analyzers_to_analyze[$fq_class_name])) {
+            $class_analyzer_to_examine = $this->class_analyzers_to_analyze[$fq_class_name];
         } else {
             if (!$from_project_analyzer) {
                 $this->project_analyzer->getMethodMutations(
@@ -378,15 +379,16 @@ class FileAnalyzer extends SourceAnalyzer implements StatementsSource
         }
     }
 
-    public function getFunctionLikeAnalyzer(string $method_id) : ?FunctionLikeAnalyzer
+    public function getFunctionLikeAnalyzer(\Psalm\Internal\MethodIdentifier $method_id) : ?FunctionLikeAnalyzer
     {
-        list($fq_class_name, $method_name) = explode('::', $method_id);
+        $fq_class_name = $method_id->fq_class_name;
+        $method_name = $method_id->method_name;
 
-        if (!isset($this->class_analyzers_to_analyze[strtolower($fq_class_name)])) {
+        if (!isset($this->class_analyzers_to_analyze[$fq_class_name])) {
             return null;
         }
 
-        $class_analyzer_to_examine = $this->class_analyzers_to_analyze[strtolower($fq_class_name)];
+        $class_analyzer_to_examine = $this->class_analyzers_to_analyze[$fq_class_name];
 
         return $class_analyzer_to_examine->getFunctionLikeAnalyzer($method_name);
     }

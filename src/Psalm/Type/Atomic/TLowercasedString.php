@@ -8,7 +8,7 @@ class TLowercasedString extends TString
      */
     public function getKey()
     {
-        return 'lowercased-string';
+        return 'lowercase-string';
     }
 
     public function getId()

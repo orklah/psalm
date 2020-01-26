@@ -2,6 +2,7 @@
 namespace Psalm\Storage;
 
 use Psalm\CodeLocation;
+use Psalm\Internal\MethodIdentifier;
 use Psalm\Type;
 
 class ClassLikeStorage
@@ -261,12 +262,12 @@ class ClassLikeStorage
     public $pseudo_static_methods = [];
 
     /**
-     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
+     * @var array<lowercase-string, MethodIdentifier>
      */
     public $declaring_method_ids = [];
 
     /**
-     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
+     * @var array<lowercase-string, MethodIdentifier>
      */
     public $appearing_method_ids = [];
 
@@ -276,12 +277,12 @@ class ClassLikeStorage
     public $overridden_method_ids = [];
 
     /**
-     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
+     * @var array<lowercase-string, MethodIdentifier>
      */
     public $documenting_method_ids = [];
 
     /**
-     * @var array<lowercase-string, array{0: lowercase-string, 1: lowercase-string}>
+     * @var array<lowercase-string, MethodIdentifier>
      */
     public $inheritable_method_ids = [];
 

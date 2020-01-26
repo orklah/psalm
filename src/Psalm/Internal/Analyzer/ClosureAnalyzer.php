@@ -30,4 +30,17 @@ class ClosureAnalyzer extends FunctionLikeAnalyzer
     {
         return $this->source->getTemplateTypeMap();
     }
+
+    /**
+     * @param string|null $context_self
+     *
+     * @return string
+     */
+    public function getMethodId($context_self = null)
+    {
+        return strtolower($this->getFilePath())
+            . ':' . $this->function->getLine()
+            . ':' . (int)$this->function->getAttribute('startFilePos')
+            . ':-:closure';
+    }
 }

@@ -29,7 +29,7 @@ class TraitAnalyzer extends ClassLikeAnalyzer
         $this->class = $class;
         $this->fq_class_name = $fq_class_name;
         $codebase = $source->getCodebase();
-        $this->storage = $codebase->classlike_storage_provider->get($fq_class_name);
+        $this->storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
         $this->aliases = $aliases;
     }
 

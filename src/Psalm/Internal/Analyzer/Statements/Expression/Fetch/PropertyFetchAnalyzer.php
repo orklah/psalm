@@ -486,7 +486,8 @@ class PropertyFetchAnalyzer
 
             $property_id = $fq_class_name . '::$' . $prop_name;
 
-            if ($codebase->methodExists($fq_class_name . '::__get')
+            $get_method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), '__get');
+            if ($codebase->methods->methodExists($get_method_id)
                 && (!$codebase->properties->propertyExists($property_id, true, $statements_analyzer, $context)
                     || ($stmt_var_id !== '$this'
                         && $fq_class_name !== $context->self
@@ -502,7 +503,7 @@ class PropertyFetchAnalyzer
             ) {
                 $has_magic_getter = true;
 
-                $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                 if (isset($class_storage->pseudo_property_get_types['$' . $prop_name])) {
                     $stmt_type = clone $class_storage->pseudo_property_get_types['$' . $prop_name];
@@ -797,7 +798,7 @@ class PropertyFetchAnalyzer
                 );
 
                 if ($lhs_type_part instanceof TGenericObject) {
-                    $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                     if ($class_storage->template_types) {
                         $class_template_params = [];
@@ -1198,7 +1199,7 @@ class PropertyFetchAnalyzer
             }
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get((string)$declaring_property_class);
+        $class_storage = $codebase->classlike_storage_provider->get(strtolower((string)$declaring_property_class));
         $property = $class_storage->properties[$prop_name];
 
         if ($var_id) {

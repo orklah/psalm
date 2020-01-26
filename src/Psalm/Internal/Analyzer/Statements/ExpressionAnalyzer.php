@@ -1296,7 +1296,9 @@ class ExpressionAnalyzer
 
                     $return_type->value = $parent_class;
                 } else {
-                    $return_type->value = $codebase->classlikes->getUnAliasedName($return_type->value);
+                    $return_type->value = $codebase->classlikes->getUnAliasedName(
+                        $return_type->value
+                    );
                 }
             }
         }
@@ -2061,7 +2063,7 @@ class ExpressionAnalyzer
                 if ($clone_type_part instanceof TNamedObject
                     && $codebase->classExists($clone_type_part->value)
                 ) {
-                    $class_storage = $codebase->classlike_storage_provider->get($clone_type_part->value);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($clone_type_part->value));
 
                     if ($class_storage->mutation_free) {
                         $immutable_cloned = true;

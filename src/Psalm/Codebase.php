@@ -537,11 +537,11 @@ class Codebase
         $storage = $this->classlike_storage_provider->exhume($fq_classlike_name, $file_path, $file_contents);
 
         if ($storage->is_trait) {
-            $this->classlikes->addFullyQualifiedTraitName($fq_classlike_name, $file_path);
+            $this->classlikes->addFullyQualifiedTraitName($storage->name, $file_path);
         } elseif ($storage->is_interface) {
-            $this->classlikes->addFullyQualifiedInterfaceName($fq_classlike_name, $file_path);
+            $this->classlikes->addFullyQualifiedInterfaceName($storage->name, $file_path);
         } else {
-            $this->classlikes->addFullyQualifiedClassName($fq_classlike_name, $file_path);
+            $this->classlikes->addFullyQualifiedClassName($storage->name, $file_path);
         }
     }
 
@@ -777,7 +777,9 @@ class Codebase
      */
     public function getParentInterfaces($fq_interface_name)
     {
-        return $this->classlikes->getParentInterfaces($this->classlikes->getUnAliasedName($fq_interface_name));
+        return $this->classlikes->getParentInterfaces(
+            $this->classlikes->getUnAliasedName($fq_interface_name)
+        );
     }
 
     /**
@@ -822,11 +824,17 @@ class Codebase
      * @return bool
      */
     public function methodExists(
-        string $method_id,
+        $method_id,
         CodeLocation $code_location = null,
         $calling_function_id = null,
         string $file_path = null
     ) {
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
         return $this->methods->methodExists(
             $method_id,
             $calling_function_id,
@@ -843,6 +851,12 @@ class Codebase
      */
     public function getMethodParams($method_id)
     {
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
         return $this->methods->getMethodParams($method_id);
     }
 
@@ -853,6 +867,12 @@ class Codebase
      */
     public function isVariadic($method_id)
     {
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
         return $this->methods->isVariadic($method_id);
     }
 
@@ -865,7 +885,18 @@ class Codebase
      */
     public function getMethodReturnType($method_id, &$self_class, array $call_args = [])
     {
-        return $this->methods->getMethodReturnType($method_id, $self_class, null, $call_args);
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
+        return $this->methods->getMethodReturnType(
+            $method_id,
+            $self_class,
+            null,
+            $call_args
+        );
     }
 
     /**
@@ -875,6 +906,12 @@ class Codebase
      */
     public function getMethodReturnsByRef($method_id)
     {
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
         return $this->methods->getMethodReturnsByRef($method_id);
     }
 
@@ -888,7 +925,10 @@ class Codebase
         $method_id,
         CodeLocation &$defined_location = null
     ) {
-        return $this->methods->getMethodReturnTypeLocation($method_id, $defined_location);
+        return $this->methods->getMethodReturnTypeLocation(
+            new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)),
+            $defined_location
+        );
     }
 
     /**
@@ -898,7 +938,7 @@ class Codebase
      */
     public function getDeclaringMethodId($method_id)
     {
-        return $this->methods->getDeclaringMethodId($method_id);
+        return $this->methods->getDeclaringMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
     }
 
     /**
@@ -910,7 +950,7 @@ class Codebase
      */
     public function getAppearingMethodId($method_id)
     {
-        return $this->methods->getAppearingMethodId($method_id);
+        return $this->methods->getAppearingMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
     }
 
     /**
@@ -920,7 +960,7 @@ class Codebase
      */
     public function getOverriddenMethodIds($method_id)
     {
-        return $this->methods->getOverriddenMethodIds($method_id);
+        return $this->methods->getOverriddenMethodIds(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
     }
 
     /**
@@ -930,7 +970,7 @@ class Codebase
      */
     public function getCasedMethodId($method_id)
     {
-        return $this->methods->getCasedMethodId($method_id);
+        return $this->methods->getCasedMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
     }
 
     /**

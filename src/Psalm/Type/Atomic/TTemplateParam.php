@@ -183,7 +183,7 @@ class TTemplateParam extends \Psalm\Type\Atomic
         ) {
             $codebase = $source->getCodebase();
 
-            $class_storage = $codebase->classlike_storage_provider->get($this->defining_class);
+            $class_storage = $codebase->classlike_storage_provider->get(strtolower($this->defining_class));
 
             $template_offset = $class_storage->template_types
                 ? \array_search($this->param_name, \array_keys($class_storage->template_types), true)

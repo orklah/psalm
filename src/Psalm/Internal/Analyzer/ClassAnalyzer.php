@@ -535,14 +535,17 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             foreach ($interface_storage->methods as $interface_method_name_lc => $interface_method_storage) {
                 if ($interface_method_storage->visibility === self::VISIBILITY_PUBLIC) {
                     $implementer_declaring_method_id = $codebase->methods->getDeclaringMethodId(
-                        $this->fq_class_name . '::' . $interface_method_name_lc
+                        new \Psalm\Internal\MethodIdentifier(
+                            strtolower($this->fq_class_name),
+                            $interface_method_name_lc
+                        )
                     );
 
                     $implementer_method_storage = null;
                     $implementer_classlike_storage = null;
 
                     if ($implementer_declaring_method_id) {
-                        list($implementer_fq_class_name) = explode('::', $implementer_declaring_method_id);
+                        $implementer_fq_class_name = $implementer_declaring_method_id->fq_class_name;
                         $implementer_method_storage = $codebase->methods->getStorage(
                             $implementer_declaring_method_id
                         );
@@ -658,13 +661,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
         if (!$storage->abstract) {
             foreach ($storage->declaring_method_ids as $declaring_method_id) {
-                $method_storage = $codebase->methods->getStorage(
-                    $declaring_method_id[0],
-                    $declaring_method_id[1]
-                );
+                $method_storage = $codebase->methods->getStorage($declaring_method_id);
 
-                $declaring_class_name = $declaring_method_id[0];
-                $method_name_lc = $declaring_method_id[1];
+                $declaring_class_name = $declaring_method_id->fq_class_name;
+                $method_name_lc = $declaring_method_id->method_name;
 
                 if ($method_storage->abstract) {
                     if (IssueBuffer::accepts(
@@ -952,9 +952,11 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                         $trait_aliases
                     );
 
-                    if (isset($storage->template_type_uses_count[strtolower($fq_trait_name)])) {
-                        $trait_storage = $codebase->classlike_storage_provider->get($fq_trait_name);
-                        $expected_param_count = $storage->template_type_uses_count[strtolower($fq_trait_name)];
+                    $fq_trait_name_lc = strtolower($fq_trait_name);
+
+                    if (isset($storage->template_type_uses_count[$fq_trait_name_lc])) {
+                        $trait_storage = $codebase->classlike_storage_provider->get($fq_trait_name_lc);
+                        $expected_param_count = $storage->template_type_uses_count[$fq_trait_name_lc];
 
                         $this->checkTemplateParams(
                             $codebase,
@@ -991,7 +993,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                 foreach ($overridden_method_ids as $overridden_method_id) {
                     $parent_method_storage = $codebase->methods->getStorage($overridden_method_id);
 
-                    list($overridden_fq_class_name) = explode('::', $overridden_method_id);
+                    $overridden_fq_class_name = $overridden_method_id->fq_class_name;
 
                     $parent_storage = $classlike_storage_provider->get($overridden_fq_class_name);
 
@@ -1150,8 +1152,8 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             && isset($storage->appearing_method_ids['__construct'])
             && $class->extends
         ) {
-            list($constructor_declaring_fqcln) = explode('::', $storage->declaring_method_ids['__construct']);
-            list($constructor_appearing_fqcln) = explode('::', $storage->appearing_method_ids['__construct']);
+            $constructor_declaring_fqcln = $storage->declaring_method_ids['__construct']->fq_class_name;
+            $constructor_appearing_fqcln = $storage->appearing_method_ids['__construct']->fq_class_name;
 
             $constructor_class_storage = $classlike_storage_provider->get($constructor_declaring_fqcln);
 
@@ -1385,7 +1387,9 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     continue;
                 }
 
-                $fq_trait_name_resolved = $codebase->classlikes->getUnAliasedName($fq_trait_name);
+                $fq_trait_name_resolved = $codebase->classlikes->getUnAliasedName(
+                    $fq_trait_name
+                );
                 $trait_storage = $codebase->classlike_storage_provider->get(
                     strtolower($fq_trait_name_resolved)
                 );
@@ -1489,7 +1493,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
             $message = 'Property ' . $property_id . ' does not have a declared type';
 
-            $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+            $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
             $property_storage = $class_storage->properties[$property_name];
 
@@ -1545,7 +1549,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
         $method_analyzer = new MethodAnalyzer($stmt, $source);
 
-        $actual_method_id = (string)$method_analyzer->getMethodId();
+        $actual_method_id = $method_analyzer->getMethodId();
 
         $project_analyzer = $source->getProjectAnalyzer();
         $codebase = $source->getCodebase();
@@ -1559,11 +1563,11 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         }
 
         if ($class_context->self && $class_context->self !== $source->getFQCLN()) {
-            $analyzed_method_id = (string)$method_analyzer->getMethodId($class_context->self);
+            $analyzed_method_id = $method_analyzer->getMethodId($class_context->self);
 
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($analyzed_method_id);
 
-            if ($actual_method_id !== $declaring_method_id) {
+            if ((string) $actual_method_id !== (string) $declaring_method_id) {
                 // the method is an abstract trait method
 
                 $declaring_method_storage = $method_analyzer->getFunctionLikeStorage();
@@ -1693,13 +1697,13 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         Codebase $codebase,
         ClassLikeStorage $class_storage,
         string $fq_classlike_name,
-        string $analyzed_method_id,
-        string $actual_method_id
+        \Psalm\Internal\MethodIdentifier $analyzed_method_id,
+        \Psalm\Internal\MethodIdentifier $actual_method_id
     ) : void {
         $return_type_location = null;
         $secondary_return_type_location = null;
 
-        $actual_method_storage = $codebase->methods->getStorage(...explode('::', $actual_method_id));
+        $actual_method_storage = $codebase->methods->getStorage($actual_method_id);
 
         if ($actual_method_id) {
             $return_type_location = $codebase->methods->getMethodReturnTypeLocation(
@@ -1717,10 +1721,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
         );
 
         if ($return_type && $class_storage->template_type_extends) {
-            $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $analyzed_method_id));
+            $declaring_method_id = $codebase->methods->getDeclaringMethodId($analyzed_method_id);
 
             if ($declaring_method_id) {
-                $declaring_class_name = $declaring_method_id[0];
+                $declaring_class_name = $declaring_method_id->fq_class_name;
 
                 $class_storage = $codebase->classlike_storage_provider->get($declaring_class_name);
             }
@@ -1774,16 +1778,12 @@ class ClassAnalyzer extends ClassLikeAnalyzer
             ? $class_storage->overridden_method_ids[strtolower($stmt->name->name)]
             : [];
 
-        if ($actual_method_storage->overridden_downstream) {
-            $overridden_method_ids['overridden::downstream'] = 'overridden::downstream';
-        }
-
         if (!$return_type
             && !$class_storage->is_interface
             && $overridden_method_ids
         ) {
             foreach ($overridden_method_ids as $interface_method_id) {
-                list($interface_class) = explode('::', $interface_method_id);
+                $interface_class = $interface_method_id->fq_class_name;
 
                 if (!$codebase->classlikes->interfaceExists($interface_class)) {
                     continue;
@@ -1810,6 +1810,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     [$analyzed_method_id]
                 );
             }
+        }
+
+        if ($actual_method_storage->overridden_downstream) {
+            $overridden_method_ids['overridden::downstream'] = 'overridden::downstream';
         }
 
         FunctionLike\ReturnTypeAnalyzer::verifyReturnType(

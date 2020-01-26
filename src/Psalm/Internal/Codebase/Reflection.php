@@ -261,10 +261,10 @@ class Reflection
 
         $declaring_method_id = $declaring_class->name . '::' . $method_name_lc;
 
-        $class_storage->declaring_method_ids[$method_name_lc] = [
+        $class_storage->declaring_method_ids[$method_name_lc] = new \Psalm\Internal\MethodIdentifier(
             strtolower($declaring_class->name),
             $method_name_lc
-        ];
+        );
 
         $class_storage->inheritable_method_ids[$method_name_lc]
             = $class_storage->declaring_method_ids[$method_name_lc];
@@ -443,7 +443,7 @@ class Reflection
         foreach ($parent_storage->inheritable_method_ids as $method_name => $declaring_method_id) {
             $storage->declaring_method_ids[$method_name] = $declaring_method_id;
             $storage->inheritable_method_ids[$method_name] = $declaring_method_id;
-            $storage->overridden_method_ids[$method_name][$declaring_method_id[0]]
+            $storage->overridden_method_ids[$method_name][$declaring_method_id->fq_class_name]
                 = $declaring_method_id;
         }
     }

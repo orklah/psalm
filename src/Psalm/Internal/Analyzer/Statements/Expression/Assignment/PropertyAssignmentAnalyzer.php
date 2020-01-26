@@ -343,7 +343,9 @@ class PropertyAssignmentAnalyzer
 
                 $has_magic_setter = false;
 
-                if ($codebase->methodExists($fq_class_name . '::__set')
+                $set_method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), '::__set');
+
+                if ($codebase->methods->methodExists($set_method_id)
                     && (!$codebase->properties->propertyExists($property_id, false, $statements_analyzer, $context)
                         || ($lhs_var_id !== '$this'
                             && $fq_class_name !== $context->self
@@ -1187,7 +1189,7 @@ class PropertyAssignmentAnalyzer
             }
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get((string)$declaring_property_class);
+        $class_storage = $codebase->classlike_storage_provider->get(strtolower($declaring_property_class));
 
         $property_storage = $class_storage->properties[$prop_name->name];
 

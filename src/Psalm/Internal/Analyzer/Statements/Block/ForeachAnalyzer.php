@@ -767,7 +767,7 @@ class ForeachAnalyzer
                                     )
                                 ) {
                                     $generic_storage = $codebase->classlike_storage_provider->get(
-                                        $array_atomic_type->value
+                                        strtolower($array_atomic_type->value)
                                     );
 
                                     // The collection might be an iterator, in which case
@@ -943,7 +943,7 @@ class ForeachAnalyzer
             )
         ) {
             $generic_storage = $codebase->classlike_storage_provider->get(
-                $iterator_atomic_type->value
+                strtolower($iterator_atomic_type->value)
             );
 
             if (!isset($generic_storage->template_type_extends['Traversable'])) {

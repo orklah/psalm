@@ -429,4 +429,16 @@ class FunctionAnalyzer extends FunctionLikeAnalyzer
                 break;
         }
     }
+
+    /**
+     * @param string|null $context_self
+     *
+     * @return string
+     */
+    public function getMethodId($context_self = null)
+    {
+        $namespace = $this->source->getNamespace();
+
+        return ($namespace ? strtolower($namespace) . '\\' : '') . strtolower($this->function->name->name);
+    }
 }

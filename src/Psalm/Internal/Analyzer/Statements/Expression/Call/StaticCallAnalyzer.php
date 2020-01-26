@@ -137,7 +137,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 $does_class_exist = false;
 
                 if ($context->self) {
-                    $self_storage = $codebase->classlike_storage_provider->get($context->self);
+                    $self_storage = $codebase->classlike_storage_provider->get(strtolower($context->self));
 
                     if (isset($self_storage->used_traits[strtolower($fq_class_name)])) {
                         $fq_class_name = $context->self;
@@ -362,7 +362,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
             if ($stmt->name instanceof PhpParser\Node\Identifier && !$is_mock) {
                 $method_name_lc = strtolower($stmt->name->name);
-                $method_id = strtolower($fq_class_name) . '::' . $method_name_lc;
+                $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), $method_name_lc);
                 $cased_method_id = $fq_class_name . '::' . $stmt->name->name;
 
                 if ($codebase->store_node_types
@@ -574,7 +574,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         return;
                     }
 
-                    list($appearing_method_class_name) = explode('::', $appearing_method_id);
+                    $appearing_method_class_name = $appearing_method_id->fq_class_name;
 
                     if ($codebase->classExtends($context->self, $appearing_method_class_name)) {
                         $old_context_include_location = $context->include_location;
@@ -601,12 +601,12 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                                 }
                             }
 
-                            if (!isset($context->initialized_methods[$method_id])) {
+                            if (!isset($context->initialized_methods[(string) $method_id])) {
                                 if ($context->initialized_methods === null) {
                                     $context->initialized_methods = [];
                                 }
 
-                                $context->initialized_methods[$method_id] = true;
+                                $context->initialized_methods[(string) $method_id] = true;
 
                                 $file_analyzer->getMethodMutations($method_id, $context);
 
@@ -768,7 +768,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     && $stmt->class instanceof PhpParser\Node\Name
                     && $stmt->class->parts === ['parent']
                     && $context->self
-                    && ($self_class_storage = $codebase->classlike_storage_provider->get($context->self))
+                    && ($self_class_storage = $codebase->classlike_storage_provider->get(strtolower($context->self)))
                     && $self_class_storage->template_type_extends
                 ) {
                     foreach ($self_class_storage->template_type_extends as $template_fq_class_name => $extended_types) {
@@ -832,10 +832,14 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     );
                 }
 
-                $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $method_id));
+                $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
-                if (!$return_type_candidate && $declaring_method_id && $declaring_method_id !== $method_id) {
-                    list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
+                if (!$return_type_candidate
+                    && $declaring_method_id
+                    && (string) $declaring_method_id !== (string) $method_id
+                ) {
+                    $declaring_fq_class_name = $declaring_method_id->fq_class_name;
+                    $declaring_method_name = $declaring_method_id->method_name;
 
                     if ($codebase->methods->return_type_provider->has($declaring_fq_class_name)) {
                         $return_type_candidate = $codebase->methods->return_type_provider->getReturnType(
@@ -1002,7 +1006,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                                 && $stmt->class instanceof PhpParser\Node\Name
                             ) {
                                 $new_method_id = substr($transformation, 0, -4);
-                                list($old_declaring_fq_class_name) = explode('::', $declaring_method_id);
+                                $old_declaring_fq_class_name = $declaring_method_id->fq_class_name;
                                 list($new_fq_class_name, $new_method_name) = explode('::', $new_method_id);
 
                                 if ($codebase->classlikes->handleClassLikeReferenceInMigration(
@@ -1037,15 +1041,15 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 if ($config->after_method_checks) {
                     $file_manipulations = [];
 
-                    $appearing_method_id = $codebase->methods->getAppearingMethodId(...explode('::', $method_id));
+                    $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
 
                     if ($appearing_method_id !== null && $declaring_method_id) {
                         foreach ($config->after_method_checks as $plugin_fq_class_name) {
                             $plugin_fq_class_name::afterMethodCallAnalysis(
                                 $stmt,
                                 $method_id,
-                                $appearing_method_id[0] . '::' . $appearing_method_id[1],
-                                $declaring_method_id[0] . '::' . $declaring_method_id[1],
+                                (string) $appearing_method_id,
+                                (string) $declaring_method_id,
                                 $context,
                                 $source,
                                 $codebase,

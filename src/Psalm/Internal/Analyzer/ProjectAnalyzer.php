@@ -1237,18 +1237,17 @@ class ProjectAnalyzer
     }
 
     /**
-     * @param  string   $original_method_id
      * @param  Context  $this_context
      *
      * @return void
      */
     public function getMethodMutations(
-        $original_method_id,
+        \Psalm\Internal\MethodIdentifier $original_method_id,
         Context $this_context,
         string $root_file_path,
         string $root_file_name
     ) {
-        list($fq_class_name) = explode('::', $original_method_id);
+        $fq_class_name = $original_method_id->fq_class_name;
 
         $appearing_method_id = $this->codebase->methods->getAppearingMethodId($original_method_id);
 
@@ -1257,7 +1256,7 @@ class ProjectAnalyzer
             return;
         }
 
-        list($appearing_fq_class_name) = explode('::', $appearing_method_id);
+        $appearing_fq_class_name = $appearing_method_id->fq_class_name;
 
         $appearing_class_storage = $this->classlike_storage_provider->get($appearing_fq_class_name);
 
@@ -1269,7 +1268,7 @@ class ProjectAnalyzer
 
         $file_analyzer->setRootFilePath($root_file_path, $root_file_name);
 
-        if (strtolower($appearing_fq_class_name) !== strtolower($fq_class_name)) {
+        if ($appearing_fq_class_name !== $fq_class_name) {
             $file_analyzer = $this->getFileAnalyzerForClassLike($appearing_fq_class_name);
         }
 

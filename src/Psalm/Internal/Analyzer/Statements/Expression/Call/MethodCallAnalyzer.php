@@ -712,7 +712,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
         $method_name_lc = strtolower($stmt->name->name);
 
-        $method_id = strtolower($fq_class_name) . '::' . $method_name_lc;
+        $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), $method_name_lc);
         $cased_method_id = $fq_class_name . '::' . $stmt->name->name;
 
         $intersection_method_id = $intersection_types
@@ -745,7 +745,10 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     if (isset($interface_storage->methods[$method_name_lc])) {
                         $interface_has_method = true;
                         $fq_class_name = $interface_fqcln;
-                        $method_id = strtolower($fq_class_name) . '::' . $method_name_lc;
+                        $method_id = new \Psalm\Internal\MethodIdentifier(
+                            strtolower($fq_class_name),
+                            $method_name_lc
+                        );
                         break;
                     }
                 }
@@ -753,7 +756,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
             if (!$interface_has_method
                 && $codebase->methods->methodExists(
-                    $fq_class_name . '::__call',
+                    new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), '__call'),
                     $context->calling_function_id
                 )
             ) {
@@ -851,7 +854,10 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     new PhpParser\Node\Arg(new PhpParser\Node\Expr\Array_($array_values)),
                 ];
 
-                $method_id = strtolower($fq_class_name) . '::__call';
+                $method_id = new \Psalm\Internal\MethodIdentifier(
+                    strtolower($fq_class_name),
+                    '__call'
+                );
             }
         }
 
@@ -867,9 +873,11 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             && $context->self
             && $classlike_source_fqcln
             && $fq_class_name !== $context->self
-            && $codebase->methodExists($context->self . '::' . $method_name_lc)
+            && $codebase->methods->methodExists(
+                new \Psalm\Internal\MethodIdentifier(strtolower($context->self), $method_name_lc)
+            )
         ) {
-            $method_id = strtlower($context->self) . '::' . $method_name_lc;
+            $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($context->self), $method_name_lc);
             $cased_method_id = $context->self . '::' . $stmt->name->name;
             $fq_class_name = $context->self;
         }
@@ -1029,10 +1037,12 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             if ($grandparent_source instanceof \Psalm\Internal\Analyzer\TraitAnalyzer) {
                 $fq_trait_name = $grandparent_source->getFQCLN();
 
-                $trait_storage = $codebase->classlike_storage_provider->get($fq_trait_name);
+                $fq_trait_name_lc = strtolower($fq_trait_name);
+
+                $trait_storage = $codebase->classlike_storage_provider->get($fq_trait_name_lc);
 
                 if (isset($trait_storage->methods[$method_name_lc])) {
-                    $trait_method_id = $fq_trait_name . '::' . $method_name_lc;
+                    $trait_method_id = new \Psalm\Internal\MethodIdentifier($fq_trait_name_lc, $method_name_lc);
 
                     $class_template_params = self::getClassTemplateParams(
                         $codebase,
@@ -1077,11 +1087,9 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 return;
         }
 
-        $declaring_method_id = $codebase->methods->getDeclaringMethodId(...explode('::', $method_id));
+        $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
-        $call_map_id = $declaring_method_id !== null
-            ? $declaring_method_id[0] . '::' . $declaring_method_id[1]
-            : $method_id;
+        $call_map_id = $declaring_method_id ?: $method_id;
 
         $can_memoize = false;
 
@@ -1103,7 +1111,8 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             }
 
             if (!$return_type_candidate && $declaring_method_id && $declaring_method_id !== $method_id) {
-                list($declaring_fq_class_name, $declaring_method_name) = $declaring_method_id;
+                $declaring_fq_class_name = $declaring_method_id->fq_class_name;
+                $declaring_method_name = $declaring_method_id->method_name;
 
                 if ($codebase->methods->return_type_provider->has($declaring_fq_class_name)) {
                     $return_type_candidate = $codebase->methods->return_type_provider->getReturnType(
@@ -1501,13 +1510,13 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
-            if ($appearing_method_id && $declaring_method_id) {
+            if ($appearing_method_id !== null && $declaring_method_id !== null) {
                 foreach ($config->after_method_checks as $plugin_fq_class_name) {
                     $plugin_fq_class_name::afterMethodCallAnalysis(
                         $stmt,
                         $method_id,
-                        $appearing_method_id,
-                        $declaring_method_id,
+                        (string) $appearing_method_id,
+                        (string) $declaring_method_id,
                         $context,
                         $source,
                         $codebase,
@@ -1575,10 +1584,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 || $class_storage->methods[$method_name]->inherited_return_type)
         ) {
             foreach ($non_trait_class_storage->overridden_method_ids[$method_name] as $overridden_method_id) {
-                $overridden_storage = $codebase->methods->getStorage(
-                    $overridden_method_id[0],
-                    $overridden_method_id[1]
-                );
+                $overridden_storage = $codebase->methods->getStorage($overridden_method_id);
 
                 if (!$overridden_storage->return_type) {
                     continue;
@@ -1588,7 +1594,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     continue;
                 }
 
-                $fq_overridden_class = $overridden_method_id[0];
+                $fq_overridden_class = $overridden_method_id->fq_class_name;
 
                 $overridden_class_storage = $codebase->classlike_storage_provider->get($fq_overridden_class);
 
