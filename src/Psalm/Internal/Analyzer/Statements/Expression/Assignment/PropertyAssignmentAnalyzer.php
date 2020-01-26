@@ -314,7 +314,12 @@ class PropertyAssignmentAnalyzer
                                 return null;
                             }
 
-                            if (!$codebase->methodExists($fq_class_name . '::__set')) {
+                            if (!$codebase->methods->methodExists(
+                                new \Psalm\Internal\MethodIdentifier(
+                                    strtolower($fq_class_name),
+                                    '__set'
+                                )
+                            )) {
                                 return null;
                             }
                         }
@@ -343,7 +348,7 @@ class PropertyAssignmentAnalyzer
 
                 $has_magic_setter = false;
 
-                $set_method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), '::__set');
+                $set_method_id = new \Psalm\Internal\MethodIdentifier(strtolower($fq_class_name), '__set');
 
                 if ($codebase->methods->methodExists($set_method_id)
                     && (!$codebase->properties->propertyExists($property_id, false, $statements_analyzer, $context)
@@ -360,7 +365,7 @@ class PropertyAssignmentAnalyzer
                     )
                 ) {
                     $has_magic_setter = true;
-                    $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                     if ($var_id) {
                         if (isset($class_storage->pseudo_property_set_types['$' . $prop_name])) {

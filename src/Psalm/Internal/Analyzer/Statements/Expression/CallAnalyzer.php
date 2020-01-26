@@ -100,7 +100,10 @@ class CallAnalyzer
                 )
             )
         ) {
-            $method_id = $fq_class_name_lc . '::' . strtolower($method_name);
+            $method_id = new \Psalm\Internal\MethodIdentifier(
+                $fq_class_name_lc,
+                strtolower($method_name)
+            );
 
             if ((string) $method_id !== (string) $source->getMethodId()) {
                 if ($context->collect_initializations) {

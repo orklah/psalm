@@ -94,7 +94,10 @@ class MethodMutationTest extends TestCase
         $method_context = new Context();
         $method_context->collect_mutations = true;
         $this->project_analyzer->getMethodMutations(
-            'FooController::barBar',
+            new \Psalm\Internal\MethodIdentifier(
+                'foocontroller',
+                'barbar'
+            ),
             $method_context,
             'somefile.php',
             'somefile.php'
@@ -141,7 +144,10 @@ class MethodMutationTest extends TestCase
         $method_context = new Context();
         $method_context->collect_mutations = true;
         $this->project_analyzer->getMethodMutations(
-            'FooController::barBar',
+            new \Psalm\Internal\MethodIdentifier(
+                'foocontroller',
+                'barbar'
+            ),
             $method_context,
             'somefile.php',
             'somefile.php'
@@ -181,7 +187,10 @@ class MethodMutationTest extends TestCase
         $method_context = new Context();
         $method_context->collect_mutations = true;
         $this->project_analyzer->getMethodMutations(
-            'FooController::__construct',
+            new \Psalm\Internal\MethodIdentifier(
+                'foocontroller',
+                '__construct'
+            ),
             $method_context,
             'somefile.php',
             'somefile.php'
@@ -223,7 +232,10 @@ class MethodMutationTest extends TestCase
         $method_context = new Context();
         $method_context->collect_mutations = true;
         $this->project_analyzer->getMethodMutations(
-            'FooController::__construct',
+            new \Psalm\Internal\MethodIdentifier(
+                'foocontroller',
+                '__construct'
+            ),
             $method_context,
             'somefile.php',
             'somefile.php'

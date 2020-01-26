@@ -492,7 +492,7 @@ class ClassAnalyzer extends ClassLikeAnalyzer
 
         foreach ($class_interfaces as $interface_name) {
             try {
-                $interface_storage = $classlike_storage_provider->get($interface_name);
+                $interface_storage = $classlike_storage_provider->get(strtolower($interface_name));
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
@@ -570,8 +570,10 @@ class ClassAnalyzer extends ClassLikeAnalyzer
                     }
 
                     $implementer_appearing_method_id = $codebase->methods->getAppearingMethodId(
-                        strtolower($this->fq_class_name),
-                        $interface_method_name_lc
+                        new \Psalm\Internal\MethodIdentifier(
+                            strtolower($this->fq_class_name),
+                            $interface_method_name_lc
+                        )
                     );
 
                     $implementer_visibility = $implementer_method_storage->visibility;
