@@ -152,8 +152,13 @@ class ArrayMapReturnTypeProvider implements \Psalm\Plugin\Hook\FunctionReturnTyp
 
                                 $class_storage = $codebase->classlike_storage_provider->get($callable_fq_class_name);
 
+                                $method_id = new \Psalm\Internal\MethodIdentifier(
+                                    $callable_fq_class_name,
+                                    $method_id_parts[1]
+                                );
+
                                 if (!$codebase->methods->methodExists(
-                                    $mapping_function_id_part,
+                                    $method_id,
                                     $context->calling_function_id,
                                     $codebase->collect_references
                                         ? new CodeLocation(

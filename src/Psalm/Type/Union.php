@@ -788,6 +788,14 @@ class Union
     /**
      * @return bool
      */
+    public function hasLowercaseString()
+    {
+        return isset($this->types['string']) && $this->types['string'] instanceof Atomic\TLowercasedString;
+    }
+
+    /**
+     * @return bool
+     */
     public function hasLiteralClassString()
     {
         return count($this->typed_class_strings) > 0;
@@ -1146,7 +1154,9 @@ class Union
                             }
 
                             try {
-                                $classlike_storage = $codebase->classlike_storage_provider->get($template_class);
+                                $classlike_storage = $codebase->classlike_storage_provider->get(
+                                    strtolower($template_class)
+                                );
 
                                 if ($classlike_storage->template_type_extends) {
                                     $defining_class = $atomic_type->defining_class;

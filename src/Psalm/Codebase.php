@@ -938,7 +938,9 @@ class Codebase
      */
     public function getDeclaringMethodId($method_id)
     {
-        return $this->methods->getDeclaringMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
+        return $this->methods->getDeclaringMethodId(
+            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
+        );
     }
 
     /**
@@ -950,7 +952,9 @@ class Codebase
      */
     public function getAppearingMethodId($method_id)
     {
-        return $this->methods->getAppearingMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
+        return $this->methods->getAppearingMethodId(
+            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
+        );
     }
 
     /**
@@ -960,7 +964,9 @@ class Codebase
      */
     public function getOverriddenMethodIds($method_id)
     {
-        return $this->methods->getOverriddenMethodIds(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
+        return $this->methods->getOverriddenMethodIds(
+            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
+        );
     }
 
     /**
@@ -970,7 +976,9 @@ class Codebase
      */
     public function getCasedMethodId($method_id)
     {
-        return $this->methods->getCasedMethodId(new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)));
+        return $this->methods->getCasedMethodId(
+            new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id))
+        );
     }
 
     /**

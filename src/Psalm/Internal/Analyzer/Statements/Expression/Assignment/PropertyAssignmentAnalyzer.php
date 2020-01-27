@@ -1145,7 +1145,7 @@ class PropertyAssignmentAnalyzer
             return false;
         }
 
-        $declaring_property_class = $codebase->properties->getDeclaringClassForProperty(
+        $declaring_property_class = (string) $codebase->properties->getDeclaringClassForProperty(
             $fq_class_name . '::$' . $prop_name->name,
             false
         );

@@ -738,14 +738,14 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             $interface_has_method = false;
 
             if ($class_storage->abstract && $class_storage->class_implements) {
-                foreach ($class_storage->class_implements as $interface_fqcln) {
-                    $interface_storage = $codebase->classlike_storage_provider->get($interface_fqcln);
+                foreach ($class_storage->class_implements as $interface_fqcln_lc => $_) {
+                    $interface_storage = $codebase->classlike_storage_provider->get($interface_fqcln_lc);
 
                     if (isset($interface_storage->methods[$method_name_lc])) {
                         $interface_has_method = true;
-                        $fq_class_name = $interface_fqcln;
+                        $fq_class_name = $interface_fqcln_lc;
                         $method_id = new \Psalm\Internal\MethodIdentifier(
-                            strtolower($fq_class_name),
+                            $fq_class_name,
                             $method_name_lc
                         );
                         break;
@@ -1131,7 +1131,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             $class_storage = $codebase->methods->getClassLikeStorageForMethod($method_id);
 
             if (!$return_type_candidate) {
-                if ($call_map_id && CallMap::inCallMap((string) $call_map_id)) {
+                if (CallMap::inCallMap((string) $call_map_id)) {
                     if (($template_result->generic_params || $class_storage->stubbed)
                         && isset($class_storage->methods[$method_name_lc])
                         && ($method_storage = $class_storage->methods[$method_name_lc])

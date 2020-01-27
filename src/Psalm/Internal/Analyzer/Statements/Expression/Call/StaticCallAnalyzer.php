@@ -387,7 +387,10 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             continue;
                         }
 
-                        $intersection_method_id = strtolower($intersection_type->value) . '::' . $method_name_lc;
+                        $intersection_method_id = new \Psalm\Internal\MethodIdentifier(
+                            strtolower($intersection_type->value),
+                            $method_name_lc
+                        );
 
                         if ($codebase->methods->methodExists($intersection_method_id)) {
                             $method_id = $intersection_method_id;
@@ -505,7 +508,10 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             new PhpParser\Node\Arg(new PhpParser\Node\Expr\Array_($array_values)),
                         ];
 
-                        $method_id = strtolower($fq_class_name) . '::__callstatic';
+                        $method_id = new \Psalm\Internal\MethodIdentifier(
+                            strtolower($fq_class_name),
+                            '__callstatic'
+                        );
                     }
 
                     if (!$context->check_methods) {
@@ -1051,7 +1057,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         foreach ($config->after_method_checks as $plugin_fq_class_name) {
                             $plugin_fq_class_name::afterMethodCallAnalysis(
                                 $stmt,
-                                $method_id,
+                                (string) $method_id,
                                 (string) $appearing_method_id,
                                 (string) $declaring_method_id,
                                 $context,

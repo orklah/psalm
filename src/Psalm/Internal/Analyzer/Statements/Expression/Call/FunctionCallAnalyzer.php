@@ -218,7 +218,7 @@ class FunctionCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expressio
                         } elseif ($var_type_part instanceof Type\Atomic\TLiteralString
                             && strpos($var_type_part->value, '::')
                         ) {
-                            $parts = explode('::', $var_type_part->value);
+                            $parts = explode('::', strtolower($var_type_part->value));
                             $potential_method_id = new \Psalm\Internal\MethodIdentifier($parts[0], $parts[1]);
                         }
 

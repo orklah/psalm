@@ -412,7 +412,6 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     }
 
     /**
-     * @param  string           $method_id
      * @param  Context          $context
      * @param  StatementsSource $source
      *

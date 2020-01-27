@@ -58,12 +58,12 @@ class ClassLikes
     public $file_reference_provider;
 
     /**
-     * @var array<string, bool>
+     * @var array<lowercase-string, bool>
      */
     private $existing_classlikes_lc = [];
 
     /**
-     * @var array<string, bool>
+     * @var array<lowercase-string, bool>
      */
     private $existing_classes_lc = [];
 
@@ -73,7 +73,7 @@ class ClassLikes
     private $existing_classes = [];
 
     /**
-     * @var array<string, bool>
+     * @var array<lowercase-string, bool>
      */
     private $existing_interfaces_lc = [];
 
@@ -83,7 +83,7 @@ class ClassLikes
     private $existing_interfaces = [];
 
     /**
-     * @var array<string, bool>
+     * @var array<lowercase-string, bool>
      */
     private $existing_traits_lc = [];
 
@@ -882,8 +882,12 @@ class ClassLikes
             list($source_fq_class_name) = explode('::$', $source);
             list($destination_fq_class_name, $destination_name) = explode('::$', $destination);
 
-            $source_classlike_storage = $this->classlike_storage_provider->get($source_fq_class_name);
-            $destination_classlike_storage = $this->classlike_storage_provider->get($destination_fq_class_name);
+            $source_classlike_storage = $this->classlike_storage_provider->get(
+                strtolower($source_fq_class_name)
+            );
+            $destination_classlike_storage = $this->classlike_storage_provider->get(
+                strtolower($destination_fq_class_name)
+            );
 
             if ($destination_classlike_storage->stmt_location
                 && $this->config->isInProjectDirs($destination_classlike_storage->stmt_location->file_path)
@@ -2021,7 +2025,7 @@ class ClassLikes
                                 && isset($project_analyzer->getIssuesToFix()['MissingParamType'])
                             ) {
                                 $function_analyzer = $project_analyzer->getFunctionLikeAnalyzer(
-                                    $method_id,
+                                    (string) $method_id,
                                     $method_storage->location->file_path
                                 );
 
@@ -2212,12 +2216,14 @@ class ClassLikes
     }
 
     /**
-     * @param lowercase-string $fq_class_name
+     * @param string $fq_class_name
      *
      * @return void
      */
     public function removeClassLike($fq_class_name)
     {
+        $fq_class_name_lc = strtolower($fq_class_name);
+
         unset(
             $this->existing_classlikes_lc[$fq_class_name_lc],
             $this->existing_classes_lc[$fq_class_name_lc],

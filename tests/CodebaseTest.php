@@ -171,10 +171,10 @@ class CodebaseTest extends TestCase
 
         $this->analyzeFile('somefile.php', new Context);
 
-        $this->codebase->classlike_storage_provider->remove('C');
+        $this->codebase->classlike_storage_provider->remove('c');
         $this->codebase->exhumeClassLikeStorage('C', 'somefile.php');
 
-        $class_storage = $this->codebase->classlike_storage_provider->get('C');
+        $class_storage = $this->codebase->classlike_storage_provider->get('c');
         $file_storage = $this->codebase->file_storage_provider->get('somefile.php');
 
         $this->assertSame('b', $class_storage->custom_metadata['a']);

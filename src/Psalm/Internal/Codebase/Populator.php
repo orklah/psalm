@@ -910,7 +910,7 @@ class Populator
 
         foreach ($storage->referenced_classlikes as $fq_class_name) {
             try {
-                $classlike_storage = $this->classlike_storage_provider->get($fq_class_name);
+                $classlike_storage = $this->classlike_storage_provider->get(strtolower($fq_class_name));
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
@@ -927,7 +927,7 @@ class Populator
 
             foreach ($classlike_storage->used_traits as $used_trait) {
                 try {
-                    $trait_storage = $this->classlike_storage_provider->get($used_trait);
+                    $trait_storage = $this->classlike_storage_provider->get(strtolower($used_trait));
                 } catch (\InvalidArgumentException $e) {
                     continue;
                 }
@@ -970,7 +970,7 @@ class Populator
 
         foreach ($storage->required_classes as $required_classlike) {
             try {
-                $classlike_storage = $this->classlike_storage_provider->get($required_classlike);
+                $classlike_storage = $this->classlike_storage_provider->get(strtolower($required_classlike));
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
