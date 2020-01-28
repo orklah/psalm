@@ -829,7 +829,7 @@ class ReturnTypeAnalyzer
         $manipulator = FunctionDocblockManipulator::getForFunction(
             $project_analyzer,
             $source->getFilePath(),
-            $function_like_analyzer->getMethodId(),
+            $function_like_analyzer->getId(),
             $function
         );
 
@@ -838,7 +838,7 @@ class ReturnTypeAnalyzer
         $fqcln = $source->getFQCLN();
 
         if ($fqcln !== null && $function instanceof ClassMethod) {
-            $class_storage = $codebase->classlike_storage_provider->get($fqcln);
+            $class_storage = $codebase->classlike_storage_provider->get(strtolower($fqcln));
             $is_final = $function->isFinal() || $class_storage->final;
         }
 

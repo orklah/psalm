@@ -240,7 +240,7 @@ class Methods
         }
 
         if (!$class_storage->user_defined
-            && (CallMap::inCallMap($method_id) || ($old_method_id && CallMap::inCallMap($old_method_id)))
+            && (CallMap::inCallMap((string) $method_id) || ($old_method_id && CallMap::inCallMap($old_method_id)))
         ) {
             return true;
         }
@@ -521,8 +521,6 @@ class Methods
     }
 
     /**
-     * @param  string $method_id
-     *
      * @return bool
      */
     public function isVariadic(\Psalm\Internal\MethodIdentifier $method_id)
@@ -551,7 +549,11 @@ class Methods
         $original_fq_class_name = $method_id->fq_class_name;
         $original_method_name = $method_id->method_name;
 
-        $original_fq_class_name = $this->classlikes->getUnAliasedName($original_fq_class_name);
+        $adjusted_fq_class_name = $this->classlikes->getUnAliasedName($original_fq_class_name);
+
+        if ($adjusted_fq_class_name !== $original_fq_class_name) {
+            $original_fq_class_name = strtolower($adjusted_fq_class_name);
+        }
 
         $original_class_storage = $this->classlike_storage_provider->get($original_fq_class_name);
 
@@ -606,9 +608,13 @@ class Methods
                     }
 
                     if ($atomic_type instanceof Type\Atomic\TNamedObject
-                        && $this->methodExists($atomic_type->value . '::__invoke')
+                        && $this->methodExists(
+                            new \Psalm\Internal\MethodIdentifier(strtolower($atomic_type->value), '__invoke')
+                        )
                     ) {
-                        $invokable_storage = $this->getStorage($atomic_type->value . '::__invoke');
+                        $invokable_storage = $this->getStorage(
+                            new \Psalm\Internal\MethodIdentifier(strtolower($atomic_type->value), '__invoke')
+                        );
 
                         return new Type\Union([new Type\Atomic\TFn(
                             'Closure',
@@ -913,8 +919,6 @@ class Methods
     }
 
     /**
-     * @param  string $method_id
-     *
      * @return ClassLikeStorage
      */
     public function getClassLikeStorageForMethod(\Psalm\Internal\MethodIdentifier $method_id)

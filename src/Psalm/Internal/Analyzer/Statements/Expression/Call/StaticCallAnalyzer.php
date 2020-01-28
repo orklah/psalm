@@ -137,7 +137,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 $does_class_exist = false;
 
                 if ($context->self) {
-                    $self_storage = $codebase->classlike_storage_provider->get(strtolower($context->self));
+                    $self_storage = $codebase->classlike_storage_provider->get($context->self);
 
                     if (isset($self_storage->used_traits[strtolower($fq_class_name)])) {
                         $fq_class_name = $context->self;
@@ -373,7 +373,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         $statements_analyzer,
                         $stmt,
                         $codebase,
-                        $method_id
+                        (string) $method_id
                     );
                 }
 
@@ -415,7 +415,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     )
                 ) {
                     $callstatic_id = new \Psalm\Internal\MethodIdentifier(
-                        $fq_class_name,
+                        strtolower($fq_class_name),
                         '__callstatic'
                     );
                     if ($codebase->methods->methodExists(
@@ -425,7 +425,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         null,
                         $statements_analyzer->getFilePath()
                     )) {
-                        $class_storage = $codebase->classlike_storage_provider->get($fq_class_name);
+                        $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_class_name));
 
                         if (isset($class_storage->pseudo_static_methods[$method_name_lc])) {
                             $pseudo_method_storage = $class_storage->pseudo_static_methods[$method_name_lc];
@@ -434,7 +434,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                                 $statements_analyzer,
                                 $args,
                                 $pseudo_method_storage->params,
-                                $method_id,
+                                (string) $method_id,
                                 $context
                             ) === false) {
                                 return false;
@@ -504,7 +504,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         );
 
                         $args = [
-                            new PhpParser\Node\Arg(new PhpParser\Node\Scalar\String_($method_id)),
+                            new PhpParser\Node\Arg(new PhpParser\Node\Scalar\String_((string) $method_id)),
                             new PhpParser\Node\Arg(new PhpParser\Node\Expr\Array_($array_values)),
                         ];
 
@@ -567,14 +567,14 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     && $context->self
                     && ($context->collect_mutations || $context->collect_initializations)
                 ) {
-                    $appearing_method_id = $codebase->getAppearingMethodId($method_id);
+                    $appearing_method_id = $codebase->methods->getAppearingMethodId($method_id);
 
                     if (!$appearing_method_id) {
                         if (IssueBuffer::accepts(
                             new UndefinedMethod(
                                 'Method ' . $method_id . ' does not exist',
                                 new CodeLocation($statements_analyzer->getSource(), $stmt),
-                                $method_id
+                                (string) $method_id
                             ),
                             $statements_analyzer->getSuppressedIssues()
                         )) {
@@ -778,7 +778,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     && $stmt->class instanceof PhpParser\Node\Name
                     && $stmt->class->parts === ['parent']
                     && $context->self
-                    && ($self_class_storage = $codebase->classlike_storage_provider->get(strtolower($context->self)))
+                    && ($self_class_storage = $codebase->classlike_storage_provider->get($context->self))
                     && $self_class_storage->template_type_extends
                 ) {
                     foreach ($self_class_storage->template_type_extends as $template_fq_class_name => $extended_types) {
@@ -1010,7 +1010,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 if ($codebase->alter_code) {
                     foreach ($codebase->call_transforms as $original_pattern => $transformation) {
                         if ($declaring_method_id
-                            && strtolower($declaring_method_id) . '\((.*\))' === $original_pattern
+                            && (string) $declaring_method_id . '\((.*\))' === $original_pattern
                         ) {
                             if (strpos($transformation, '($1)') === strlen($transformation) - 4
                                 && $stmt->class instanceof PhpParser\Node\Name
@@ -1090,7 +1090,7 @@ class StaticCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                             );
                         } else {
                             $method_source = new Source(
-                                strtolower($method_id),
+                                (string) $method_id,
                                 $cased_method_id,
                                 new CodeLocation($source, $stmt->name)
                             );

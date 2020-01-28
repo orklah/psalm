@@ -9,6 +9,11 @@ use PhpParser;
 class ClosureAnalyzer extends FunctionLikeAnalyzer
 {
     /**
+     * @var PhpParser\Node\Expr\Closure|PhpParser\Node\Expr\ArrowFunction
+     */
+    protected $function;
+
+    /**
      * @param PhpParser\Node\Expr\Closure|PhpParser\Node\Expr\ArrowFunction $function
      * @param SourceAnalyzer               $source   [description]
      */
@@ -32,11 +37,9 @@ class ClosureAnalyzer extends FunctionLikeAnalyzer
     }
 
     /**
-     * @param string|null $context_self
-     *
      * @return string
      */
-    public function getMethodId($context_self = null)
+    public function getClosureId()
     {
         return strtolower($this->getFilePath())
             . ':' . $this->function->getLine()

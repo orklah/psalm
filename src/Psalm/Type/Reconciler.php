@@ -604,7 +604,7 @@ class Reconciler
                                 if (substr($property_name, -2) === '()') {
                                     $method_id = new \Psalm\Internal\MethodIdentifier(
                                         strtolower($existing_key_type_part->value),
-                                        substr($property_name, 0, -2)
+                                        strtolower(substr($property_name, 0, -2))
                                     );
 
                                     if (!$codebase->methods->methodExists($method_id)) {
@@ -614,6 +614,10 @@ class Reconciler
                                     $declaring_method_id = $codebase->methods->getDeclaringMethodId(
                                         $method_id
                                     );
+
+                                    if ($declaring_method_id === null) {
+                                        return null;
+                                    }
 
                                     $declaring_class = $declaring_method_id->fq_class_name;
 
@@ -646,6 +650,10 @@ class Reconciler
                                         $property_id,
                                         true
                                     );
+
+                                    if ($declaring_property_class === null) {
+                                        return null;
+                                    }
 
                                     $class_property_type = $codebase->properties->getPropertyType(
                                         $property_id,

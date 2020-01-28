@@ -105,7 +105,7 @@ class CallAnalyzer
                 strtolower($method_name)
             );
 
-            if ((string) $method_id !== (string) $source->getMethodId()) {
+            if ((string) $method_id !== $source->getId()) {
                 if ($context->collect_initializations) {
                     if (isset($context->initialized_methods[$method_id])) {
                         return;
@@ -277,7 +277,7 @@ class CallAnalyzer
             $statements_analyzer,
             $args,
             $method_params,
-            $method_id,
+            (string) $method_id,
             $context,
             $class_template_result
         ) === false) {
@@ -1194,8 +1194,6 @@ class CallAnalyzer
 
         $codebase = $statements_analyzer->getCodebase();
 
-        $method_id_parts = null;
-
         if ($method_id) {
             if (!$in_call_map && $method_id instanceof \Psalm\Internal\MethodIdentifier) {
                 $fq_class_name = $method_id->fq_class_name;
@@ -1332,7 +1330,7 @@ class CallAnalyzer
                 if (self::handlePossiblyMatchingByRefParam(
                     $statements_analyzer,
                     $codebase,
-                    $method_id,
+                    (string) $method_id,
                     $cased_method_id,
                     $last_param,
                     $function_params,
@@ -1431,7 +1429,7 @@ class CallAnalyzer
                     'Too many arguments for method ' . ($cased_method_id ?: $method_id)
                         . ' - expecting ' . count($function_params) . ' but saw ' . count($args),
                     $code_location,
-                    $method_id ?: ''
+                    (string) $method_id
                 ),
                 $statements_analyzer->getSuppressedIssues()
             )) {
@@ -1465,7 +1463,7 @@ class CallAnalyzer
                             'Too few arguments for method ' . $cased_method_id
                                 . ' - expecting ' . $expected_param_count . ' but saw ' . count($args),
                             $code_location,
-                            $method_id ?: ''
+                            (string) $method_id
                         ),
                         $statements_analyzer->getSuppressedIssues()
                     )) {
@@ -1496,6 +1494,8 @@ class CallAnalyzer
     }
 
     /**
+     * @param  ?lowercase-string $self_fq_class_name
+     * @param  ?lowercase-string $static_fq_class_name
      * @param  array<string, array<string, array{Type\Union, 1?:int}>> $class_generic_params
      * @return false|null
      */
@@ -1738,6 +1738,8 @@ class CallAnalyzer
     }
 
     /**
+     * @param  ?lowercase-string $self_fq_class_name
+     * @param  ?lowercase-string $static_fq_class_name
      * @param  array<string, array<string, array{Type\Union, 1?:int}>> $class_generic_params
      * @param  array<string, array<string, array{Type\Union, 1?:int}>> $generic_params
      * @param  array<string, array<string, array{Type\Union}>> $template_types
@@ -1847,16 +1849,23 @@ class CallAnalyzer
 
         $parent_class = null;
 
+        $classlike_storage = null;
+        $static_classlike_storage = null;
+
         if ($self_fq_class_name) {
             $classlike_storage = $codebase->classlike_storage_provider->get($self_fq_class_name);
             $parent_class = $classlike_storage->parent_class;
+
+            if ($static_fq_class_name && $static_fq_class_name !== $self_fq_class_name) {
+                $static_classlike_storage = $codebase->classlike_storage_provider->get($static_fq_class_name);
+            }
         }
 
         $fleshed_out_type = ExpressionAnalyzer::fleshOutType(
             $codebase,
             $param_type,
-            $self_fq_class_name,
-            $static_fq_class_name,
+            $classlike_storage ? $classlike_storage->name : null,
+            $static_classlike_storage ? $static_classlike_storage->name : null,
             $parent_class
         );
 
@@ -1864,8 +1873,8 @@ class CallAnalyzer
             ? ExpressionAnalyzer::fleshOutType(
                 $codebase,
                 $function_param->signature_type,
-                $self_fq_class_name,
-                $static_fq_class_name,
+                $classlike_storage ? $classlike_storage->name : null,
+                $static_classlike_storage ? $static_classlike_storage->name : null,
                 $parent_class
             )
             : null;
@@ -2663,7 +2672,10 @@ class CallAnalyzer
                     && strpos($input_type_part->value, '::')
                 ) {
                     $parts = explode('::', $input_type_part->value);
-                    $potential_method_ids[] = new \Psalm\Internal\MethodIdentifier($parts[0], $parts[1]);
+                    $potential_method_ids[] = new \Psalm\Internal\MethodIdentifier(
+                        strtolower($parts[0]),
+                        strtolower($parts[1])
+                    );
                 }
             }
 
@@ -3043,12 +3055,14 @@ class CallAnalyzer
 
                     $method_name = strtolower($method_name_parts[0]);
 
-                    $class_storage = $codebase->classlike_storage_provider->get($fq_classlike_name);
+                    $class_storage = $codebase->classlike_storage_provider->get(strtolower($fq_classlike_name));
 
-                    foreach ($class_storage->dependent_classlikes as $dependent_classlike => $_) {
-                        $dependent_classlike_storage = $codebase->classlike_storage_provider->get($dependent_classlike);
+                    foreach ($class_storage->dependent_classlikes as $dependent_classlike_lc => $_) {
+                        $dependent_classlike_storage = $codebase->classlike_storage_provider->get(
+                            $dependent_classlike_lc
+                        );
                         $new_sink = Sink::getForMethodArgument(
-                            $dependent_classlike . '::' . $method_name,
+                            $dependent_classlike_lc . '::' . $method_name,
                             $dependent_classlike_storage->name . '::' . $cased_method_name,
                             (int) $method_name_parts[1] - 1,
                             $code_location,
@@ -3065,8 +3079,8 @@ class CallAnalyzer
                     if (isset($class_storage->overridden_method_ids[$method_name])) {
                         foreach ($class_storage->overridden_method_ids[$method_name] as $parent_method_id) {
                             $new_sink = Sink::getForMethodArgument(
-                                $parent_method_id,
-                                $codebase->getCasedMethodId($parent_method_id),
+                                (string) $parent_method_id,
+                                $codebase->methods->getCasedMethodId($parent_method_id),
                                 (int) $method_name_parts[1] - 1,
                                 $code_location,
                                 null

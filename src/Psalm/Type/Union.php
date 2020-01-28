@@ -80,7 +80,7 @@ class Union
     /**
      * Which class the type was initialised in
      *
-     * @var ?string
+     * @var ?lowercase-string
      */
     public $initialized_class = null;
 

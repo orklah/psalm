@@ -168,7 +168,7 @@ class ClassLikeStorage
     /**
      * Parent interfaces
      *
-     * @var  array<string, string>
+     * @var  array<lowercase-string, string>
      */
     public $parent_interfaces = [];
 
@@ -367,7 +367,7 @@ class ClassLikeStorage
     public $invalid_dependencies = [];
 
     /**
-     * @var array<string, bool>
+     * @var array<lowercase-string, bool>
      */
     public $dependent_classlikes = [];
 

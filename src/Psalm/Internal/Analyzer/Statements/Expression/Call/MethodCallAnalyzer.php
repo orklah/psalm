@@ -769,7 +769,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                         $statements_analyzer,
                         $args,
                         $pseudo_method_storage->params,
-                        $method_id,
+                        (string) $method_id,
                         $context
                     ) === false) {
                         return false;
@@ -873,10 +873,10 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             && $classlike_source_fqcln
             && $fq_class_name !== $context->self
             && $codebase->methods->methodExists(
-                new \Psalm\Internal\MethodIdentifier(strtolower($context->self), $method_name_lc)
+                new \Psalm\Internal\MethodIdentifier($context->self, $method_name_lc)
             )
         ) {
-            $method_id = new \Psalm\Internal\MethodIdentifier(strtolower($context->self), $method_name_lc);
+            $method_id = new \Psalm\Internal\MethodIdentifier($context->self, $method_name_lc);
             $cased_method_id = $context->self . '::' . $stmt->name->name;
             $fq_class_name = $context->self;
         }
@@ -888,7 +888,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
         }
 
         $source_method_id = $source instanceof FunctionLikeAnalyzer
-            ? $source->getMethodId()
+            ? $source->getId()
             : null;
 
         if (!$codebase->methods->methodExists(
@@ -913,7 +913,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                     $statements_analyzer,
                     $args,
                     $pseudo_method_storage->params,
-                    $method_id,
+                    (string) $method_id,
                     $context
                 ) === false) {
                     return false;
@@ -1003,7 +1003,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             list($calling_method_class) = explode('::', $context->calling_function_id);
             $codebase->file_reference_provider->addMethodReferenceToClassMember(
                 $calling_method_class . '::__construct',
-                strtolower($method_id)
+                (string) $method_id
             );
         }
 
@@ -1065,7 +1065,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 $statements_analyzer,
                 $stmt,
                 $codebase,
-                $method_id
+                (string) $method_id
             );
         }
 
@@ -1272,7 +1272,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
 
                         $return_type_candidate->sources = [
                             new Source(
-                                strtolower($method_id),
+                                (string) $method_id,
                                 $cased_method_id,
                                 new CodeLocation($source, $stmt->name)
                             )
@@ -1372,7 +1372,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                                             new \Psalm\Issue\UnusedMethodCall(
                                                 'The call to ' . $cased_method_id . ' is not used',
                                                 new CodeLocation($statements_analyzer, $stmt->name),
-                                                $method_id
+                                                (string) $method_id
                                             ),
                                             $statements_analyzer->getSuppressedIssues()
                                         )) {
@@ -1486,7 +1486,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
             $declaring_method_id = $codebase->methods->getDeclaringMethodId($method_id);
 
             foreach ($codebase->methods_to_rename as $original_method_id => $new_method_name) {
-                if ($declaring_method_id && strtolower($declaring_method_id) === $original_method_id) {
+                if ($declaring_method_id && ((string) $declaring_method_id) === $original_method_id) {
                     $file_manipulations = [
                         new \Psalm\FileManipulation(
                             (int) $stmt->name->getAttribute('startFilePos'),
@@ -1513,7 +1513,7 @@ class MethodCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\
                 foreach ($config->after_method_checks as $plugin_fq_class_name) {
                     $plugin_fq_class_name::afterMethodCallAnalysis(
                         $stmt,
-                        $method_id,
+                        (string) $method_id,
                         (string) $appearing_method_id,
                         (string) $declaring_method_id,
                         $context,

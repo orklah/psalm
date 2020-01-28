@@ -176,7 +176,7 @@ class ArrayMapReturnTypeProvider implements \Psalm\Plugin\Hook\FunctionReturnTyp
                                 $self_class = 'self';
 
                                 $return_type = $codebase->methods->getMethodReturnType(
-                                    new \Psalm\Interal\MethodIdentifier(...$method_id_parts),
+                                    new \Psalm\Internal\MethodIdentifier(...$method_id_parts),
                                     $self_class
                                 ) ?: Type::getMixed();
 

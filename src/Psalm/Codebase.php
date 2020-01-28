@@ -198,12 +198,12 @@ class Codebase
     public $diff_methods = false;
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $methods_to_move = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $methods_to_rename = [];
 
@@ -228,7 +228,7 @@ class Codebase
     public $class_constants_to_rename = [];
 
     /**
-     * @var array<string, string>
+     * @var array<lowercase-string, string>
      */
     public $classes_to_move = [];
 
@@ -393,7 +393,7 @@ class Codebase
             $file_storage = $this->file_storage_provider->get($referenced_file_path);
 
             foreach ($file_storage->classlikes_in_file as $fq_classlike_name) {
-                $this->classlike_storage_provider->remove($fq_classlike_name);
+                $this->classlike_storage_provider->remove(strtolower($fq_classlike_name));
                 $this->classlikes->removeClassLike($fq_classlike_name);
             }
 
@@ -534,7 +534,11 @@ class Codebase
     public function exhumeClassLikeStorage($fq_classlike_name, $file_path)
     {
         $file_contents = $this->file_provider->getContents($file_path);
-        $storage = $this->classlike_storage_provider->exhume($fq_classlike_name, $file_path, $file_contents);
+        $storage = $this->classlike_storage_provider->exhume(
+            strtolower($fq_classlike_name),
+            $file_path,
+            $file_contents
+        );
 
         if ($storage->is_trait) {
             $this->classlikes->addFullyQualifiedTraitName($storage->name, $file_path);
@@ -817,7 +821,7 @@ class Codebase
     /**
      * Whether or not a given method exists
      *
-     * @param  string       $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier       $method_id
      * @param  CodeLocation|null $code_location
      * @param  string       $calling_function_id
      *
@@ -831,7 +835,7 @@ class Codebase
     ) {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', strtolower($method_id));
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -845,7 +849,7 @@ class Codebase
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return array<int, \Psalm\Storage\FunctionLikeParameter>
      */
@@ -853,7 +857,7 @@ class Codebase
     {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -861,7 +865,7 @@ class Codebase
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return bool
      */
@@ -869,7 +873,7 @@ class Codebase
     {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -877,7 +881,7 @@ class Codebase
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      * @param  string $self_class
      * @param  array<int, PhpParser\Node\Arg> $call_args
      *
@@ -887,7 +891,7 @@ class Codebase
     {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -900,7 +904,7 @@ class Codebase
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return bool
      */
@@ -908,7 +912,7 @@ class Codebase
     {
         if (is_string($method_id)) {
             // remove trailing backslash if it exists
-            $method_id = preg_replace('/^\\\\/', '', $method_id);
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
             $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
         }
 
@@ -916,7 +920,7 @@ class Codebase
     }
 
     /**
-     * @param  string               $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier   $method_id
      * @param  CodeLocation|null    $defined_location
      *
      * @return CodeLocation|null
@@ -925,60 +929,82 @@ class Codebase
         $method_id,
         CodeLocation &$defined_location = null
     ) {
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
         return $this->methods->getMethodReturnTypeLocation(
-            new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id)),
+            $method_id,
             $defined_location
         );
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return string|null
      */
     public function getDeclaringMethodId($method_id)
     {
-        return $this->methods->getDeclaringMethodId(
-            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
-        );
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
+        return $this->methods->getDeclaringMethodId($method_id);
     }
 
     /**
      * Get the class this method appears in (vs is declared in, which could give a trait)
      *
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return string|null
      */
     public function getAppearingMethodId($method_id)
     {
-        return $this->methods->getAppearingMethodId(
-            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
-        );
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
+        return $this->methods->getAppearingMethodId($method_id);
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return array<string>
      */
     public function getOverriddenMethodIds($method_id)
     {
-        return $this->methods->getOverriddenMethodIds(
-            new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($method_id)))
-        );
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
+        return $this->methods->getOverriddenMethodIds($method_id);
     }
 
     /**
-     * @param  string $method_id
+     * @param  string|\Psalm\Internal\MethodIdentifier $method_id
      *
      * @return string
      */
     public function getCasedMethodId($method_id)
     {
-        return $this->methods->getCasedMethodId(
-            new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id))
-        );
+        if (is_string($method_id)) {
+            // remove trailing backslash if it exists
+            $method_id = strtolower(preg_replace('/^\\\\/', '', $method_id));
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', $method_id));
+        }
+
+        return $this->methods->getCasedMethodId($method_id);
     }
 
     /**
@@ -1018,7 +1044,9 @@ class Codebase
                 if (strpos($symbol, '()')) {
                     $symbol = substr($symbol, 0, -2);
 
-                    $declaring_method_id = $this->methods->getDeclaringMethodId($symbol);
+                    $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($symbol)));
+
+                    $declaring_method_id = $this->methods->getDeclaringMethodId($method_id);
 
                     if (!$declaring_method_id) {
                         return null;
@@ -1065,7 +1093,7 @@ class Codebase
                 return null;
             }
 
-            $storage = $this->classlike_storage_provider->get($symbol);
+            $storage = $this->classlike_storage_provider->get(strtolower($symbol));
 
             return '<?php ' . ($storage->abstract ? 'abstract ' : '') . 'class ' . $storage->name;
         } catch (\Exception $e) {
@@ -1100,7 +1128,9 @@ class Codebase
                 if (strpos($symbol, '()')) {
                     $symbol = substr($symbol, 0, -2);
 
-                    $declaring_method_id = $this->methods->getDeclaringMethodId($symbol);
+                    $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($symbol)));
+
+                    $declaring_method_id = $this->methods->getDeclaringMethodId($method_id);
 
                     if (!$declaring_method_id) {
                         return null;
@@ -1128,7 +1158,7 @@ class Codebase
                     return null;
                 }
 
-                $class_const_storage = $this->classlike_storage_provider->get($fq_classlike_name);
+                $class_const_storage = $this->classlike_storage_provider->get(strtolower($fq_classlike_name));
 
                 return $class_const_storage->class_constant_locations[$const_name];
             }
@@ -1145,7 +1175,7 @@ class Codebase
                 return null;
             }
 
-            $storage = $this->classlike_storage_provider->get($symbol);
+            $storage = $this->classlike_storage_provider->get(strtolower($symbol));
 
             return $storage->location;
         } catch (\UnexpectedValueException $e) {
@@ -1269,7 +1299,9 @@ class Codebase
     public function getSignatureInformation(string $function_symbol) : ?\LanguageServerProtocol\SignatureInformation
     {
         if (strpos($function_symbol, '::') !== false) {
-            $declaring_method_id = $this->methods->getDeclaringMethodId($function_symbol);
+            $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($function_symbol)));
+
+            $declaring_method_id = $this->methods->getDeclaringMethodId($method_id);
 
             if ($declaring_method_id === null) {
                 return null;
@@ -1399,7 +1431,7 @@ class Codebase
         foreach ($type->getAtomicTypes() as $atomic_type) {
             if ($atomic_type instanceof Type\Atomic\TNamedObject) {
                 try {
-                    $class_storage = $this->classlike_storage_provider->get($atomic_type->value);
+                    $class_storage = $this->classlike_storage_provider->get(strtolower($atomic_type->value));
 
                     foreach ($class_storage->appearing_method_ids as $declaring_method_id) {
                         $method_storage = $this->methods->getStorage($declaring_method_id);
@@ -1493,7 +1525,7 @@ class Codebase
 
         $aliases = null;
 
-        foreach ($file_storage->classlikes_in_file as $fq_class_name) {
+        foreach ($file_storage->classlikes_in_file as $fq_class_name => $_) {
             try {
                 $class_storage = $this->classlike_storage_provider->get($fq_class_name);
             } catch (\Exception $e) {

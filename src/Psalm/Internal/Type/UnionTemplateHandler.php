@@ -326,7 +326,7 @@ class UnionTemplateHandler
 
                 try {
                     $classlike_storage =
-                        $codebase->classlike_storage_provider->get($atomic_input_type->value);
+                        $codebase->classlike_storage_provider->get(strtolower($atomic_input_type->value));
 
                     if ($atomic_input_type instanceof Atomic\TGenericObject
                         && isset($classlike_storage->template_type_extends[$atomic_type->value])

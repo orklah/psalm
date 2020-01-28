@@ -117,8 +117,8 @@ class Populator
                 }
             }
 
-            foreach ($class_storage->dependent_classlikes as $dependent_classlike_name => $_) {
-                $dependee_storage = $this->classlike_storage_provider->get($dependent_classlike_name);
+            foreach ($class_storage->dependent_classlikes as $dependent_classlike_lc => $_) {
+                $dependee_storage = $this->classlike_storage_provider->get($dependent_classlike_lc);
 
                 $class_storage->dependent_classlikes += $dependee_storage->dependent_classlikes;
             }
@@ -807,7 +807,6 @@ class Populator
 
             foreach ($implemented_interface_storage->methods as $method_name => $method) {
                 if ($method->visibility === ClassLikeAnalyzer::VISIBILITY_PUBLIC) {
-                    $mentioned_method_id = $implemented_interface . '::' . $method_name;
                     $interface_method_implementers[$method_name][] = new \Psalm\Internal\MethodIdentifier(
                         $implemented_interface,
                         $method_name

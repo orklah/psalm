@@ -690,11 +690,15 @@ class PropertyFetchAnalyzer
                 }
             }
 
-            $declaring_property_class = (string) $codebase->properties->getDeclaringClassForProperty(
+            $declaring_property_class = $codebase->properties->getDeclaringClassForProperty(
                 $property_id,
                 true,
                 $statements_analyzer
             );
+
+            if ($declaring_property_class === null) {
+                continue;
+            }
 
             if ($codebase->properties_to_rename) {
                 $declaring_property_id = $declaring_property_class . '::$' . $prop_name;
@@ -1155,6 +1159,10 @@ class PropertyFetchAnalyzer
             $statements_analyzer
         );
 
+        if ($declaring_property_class === null) {
+            return false;
+        }
+
         $declaring_property_id = (string) $declaring_property_class . '::$' . $prop_name;
 
         if ($codebase->alter_code && $stmt->class instanceof PhpParser\Node\Name) {
@@ -1199,7 +1207,7 @@ class PropertyFetchAnalyzer
             }
         }
 
-        $class_storage = $codebase->classlike_storage_provider->get((string)$declaring_property_class);
+        $class_storage = $codebase->classlike_storage_provider->get($declaring_property_class);
         $property = $class_storage->properties[$prop_name];
 
         if ($var_id) {

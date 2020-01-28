@@ -44,11 +44,11 @@ use function substr;
  *
  * @psalm-type  PoolData = array{
  *     classlikes_data:array{
- *         0:array<string, bool>,
- *         1:array<string, bool>,
- *         2:array<string, bool>,
+ *         0:array<lowercase-string, bool>,
+ *         1:array<lowercase-string, bool>,
+ *         2:array<lowercase-string, bool>,
  *         3:array<string, bool>,
- *         4:array<string, bool>,
+ *         4:array<lowercase-string, bool>,
  *         5:array<string, bool>,
  *         6:array<string, bool>,
  *         7:array<string, \PhpParser\Node\Stmt\Trait_>,

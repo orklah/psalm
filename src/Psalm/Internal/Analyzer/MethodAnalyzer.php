@@ -36,6 +36,11 @@ use Psalm\Issue\MissingImmutableAnnotation;
  */
 class MethodAnalyzer extends FunctionLikeAnalyzer
 {
+    /**
+     * @var PhpParser\Node\Stmt\ClassMethod
+     */
+    protected $function;
+
     public function __construct(
         PhpParser\Node\Stmt\ClassMethod $function,
         SourceAnalyzer $source,
@@ -45,7 +50,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
 
         $method_name_lc = strtolower((string) $function->name);
 
-        $source_fqcln_lc = strtolower($source->getFQCLN());
+        $source_fqcln_lc = strtolower((string) $source->getFQCLN());
 
         $method_id = new \Psalm\Internal\MethodIdentifier($source_fqcln_lc, $method_name_lc);
 
@@ -95,7 +100,9 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     ) {
         $codebase_methods = $codebase->methods;
 
-        if ($method_id === 'Closure::fromcallable') {
+        if ($method_id->fq_class_name === 'closure'
+            && $method_id->method_name === 'fromcallable'
+        ) {
             return true;
         }
 
@@ -145,7 +152,6 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     }
 
     /**
-     * @param  string       $method_id
      * @param  CodeLocation $code_location
      * @param  string[]     $suppressed_issues
      * @param  string|null  $calling_function_id
@@ -154,7 +160,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
      */
     public static function checkMethodExists(
         Codebase $codebase,
-        $method_id,
+        \Psalm\Internal\MethodIdentifier $method_id,
         CodeLocation $code_location,
         array $suppressed_issues,
         $calling_function_id = null
@@ -170,7 +176,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
         }
 
         if (IssueBuffer::accepts(
-            new UndefinedMethod('Method ' . $method_id . ' does not exist', $code_location, $method_id),
+            new UndefinedMethod('Method ' . $method_id . ' does not exist', $code_location, (string) $method_id),
             $suppressed_issues
         )) {
             return false;
@@ -195,6 +201,11 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
         $codebase_methods = $codebase->methods;
 
         $method_id = $codebase_methods->getDeclaringMethodId($method_id);
+
+        if ($method_id === null) {
+            return null;
+        }
+
         $storage = $codebase_methods->getStorage($method_id);
 
         if ($storage->deprecated) {
@@ -203,7 +214,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
                     'The method ' . $codebase_methods->getCasedMethodId($method_id) .
                         ' has been marked as deprecated',
                     $code_location,
-                    $method_id
+                    (string) $method_id
                 ),
                 $suppressed_issues
             )) {
@@ -216,14 +227,13 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             && !$context->collect_initializations
             && !$context->collect_mutations
         ) {
-            if (! NamespaceAnalyzer::isWithin($context->self, $storage->psalm_internal)
-            ) {
+            if (!NamespaceAnalyzer::isWithin($context->self, $storage->psalm_internal)) {
                 if (IssueBuffer::accepts(
                     new InternalMethod(
                         'The method ' . $codebase_methods->getCasedMethodId($method_id) .
                         ' has been marked as internal to ' . $storage->psalm_internal,
                         $code_location,
-                        $method_id
+                        (string) $method_id
                     ),
                     $suppressed_issues
                 )) {
@@ -237,14 +247,14 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             && !$context->collect_initializations
             && !$context->collect_mutations
         ) {
-            $declaring_class = explode('::', $method_id)[0];
+            $declaring_class = $method_id->fq_class_name;
             if (! NamespaceAnalyzer::nameSpaceRootsMatch($context->self, $declaring_class)) {
                 if (IssueBuffer::accepts(
                     new InternalMethod(
                         'The method ' . $codebase_methods->getCasedMethodId($method_id) .
                             ' has been marked as internal',
                         $code_location,
-                        $method_id
+                        (string) $method_id
                     ),
                     $suppressed_issues
                 )) {
@@ -327,7 +337,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             $appearing_method_name = $appearing_method_id->method_name;
 
             // if the calling class is the same, we know the method exists, so it must be visible
-            if ($appearing_method_class === strtolower($context->self)) {
+            if ($appearing_method_class === $context->self) {
                 return null;
             }
 
@@ -337,7 +347,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
         $declaring_method_class = $declaring_method_id->fq_class_name;
 
         if ($source->getSource() instanceof TraitAnalyzer
-            && $declaring_method_class === strtolower($source->getFQCLN())
+            && $declaring_method_class === strtolower((string) $source->getFQCLN())
         ) {
             return null;
         }
@@ -456,7 +466,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
             $appearing_method_class = $appearing_method_id->fq_class_name;
 
             // if the calling class is the same, we know the method exists, so it must be visible
-            if ($appearing_method_class === strtolower($context->self)) {
+            if ($appearing_method_class === $context->self) {
                 return true;
             }
         }
@@ -464,7 +474,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
         $declaring_method_class = $declaring_method_id->fq_class_name;
 
         if ($source->getSource() instanceof TraitAnalyzer
-            && $declaring_method_class === strtolower($source->getFQCLN())
+            && $declaring_method_class === strtolower((string) $source->getFQCLN())
         ) {
             return true;
         }
@@ -1247,7 +1257,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
     }
 
     /**
-     * @param string|null $context_self
+     * @param lowercase-string|null $context_self
      *
      * @return \Psalm\Internal\MethodIdentifier
      */
@@ -1256,7 +1266,7 @@ class MethodAnalyzer extends FunctionLikeAnalyzer
         $function_name = (string)$this->function->name;
 
         return new \Psalm\Internal\MethodIdentifier(
-            strtolower($context_self ?: $this->source->getFQCLN()),
+            $context_self ?: strtolower((string) $this->source->getFQCLN()),
             strtolower($function_name)
         );
     }

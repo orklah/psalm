@@ -952,7 +952,7 @@ class ReflectorVisitor extends PhpParser\NodeVisitorAbstract implements PhpParse
                 $second_arg_value = null;
             }
 
-            if ($first_arg_value && $second_arg_value) {
+            if ($first_arg_value !== null && $second_arg_value !== null) {
                 $second_arg_value = strtolower($second_arg_value);
 
                 $this->codebase->classlikes->addClassAlias(

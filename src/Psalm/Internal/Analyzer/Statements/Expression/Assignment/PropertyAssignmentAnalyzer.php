@@ -288,7 +288,9 @@ class PropertyAssignmentAnalyzer
                 if (!$codebase->classExists($lhs_type_part->value)) {
                     if ($codebase->interfaceExists($lhs_type_part->value)) {
                         $interface_exists = true;
-                        $interface_storage = $codebase->classlike_storage_provider->get($lhs_type_part->value);
+                        $interface_storage = $codebase->classlike_storage_provider->get(
+                            strtolower($lhs_type_part->value)
+                        );
 
                         $override_property_visibility = $interface_storage->override_property_visibility;
 

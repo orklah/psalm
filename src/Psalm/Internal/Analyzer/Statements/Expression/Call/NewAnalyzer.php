@@ -72,7 +72,7 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
                 );
 
                 $fq_class_name = $codebase->classlikes->getUnAliasedName($fq_class_name);
-            } else {
+            } elseif ($context->self !== null) {
                 switch ($stmt->class->parts[0]) {
                     case 'self':
                         $class_storage = $codebase->classlike_storage_provider->get($context->self);
@@ -405,7 +405,7 @@ class NewAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expression\CallAna
                             $statements_analyzer,
                             $stmt,
                             $codebase,
-                            $method_id
+                            (string) $method_id
                         );
                     }
 

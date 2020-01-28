@@ -44,7 +44,9 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
                     throw new \InvalidArgumentException('Could not interpret doc comment correctly');
                 }
 
-                $this_params = $this->checkMethod($matches[1], $first_stmt, $codebase);
+                $method_id = new \Psalm\Internal\MethodIdentifier(...explode('::', strtolower($matches[1])));
+
+                $this_params = $this->checkMethod($method_id, $first_stmt, $codebase);
 
                 if ($this_params === false) {
                     return;
@@ -59,7 +61,7 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
         if (!$this_params) {
             $this_params = new Context();
             $this_params->check_variables = false;
-            $this_params->self = self::VIEW_CLASS;
+            $this_params->self = strtolower(self::VIEW_CLASS);
             $this_params->vars_in_scope['$this'] = new Type\Union([
                 new Type\Atomic\TNamedObject(self::VIEW_CLASS),
             ]);
@@ -69,18 +71,16 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
     }
 
     /**
-     * @param  string         $method_id
+     * @param  \Psalm\Internal\MethodIdentifier         $method_id
      * @param  PhpParser\Node $stmt
      *
      * @return Context|false
      */
-    private function checkMethod($method_id, PhpParser\Node $stmt, Codebase $codebase)
+    private function checkMethod(\Psalm\Internal\MethodIdentifier $method_id, PhpParser\Node $stmt, Codebase $codebase)
     {
-        $class = explode('::', $method_id)[0];
-
         if (ClassLikeAnalyzer::checkFullyQualifiedClassLikeName(
             $this,
-            $class,
+            $method_id->fq_class_name,
             new CodeLocation($this, $stmt),
             [],
             true
@@ -90,19 +90,20 @@ class TemplateAnalyzer extends Psalm\Internal\Analyzer\FileAnalyzer
         }
 
         $this_context = new Context();
-        $this_context->self = strtolower($class);
-        $this_context->vars_in_scope['$this'] = new Type\Union([new Type\Atomic\TNamedObject($class)]);
+        $this_context->self = $method_id->fq_class_name;
 
-        $constructor_id = $class . '::__construct';
+        $class_storage = $codebase->classlike_storage_provider->get($method_id->fq_class_name);
+
+        $this_context->vars_in_scope['$this'] = new Type\Union([new Type\Atomic\TNamedObject($class_storage->name)]);
 
         $this->project_analyzer->getMethodMutations(
-            $constructor_id,
+            new \Psalm\Internal\MethodIdentifier($method_id->fq_class_name, '__construct'),
             $this_context,
             $this->getRootFilePath(),
             $this->getRootFileName()
         );
 
-        $this_context->vars_in_scope['$this'] = new Type\Union([new Type\Atomic\TNamedObject($class)]);
+        $this_context->vars_in_scope['$this'] = new Type\Union([new Type\Atomic\TNamedObject($class_storage->name)]);
 
         // check the actual method
         $this->project_analyzer->getMethodMutations(

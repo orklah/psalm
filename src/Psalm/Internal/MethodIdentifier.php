@@ -17,6 +17,7 @@ class MethodIdentifier
         $this->method_name = $method_name;
     }
 
+    /** @return lowercase-string */
     public function __toString()
     {
         return $this->fq_class_name . '::' . $this->method_name;

@@ -319,13 +319,13 @@ class FileAnalyzer extends SourceAnalyzer implements StatementsSource
     }
 
     /**
-     * @param  string   $method_id
-     * @param  Context  $this_context
-     *
      * @return void
      */
-    public function getMethodMutations(\Psalm\Internal\MethodIdentifier $method_id, Context $this_context, bool $from_project_analyzer = false)
-    {
+    public function getMethodMutations(
+        \Psalm\Internal\MethodIdentifier $method_id,
+        Context $this_context,
+        bool $from_project_analyzer = false
+    ) {
         $fq_class_name = $method_id->fq_class_name;
         $method_name = $method_id->method_name;
 

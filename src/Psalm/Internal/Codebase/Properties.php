@@ -192,7 +192,7 @@ class Properties
         if (isset($class_storage->appearing_property_ids[$property_name])) {
             $appearing_property_id = $class_storage->appearing_property_ids[$property_name];
 
-            return explode('::$', $appearing_property_id)[0];
+            return strtolower(explode('::$', $appearing_property_id)[0]);
         }
     }
 

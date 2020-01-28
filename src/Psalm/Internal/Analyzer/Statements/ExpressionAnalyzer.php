@@ -194,7 +194,7 @@ class ExpressionAnalyzer
             ) {
                 $source = $statements_analyzer->getSource();
                 if ($source instanceof FunctionLikeAnalyzer) {
-                    $statements_analyzer->node_data->setType($stmt, Type::getString($source->getMethodId()));
+                    $statements_analyzer->node_data->setType($stmt, Type::getString($source->getId()));
                 } else {
                     $statements_analyzer->node_data->setType($stmt, new Type\Union([new Type\Atomic\TCallableString]));
                 }

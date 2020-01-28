@@ -647,7 +647,7 @@ class ClassLikes
     }
 
     /**
-     * @param  string  $fq_class_name
+     * @param  lowercase-string  $fq_class_name
      *
      * @return bool
      */
@@ -705,12 +705,12 @@ class ClassLikes
     }
 
     /**
-     * @param lowercase-string $fq_class_name
+     * @param lowercase-string $alias_name
      * @return void
      */
     public function addClassAlias(string $fq_class_name, string $alias_name)
     {
-        $this->classlike_aliases[strtolower($alias_name)] = $fq_class_name;
+        $this->classlike_aliases[$alias_name] = $fq_class_name;
     }
 
     /**
@@ -793,8 +793,12 @@ class ClassLikes
         $code_migrations = [];
 
         foreach ($codebase->methods_to_move as $source => $destination) {
+            $source_parts = explode('::', $source);
+
             try {
-                $source_method_storage = $methods->getStorage($source);
+                $source_method_storage = $methods->getStorage(
+                    new \Psalm\Internal\MethodIdentifier(...$source_parts)
+                );
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
@@ -802,7 +806,7 @@ class ClassLikes
             list($destination_fq_class_name, $destination_name) = explode('::', $destination);
 
             try {
-                $classlike_storage = $this->classlike_storage_provider->get($destination_fq_class_name);
+                $classlike_storage = $this->classlike_storage_provider->get(strtolower($destination_fq_class_name));
             } catch (\InvalidArgumentException $e) {
                 continue;
             }
@@ -981,8 +985,12 @@ class ClassLikes
             list($source_fq_class_name, $source_const_name) = explode('::', $source);
             list($destination_fq_class_name, $destination_name) = explode('::', $destination);
 
-            $source_classlike_storage = $this->classlike_storage_provider->get($source_fq_class_name);
-            $destination_classlike_storage = $this->classlike_storage_provider->get($destination_fq_class_name);
+            $source_classlike_storage = $this->classlike_storage_provider->get(
+                strtolower($source_fq_class_name)
+            );
+            $destination_classlike_storage = $this->classlike_storage_provider->get(
+                strtolower($destination_fq_class_name)
+            );
 
             $source_const_stmt_location = $source_classlike_storage->class_constant_stmt_locations[$source_const_name];
             $source_const_location = $source_classlike_storage->class_constant_locations[$source_const_name];
@@ -1778,7 +1786,7 @@ class ClassLikes
                 continue;
             }
 
-            $method_referenced = $this->file_reference_provider->isClassMethodReferenced(strtolower($method_id));
+            $method_referenced = $this->file_reference_provider->isClassMethodReferenced((string) $method_id);
 
             if (!$method_referenced
                 && (substr($method_name, 0, 2) !== '__' || $method_name === '__construct')
@@ -1815,7 +1823,7 @@ class ClassLikes
                             }
 
                             $parent_method_referenced = $this->file_reference_provider->isClassMethodReferenced(
-                                strtolower($parent_method_id)
+                                (string) $parent_method_id
                             );
 
                             if (!$parent_method_storage->abstract || $parent_method_referenced) {
@@ -1833,22 +1841,22 @@ class ClassLikes
                         }
                     }
 
-                    foreach ($classlike_storage->class_implements as $fq_interface_name) {
+                    foreach ($classlike_storage->class_implements as $fq_interface_name_lc => $fq_interface_name) {
                         try {
-                            $interface_storage = $this->classlike_storage_provider->get($fq_interface_name);
+                            $interface_storage = $this->classlike_storage_provider->get($fq_interface_name_lc);
                         } catch (\InvalidArgumentException $e) {
                             continue;
                         }
 
                         if ($codebase->analyzer->hasMixedMemberName(
-                            strtolower($fq_interface_name) . '::'
+                            $fq_interface_name_lc . '::'
                         )) {
                             $has_variable_calls = true;
                         }
 
                         if (isset($interface_storage->methods[$method_name])) {
                             $interface_method_referenced = $this->file_reference_provider->isClassMethodReferenced(
-                                strtolower($fq_interface_name . '::' . $method_name)
+                                $fq_interface_name_lc . '::' . $method_name
                             );
 
                             if ($interface_method_referenced) {
@@ -1930,7 +1938,7 @@ class ClassLikes
                     && !$classlike_storage->is_interface
                 ) {
                     foreach ($method_storage->params as $offset => $param_storage) {
-                        if (!$this->file_reference_provider->isMethodParamUsed(strtolower($method_id), $offset)
+                        if (!$this->file_reference_provider->isMethodParamUsed((string) $method_id, $offset)
                             && $param_storage->location
                         ) {
                             if (IssueBuffer::accepts(
@@ -2241,11 +2249,11 @@ class ClassLikes
 
     /**
      * @return array{
-     *     0: array<string, bool>,
-     *     1: array<string, bool>,
-     *     2: array<string, bool>,
+     *     0: array<lowercase-string, bool>,
+     *     1: array<lowercase-string, bool>,
+     *     2: array<lowercase-string, bool>,
      *     3: array<string, bool>,
-     *     4: array<string, bool>,
+     *     4: array<lowercase-string, bool>,
      *     5: array<string, bool>,
      *     6: array<string, bool>,
      *     7: array<string, \PhpParser\Node\Stmt\Trait_>,
@@ -2269,11 +2277,11 @@ class ClassLikes
 
     /**
      * @param array{
-     *     0: array<string, bool>,
-     *     1: array<string, bool>,
-     *     2: array<string, bool>,
+     *     0: array<lowercase-string, bool>,
+     *     1: array<lowercase-string, bool>,
+     *     2: array<lowercase-string, bool>,
      *     3: array<string, bool>,
-     *     4: array<string, bool>,
+     *     4: array<lowercase-string, bool>,
      *     5: array<string, bool>,
      *     6: array<string, bool>,
      *     7: array<string, \PhpParser\Node\Stmt\Trait_>,
