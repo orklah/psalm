@@ -493,8 +493,6 @@ class ClassLikes
 
         $fq_class_name = $this->classlike_aliases[$fq_class_name_lc] ?? $fq_class_name;
 
-        $fq_trait_name_lc = strtolower($fq_class_name);
-
         $class_storage = $this->classlike_storage_provider->get($fq_class_name_lc);
 
         if ($from_api && !$class_storage->populated) {
@@ -1356,7 +1354,7 @@ class ClassLikes
         $project_analyzer = \Psalm\Internal\Analyzer\ProjectAnalyzer::getInstance();
         $codebase = $project_analyzer->getCodebase();
 
-        $destination_class_storage = $codebase->classlike_storage_provider->get($destination_fq_class_name);
+        $destination_class_storage = $codebase->classlike_storage_provider->get(strtolower($destination_fq_class_name));
 
         if (!$destination_class_storage->aliases) {
             throw new \UnexpectedValueException('Aliases should not be null');
@@ -1392,7 +1390,7 @@ class ClassLikes
         $project_analyzer = \Psalm\Internal\Analyzer\ProjectAnalyzer::getInstance();
         $codebase = $project_analyzer->getCodebase();
 
-        $destination_class_storage = $codebase->classlike_storage_provider->get($destination_fq_class_name);
+        $destination_class_storage = $codebase->classlike_storage_provider->get(strtolower($destination_fq_class_name));
 
         if (!$destination_class_storage->aliases) {
             throw new \UnexpectedValueException('Aliases should not be null');
@@ -1841,7 +1839,7 @@ class ClassLikes
                         }
                     }
 
-                    foreach ($classlike_storage->class_implements as $fq_interface_name_lc => $fq_interface_name) {
+                    foreach ($classlike_storage->class_implements as $fq_interface_name_lc => $_) {
                         try {
                             $interface_storage = $this->classlike_storage_provider->get($fq_interface_name_lc);
                         } catch (\InvalidArgumentException $e) {
@@ -2005,10 +2003,10 @@ class ClassLikes
                 continue;
             }
 
-            if (isset($codebase->analyzer->possible_method_param_types[strtolower($method_id)])) {
+            if (isset($codebase->analyzer->possible_method_param_types[(string) $method_id])) {
                 if ($method_storage->location) {
                     $possible_param_types
-                        = $codebase->analyzer->possible_method_param_types[strtolower($method_id)];
+                        = $codebase->analyzer->possible_method_param_types[(string) $method_id];
 
                     if ($possible_param_types) {
                         foreach ($possible_param_types as $offset => $possible_type) {
@@ -2033,7 +2031,7 @@ class ClassLikes
                                 && isset($project_analyzer->getIssuesToFix()['MissingParamType'])
                             ) {
                                 $function_analyzer = $project_analyzer->getFunctionLikeAnalyzer(
-                                    (string) $method_id,
+                                    $method_id,
                                     $method_storage->location->file_path
                                 );
 

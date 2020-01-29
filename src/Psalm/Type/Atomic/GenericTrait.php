@@ -18,6 +18,7 @@ use Psalm\Type;
 use Psalm\Type\Atomic;
 use Psalm\Type\Union;
 use function substr;
+use function strtolower;
 
 trait GenericTrait
 {

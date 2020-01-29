@@ -32,6 +32,7 @@ use function strpos;
 use function strval;
 use function substr;
 use Doctrine\Instantiator\Exception\UnexpectedValueException;
+use function strtolower;
 
 class Union
 {

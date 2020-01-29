@@ -8,6 +8,7 @@ use Psalm\StatementsSource;
 use Psalm\Type;
 use Psalm\Type\Atomic;
 use function substr;
+use function strtolower;
 
 class TNamedObject extends Atomic
 {

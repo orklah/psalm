@@ -661,17 +661,19 @@ class ProjectAnalyzer
                     );
                 }
 
-                if (strtolower($source_parts[0]) !== strtolower($destination_parts[0])) {
+                $destination_part_lc = strtolower($destination_parts[0]);
+
+                if (strtolower($source_parts[0]) !== $destination_part_lc) {
                     $source_method_storage = $this->codebase->methods->getStorage($source_method_id);
                     $destination_class_storage
-                        = $this->codebase->classlike_storage_provider->get($destination_parts[0]);
+                        = $this->codebase->classlike_storage_provider->get($destination_part_lc);
 
                     if (!$source_method_storage->is_static
                         && !isset($destination_class_storage->parent_classes[$source_method_id->fq_class_name])
                     ) {
                         throw new \Psalm\Exception\RefactorException(
                             'Cannot move non-static method ' . $source
-                                . ' into unrelated class ' . $destination_parts[0]
+                                . ' into unrelated class ' . $destination_part_lc
                         );
                     }
 
@@ -1300,8 +1302,10 @@ class ProjectAnalyzer
         $file_analyzer->clearSourceBeforeDestruction();
     }
 
-    public function getFunctionLikeAnalyzer(string $method_id, string $file_path) : ?FunctionLikeAnalyzer
-    {
+    public function getFunctionLikeAnalyzer(
+        \Psalm\Internal\MethodIdentifier $method_id,
+        string $file_path
+    ) : ?FunctionLikeAnalyzer {
         $file_analyzer = new FileAnalyzer(
             $this,
             $file_path,

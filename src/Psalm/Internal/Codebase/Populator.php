@@ -293,7 +293,8 @@ class Populator
 
                 foreach ($overridden_method_ids as $declaring_method_id) {
                     $declaring_class = $declaring_method_id->fq_class_name;
-                    $declaring_method_name = $declaring_method_id->method_name;;
+                    $declaring_method_name = $declaring_method_id->method_name;
+                    ;
                     $declaring_class_storage = $declaring_class_storages[$declaring_class];
 
                     $declaring_method_storage = $declaring_class_storage->methods[$declaring_method_name];
@@ -850,7 +851,8 @@ class Populator
             }
 
             foreach ($interface_method_ids as $interface_method_id) {
-                $storage->overridden_method_ids[$method_name][$interface_method_id->fq_class_name] = $interface_method_id;
+                $storage->overridden_method_ids[$method_name][$interface_method_id->fq_class_name]
+                    = $interface_method_id;
             }
         }
     }
@@ -1122,10 +1124,12 @@ class Populator
                     if (isset($declaring_class_storage->methods[$method_name_lc])
                         && $declaring_class_storage->methods[$method_name_lc]->abstract
                     ) {
-                        $storage->overridden_method_ids[$method_name_lc][$declaring_method_id->fq_class_name] = $declaring_method_id;
+                        $storage->overridden_method_ids[$method_name_lc][$declaring_method_id->fq_class_name]
+                            = $declaring_method_id;
                     }
                 } else {
-                    $storage->overridden_method_ids[$method_name_lc][$declaring_method_id->fq_class_name] = $declaring_method_id;
+                    $storage->overridden_method_ids[$method_name_lc][$declaring_method_id->fq_class_name]
+                        = $declaring_method_id;
                 }
 
                 if (isset($parent_storage->overridden_method_ids[$method_name_lc])

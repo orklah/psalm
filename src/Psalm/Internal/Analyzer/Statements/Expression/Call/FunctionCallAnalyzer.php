@@ -44,6 +44,7 @@ use function extension_loaded;
 use function strpos;
 use Psalm\Internal\Type\TemplateResult;
 use Psalm\Storage\FunctionLikeParameter;
+use function explode;
 
 /**
  * @internal
@@ -240,7 +241,8 @@ class FunctionCallAnalyzer extends \Psalm\Internal\Analyzer\Statements\Expressio
                         || !$codebase->classlikes->classOrInterfaceExists($var_type_part->value)
                         || !$codebase->methods->methodExists(
                             new \Psalm\Internal\MethodIdentifier(
-                                strtolower($var_type_part->value), '__invoke'
+                                strtolower($var_type_part->value),
+                                '__invoke'
                             )
                         )
                     ) {

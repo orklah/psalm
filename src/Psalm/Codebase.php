@@ -37,6 +37,8 @@ use function strrpos;
 use function strtolower;
 use function substr;
 use function substr_count;
+use function is_string;
+use function preg_replace;
 
 class Codebase
 {

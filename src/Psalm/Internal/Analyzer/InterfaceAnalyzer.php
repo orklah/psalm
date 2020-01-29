@@ -5,6 +5,7 @@ use PhpParser;
 use Psalm\CodeLocation;
 use Psalm\Issue\UndefinedInterface;
 use UnexpectedValueException;
+use function strtolower;
 
 /**
  * @internal

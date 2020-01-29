@@ -1800,7 +1800,6 @@ class TypeAnalyzer
                     )
                 );
             }
-
         }
 
         return null;
@@ -1944,8 +1943,12 @@ class TypeAnalyzer
             $container_type_params_covariant = [];
 
             try {
-                $input_class_storage = $codebase->classlike_storage_provider->get(strtolower($input_type_part->value));
-                $container_class_storage = $codebase->classlike_storage_provider->get(strtolower($container_type_part->value));
+                $input_class_storage = $codebase->classlike_storage_provider->get(
+                    strtolower($input_type_part->value)
+                );
+                $container_class_storage = $codebase->classlike_storage_provider->get(
+                    strtolower($container_type_part->value)
+                );
                 $container_type_params_covariant = $container_class_storage->template_covariants;
             } catch (\Throwable $e) {
                 $input_class_storage = null;

@@ -14,6 +14,7 @@ use function reset;
 use function strpos;
 use function strval;
 use function substr;
+use function strtolower;
 
 class UnionTemplateHandler
 {
