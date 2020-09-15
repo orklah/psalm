@@ -356,7 +356,7 @@ class IncludeAnalyzer
             return $file_name;
         }
 
-        $paths = PATH_SEPARATOR == ':'
+        $paths = PATH_SEPARATOR === ':'
             ? preg_split('#(?<!phar):#', get_include_path())
             : explode(PATH_SEPARATOR, get_include_path());
 

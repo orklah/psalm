@@ -21,7 +21,7 @@ class OffsetShifterVisitor extends PhpParser\NodeVisitorAbstract implements PhpP
     }
 
     /**
-     * @return null|int
+     * @return null
      */
     public function enterNode(PhpParser\Node $node)
     {
@@ -58,5 +58,7 @@ class OffsetShifterVisitor extends PhpParser\NodeVisitorAbstract implements PhpP
         $node->setAttribute('endFilePos', $attrs['endFilePos'] + $this->file_offset);
         /** @psalm-suppress MixedOperand */
         $node->setAttribute('startLine', $attrs['startLine'] + $this->line_offset);
+        
+        return null;
     }
 }
