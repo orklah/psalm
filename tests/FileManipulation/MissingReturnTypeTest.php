@@ -1012,6 +1012,20 @@ class MissingReturnTypeTest extends FileManipulationTest
                 false,
                 true,
             ],
+            'returnNullableIntOrString80' => [
+                '<?php
+                    function scope(int $i, string $s) {
+                        return rand(0,1) ? (rand(0, 1) ? $i : $s) : null;
+                    }',
+                '<?php
+                    function scope(int $i, string $s): int|string|null {
+                        return rand(0,1) ? (rand(0, 1) ? $i : $s) : null;
+                    }',
+                '8.0',
+                ['MissingReturnType'],
+                false,
+                true,
+            ],
         ];
     }
 }

@@ -475,7 +475,7 @@ class Union implements TypeNode
             $php_types[] = $php_type;
         }
 
-        return ($nullable ? '?' : '') . implode('|', array_unique($php_types));
+        return ($nullable ? '?' : '') . implode('|', \array_unique($php_types));
     }
 
     public function canBeFullyExpressedInPhp(int $php_major_version, int $php_minor_version): bool
