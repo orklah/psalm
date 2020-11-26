@@ -370,7 +370,7 @@ return [
         'lastChild' => 'DOMNode|null',
         'previousSibling' => 'DOMNode|null',
         'nextSibling' => 'DOMNode|null',
-        'attributes' => 'null',
+        'attributes' => 'DOMNamedNodeMap|null',
         'ownerDocument' => 'DOMDocument|null',
         'namespaceURI' => 'string|null',
         'prefix' => 'string',
