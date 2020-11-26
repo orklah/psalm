@@ -14,6 +14,7 @@ use function preg_match;
 use function array_merge;
 use function array_values;
 use function count;
+use const PHP_INT_MAX;
 
 /**
  * @internal
@@ -157,6 +158,10 @@ class ArrayAnalyzer
 
                     if ($item->key instanceof PhpParser\Node\Scalar\String_
                         && preg_match('/^(0|[1-9][0-9]*)$/', $item->key->value)
+                        && (
+                            (int) $item->key->value < PHP_INT_MAX ||
+                            (string) $item->key->value === (string) PHP_INT_MAX
+                        )
                     ) {
                         $key_type = Type::getInt(false, (int) $item->key->value);
                     }

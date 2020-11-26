@@ -1523,6 +1523,14 @@ class ArrayAssignmentTest extends TestCase
                         return $l;
                     }'
             ],
+            'ArrayOffsetNumericSupPHPINTMAX' => [
+                '<?php
+                    $_a = [
+                        "9223372036854775808" => 1,
+                        "9223372036854775809" => 2
+                    ];
+                ',
+            ],
         ];
     }
 
