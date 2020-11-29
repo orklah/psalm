@@ -158,7 +158,8 @@ class ClassTemplateParamCollector
 
                                 $mapped_offset = array_search(
                                     $type_extends_atomic->param_name,
-                                    $search_keys
+                                    $search_keys,
+                                    true
                                 );
 
                                 if ($mapped_offset !== false

@@ -17,6 +17,7 @@ use Psalm\Issue\DocblockTypeContradiction;
 use Psalm\Issue\PsalmInternalError;
 use Psalm\Issue\RedundantCondition;
 use Psalm\Issue\RedundantConditionGivenDocblockType;
+use Psalm\Issue\RedundantPropertyInitializationCheck;
 use Psalm\Issue\TypeDoesNotContainNull;
 use Psalm\Issue\TypeDoesNotContainType;
 use Psalm\IssueBuffer;
@@ -854,7 +855,19 @@ class Reconciler
                 && $existing_var_atomic_types[$assertion]->from_docblock);
 
         if ($redundant) {
-            if ($from_docblock) {
+        if ($existing_var_type->from_property && $assertion === 'isset') {
+                if (IssueBuffer::accepts(
+                    new RedundantPropertyInitializationCheck(
+                        'Property type ' . $key . ' with type '
+                            . $old_var_type_string . ' should already be set in the constructor',
+                        $code_location,
+                        $old_var_type_string . ' ' . $assertion
+                    ),
+                    $suppressed_issues
+                )) {
+                    // fall through
+                }
+            } elseif ($from_docblock) {
                 if (IssueBuffer::accepts(
                     new RedundantConditionGivenDocblockType(
                         'Docblock-defined type ' . $old_var_type_string
