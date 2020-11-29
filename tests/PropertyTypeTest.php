@@ -2167,6 +2167,16 @@ class PropertyTypeTest extends TestCase
 
                             return "hello";
                         }
+
+                        public function getBarYetAgainButThisTimeWithAssignment() : string {
+                            $bar = $this->bar;
+                            /**  @psalm-suppress RedundantCondition This time the error is legit because assignment */
+                            if (isset($bar)) {
+                                return $bar;
+                            }
+
+                            return "hello";
+                        }
                     }',
             ],
         ];
