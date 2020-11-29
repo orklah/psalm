@@ -824,8 +824,7 @@ class Reconciler
     }
 
     /**
-     * @param  string[]     $suppressed_issues
-     *
+     * @param array<string> $suppressed_issues
      */
     protected static function triggerIssueForImpossible(
         Union $existing_var_type,
@@ -855,13 +854,12 @@ class Reconciler
                 && $existing_var_atomic_types[$assertion]->from_docblock);
 
         if ($redundant) {
-        if ($existing_var_type->from_property && $assertion === 'isset') {
+            if ($existing_var_type->from_property && $assertion === 'isset') {
                 if (IssueBuffer::accepts(
                     new RedundantPropertyInitializationCheck(
                         'Property type ' . $key . ' with type '
                             . $old_var_type_string . ' should already be set in the constructor',
-                        $code_location,
-                        $old_var_type_string . ' ' . $assertion
+                        $code_location
                     ),
                     $suppressed_issues
                 )) {

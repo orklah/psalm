@@ -95,8 +95,7 @@ class NegatedAssertionReconciler extends Reconciler
                                         new RedundantPropertyInitializationCheck(
                                             'Property type ' . $key . ' with type '
                                                 . $existing_var_type . ' should already be set in the constructor',
-                                            $code_location,
-                                            null
+                                            $code_location
                                         ),
                                         $suppressed_issues
                                     )) {
