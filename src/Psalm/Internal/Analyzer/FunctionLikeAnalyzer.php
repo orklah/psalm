@@ -123,6 +123,11 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
     protected $storage;
 
     /**
+     * @var \Psalm\Internal\Provider\NodeDataProvider|null
+     */
+    private $node_type_provider = null;
+
+    /**
      * @param Closure|Function_|ClassMethod|ArrowFunction $function
      */
     public function __construct($function, SourceAnalyzer $source, FunctionLikeStorage $storage)
@@ -147,6 +152,8 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
         bool $add_mutations = false,
         ?array $byref_uses = null
     ): ?bool {
+        $this->node_type_provider = $type_provider;
+
         $storage = $this->storage;
 
         $function_stmts = $this->function->getStmts() ?: [];
@@ -1800,7 +1807,7 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
 
     public function getNodeTypeProvider() : \Psalm\NodeTypeProvider
     {
-        return $this->source->getNodeTypeProvider();
+        return $this->node_type_provider ?? $this->source->getNodeTypeProvider();
     }
 
     public function isStatic(): bool
