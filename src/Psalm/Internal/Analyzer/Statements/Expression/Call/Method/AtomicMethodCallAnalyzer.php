@@ -635,7 +635,7 @@ class AtomicMethodCallAnalyzer extends CallAnalyzer
         StatementsAnalyzer $statements_analyzer,
         string $fq_class_name,
         ?string $lhs_var_id
-    ) {
+    ): array {
         $naive_method_exists = false;
 
         if ($class_storage->templatedMixins

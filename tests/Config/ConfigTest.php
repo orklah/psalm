@@ -1291,8 +1291,7 @@ class ConfigTest extends \Psalm\Tests\TestCase
         $this->assertFalse($this->project_analyzer->getConfig()->use_phpstorm_meta_path);
     }
 
-    /** @return void */
-    public function testSetsUniversalObjectCrates()
+    public function testSetsUniversalObjectCrates(): void
     {
         $this->project_analyzer = $this->getProjectAnalyzerWithConfig(
             TestConfig::loadFromXML(

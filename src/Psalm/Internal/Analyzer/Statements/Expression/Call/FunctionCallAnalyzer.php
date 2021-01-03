@@ -337,16 +337,13 @@ class FunctionCallAnalyzer extends CallAnalyzer
         return true;
     }
 
-    /**
-     * @return FunctionCallInfo
-     */
     private static function handleNamedFunction(
         StatementsAnalyzer $statements_analyzer,
         PhpParser\Node\Expr\FuncCall $stmt,
         PhpParser\Node\Name $function_name,
         Context $context,
         CodeLocation $code_location
-    ) {
+    ): FunctionCallInfo {
         $function_call_info = new FunctionCallInfo();
 
         $codebase = $statements_analyzer->getCodebase();
