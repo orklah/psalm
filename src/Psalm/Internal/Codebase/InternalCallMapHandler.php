@@ -312,7 +312,7 @@ class InternalCallMapHandler
                     $function_param->sinks = self::$taint_sink_map[$call_map_key][$arg_offset];
                 }
 
-                $function_param->signature_type = null;
+                $function_param->signature_type = $function_param->type;
 
                 $function_params[] = $function_param;
 
