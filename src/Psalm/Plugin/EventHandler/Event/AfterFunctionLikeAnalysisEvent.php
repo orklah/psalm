@@ -10,6 +10,7 @@ use Psalm\FileManipulation;
 use Psalm\NodeTypeProvider;
 use Psalm\StatementsSource;
 use Psalm\Storage\FunctionLikeStorage;
+use function array_merge;
 
 class AfterFunctionLikeAnalysisEvent
 {
@@ -99,6 +100,14 @@ class AfterFunctionLikeAnalysisEvent
     public function setFileReplacements(array $file_replacements): void
     {
         $this->file_replacements = $file_replacements;
+    }
+
+    /**
+     * @param FileManipulation[] $file_replacements
+     */
+    public function addFileReplacements(array $file_replacements): void
+    {
+        $this->file_replacements = array_merge($this->file_replacements ?? [], $file_replacements);
     }
 
     public function getNodeTypeProvider(): NodeTypeProvider

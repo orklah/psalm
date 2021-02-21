@@ -7,6 +7,7 @@ use Psalm\Codebase;
 use Psalm\CodeLocation;
 use Psalm\FileManipulation;
 use Psalm\StatementsSource;
+use function array_merge;
 
 class AfterClassLikeExistenceCheckEvent
 {
@@ -82,5 +83,13 @@ class AfterClassLikeExistenceCheckEvent
     public function setFileReplacements(array $file_replacements): void
     {
         $this->file_replacements = $file_replacements;
+    }
+
+    /**
+     * @param FileManipulation[] $file_replacements
+     */
+    public function addFileReplacements(array $file_replacements): void
+    {
+        $this->file_replacements = array_merge($this->file_replacements ?? [], $file_replacements);
     }
 }

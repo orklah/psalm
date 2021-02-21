@@ -8,6 +8,7 @@ use Psalm\Codebase;
 use Psalm\Context;
 use Psalm\FileManipulation;
 use Psalm\StatementsSource;
+use function array_merge;
 
 class AfterExpressionAnalysisEvent
 {
@@ -85,5 +86,13 @@ class AfterExpressionAnalysisEvent
     public function setFileReplacements(array $file_replacements): void
     {
         $this->file_replacements = $file_replacements;
+    }
+
+    /**
+     * @param FileManipulation[] $file_replacements
+     */
+    public function addFileReplacements(array $file_replacements): void
+    {
+        $this->file_replacements = array_merge($this->file_replacements ?? [], $file_replacements);
     }
 }
