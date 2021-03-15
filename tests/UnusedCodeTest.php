@@ -753,6 +753,16 @@ class UnusedCodeTest extends TestCase
                     echo $test->id;
                     echo $test->name;'
             ],
+            'promotedPropertyIsUsedEvenPrivate' => [
+                '<?php
+                    class Test {
+                        private function __construct(public int $id, public string $name) {}
+                    }
+
+                    $test = new Test(1, "ame");
+                    echo $test->id;
+                    echo $test->name;'
+            ],
         ];
     }
 

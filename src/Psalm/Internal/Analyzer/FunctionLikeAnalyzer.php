@@ -792,6 +792,10 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
                 continue;
             }
 
+            if ($storage->params[$position]->promoted_property) {
+                continue;
+            }
+
             $did_match_param = false;
 
             foreach ($this->function->params as $param) {
@@ -828,6 +832,7 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
                         // fall through
                     }
                 } else {
+
                     if (IssueBuffer::accepts(
                         new UnusedParam(
                             'Param ' . $var_name . ' is never referenced in this method',
