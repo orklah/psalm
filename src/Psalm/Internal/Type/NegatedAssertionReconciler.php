@@ -249,7 +249,7 @@ final class NegatedAssertionReconciler extends Reconciler
                             $codebase,
                             $assertion_type,
                             $existing_var_type_part,
-                            false,
+                            true,
                             false,
                         )) {
                             $existing_var_type->different = true;

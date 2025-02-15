@@ -470,17 +470,17 @@ final class AtomicTypeComparator
 
         if ($container_type_part instanceof TTemplateParam) {
             foreach ($container_type_part->as->getAtomicTypes() as $container_as_type_part) {
-                if (self::isContainedBy(
-                    $codebase,
-                    $input_type_part,
-                    $container_as_type_part,
-                    $allow_interface_equality,
-                    $allow_float_int_equality,
-                    $atomic_comparison_result,
-                )) {
-                    if ($allow_interface_equality) {
-                        return true;
-                    }
+                if ($allow_interface_equality &&
+                    self::isContainedBy(
+                        $codebase,
+                        $input_type_part,
+                        $container_as_type_part,
+                        $allow_interface_equality,
+                        $allow_float_int_equality,
+                        $atomic_comparison_result,
+                    )
+                ) {
+                    return true;
                 }
             }
 
