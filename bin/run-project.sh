@@ -59,6 +59,8 @@ install() {
     if [ "$composer" = true ] && [ -f "$PROJ/composer.json" ]; then
         # Dependencies pinned per corpus commit (locks/<project>/<ref>.lock), so runs differ only by Psalm.
         local lock="$HERE/../locks/$NAME/$REF.lock" command=update
+        # Some projects set "lock": false (monolog); the copy we analyse needs one to be pinned.
+        (cd "$PROJ" && composer config --no-interaction lock true)
         if [ -f "$lock" ]; then
             cp "$lock" "$PROJ/composer.lock"
             command=install
