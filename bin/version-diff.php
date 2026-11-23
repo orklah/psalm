@@ -233,6 +233,11 @@ function positionKey(array $issue): string
     return "{$issue['type']}\0{$issue['file']}\0{$issue['line']}\0{$issue['column']}";
 }
 
+function lineKey(array $issue): string
+{
+    return "{$issue['type']}\0{$issue['file']}\0{$issue['line']}";
+}
+
 function issueKey(array $issue): string
 {
     return positionKey($issue) . "\0{$issue['message']}\0{$issue['severity']}";
@@ -240,7 +245,7 @@ function issueKey(array $issue): string
 
 /**
  * Multiset difference on (type, file, line, column, message, severity): both runs analyse the same commit, so a
- * position identifies an issue. An issue gone and one new at the same type and position is a changed message.
+ * position identifies an issue. An issue gone and one new of the same type on the same line is a changed one.
  *
  * @param list<array<string, mixed>> $old
  * @param list<array<string, mixed>> $new
@@ -271,25 +276,30 @@ function diffIssues(array $old, array $new): array
     $added = $surplus($new, $old);
     $removed = $surplus($old, $new);
 
-    $removedAt = [];
-    foreach ($removed as $i => $issue) {
-        $removedAt[positionKey($issue)][] = $i;
-    }
-
     $changed = [];
-    $newOnly = [];
-    foreach ($added as $issue) {
-        $key = positionKey($issue);
-        if (($removedAt[$key] ?? []) !== []) {
-            $i = array_shift($removedAt[$key]);
-            $changed[] = ['old' => $removed[$i], 'new' => $issue];
-            unset($removed[$i]);
-        } else {
-            $newOnly[] = $issue;
+    // Same column first, then same line: 7.x sometimes reports the same issue on another node of the line.
+    foreach ([positionKey(...), lineKey(...)] as $keyOf) {
+        $removedAt = [];
+        foreach ($removed as $i => $issue) {
+            $removedAt[$keyOf($issue)][] = $i;
         }
+
+        $unpaired = [];
+        foreach ($added as $issue) {
+            $key = $keyOf($issue);
+            if (($removedAt[$key] ?? []) !== []) {
+                $i = array_shift($removedAt[$key]);
+                $changed[] = ['old' => $removed[$i], 'new' => $issue];
+                unset($removed[$i]);
+            } else {
+                $unpaired[] = $issue;
+            }
+        }
+
+        $added = $unpaired;
     }
 
-    return ['new' => $newOnly, 'gone' => array_values($removed), 'changed' => $changed];
+    return ['new' => $added, 'gone' => array_values($removed), 'changed' => $changed];
 }
 
 /**
@@ -430,7 +440,8 @@ function issueList(array $items, string $side, ?int $limit): string
 
             $shown++;
             if ($side === 'changed') {
-                $out .= '- ' . where($item['new']) . "\n  - avant : " . esc($item['old']['message'])
+                $moved = $item['old']['column'] !== $item['new']['column'] ? " (colonne {$item['old']['column']})" : '';
+                $out .= '- ' . where($item['new']) . "\n  - avant{$moved} : " . esc($item['old']['message'])
                     . "\n  - après : " . esc($item['new']['message']) . "\n";
             } else {
                 $out .= '- ' . where($item) . ' ' . esc($item['message']) . "\n";

@@ -27,7 +27,7 @@ gh run download <id> --repo orklah/psalm -n version-diff-report -D out/
 ## What counts as a difference
 
 Both versions analyse the same commit, so issues are compared on type, file, line, column, message and severity.
-An issue gone and one new with the same type at the same position is a **changed** message, not a new and a gone one.
+An issue gone and one new of the same type on the same line (same column first) is **changed**, not a new and a gone one.
 
 ## Classifying
 
