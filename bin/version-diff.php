@@ -310,6 +310,12 @@ function report(array $opts): void
     ini_set('memory_limit', '-1');
     $entries = loadClassifications($opts['classifications']);
     $used = array_fill(0, count($entries), 0);
+    // Candidates per side and type, in file order: the first match wins.
+    $bySideAndType = [];
+    foreach ($entries as $i => $entry) {
+        $bySideAndType[$entry['side']][$entry['type']][] = $i;
+    }
+
     $old = $opts['old'];
     $new = $opts['new'];
 
@@ -344,8 +350,8 @@ function report(array $opts): void
                 foreach ($diff[$side] as $item) {
                     $issue = $side === 'changed' ? $item['new'] : $item;
                     $hit = null;
-                    foreach ($entries as $i => $entry) {
-                        if (entryMatches($entry, $name, $side, $issue)) {
+                    foreach ($bySideAndType[$side][$issue['type']] ?? [] as $i) {
+                        if (entryMatches($entries[$i], $name, $side, $issue)) {
                             $hit = $i;
                             break;
                         }
