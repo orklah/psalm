@@ -79,7 +79,7 @@ export PSALM_ALLOW_XDEBUG=1
 rc=0
 # One thread: the perf report's setting, known to fit the runner's memory, and deterministic.
 (cd "$PROJ" && timeout -k 20 "$TIMEOUT" php -d memory_limit=-1 "$PSALM/psalm" --root="$PROJ" -c "$PROJ/psalm-perf.xml" \
-    --no-cache --no-progress --ignore-baseline --threads=1 --output-format=compact --report="$REPORT" \
+    --no-cache --no-progress --ignore-baseline --threads=1 --output-format=console --report="$REPORT" \
     --memory-limit="$MEMORY_LIMIT") > "$LOG" 2>&1 < /dev/null || rc=$?
 
 if [ "$rc" -eq 124 ] || [ "$rc" -eq 137 ]; then
