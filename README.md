@@ -13,6 +13,7 @@ read from vimeo/psalm master at run time.
 - Every push to `version-diff` runs `.github/workflows/version-diff.yml`, so pushing new classifications re-runs it.
 - Re-run without a change: `gh run rerun <id> --repo orklah/psalm`, or push an empty commit.
 - Both versions run on PHP 8.5, one thread, `--no-cache`, at three times the perf timeout.
+- Project dependencies come from `locks/<project>/<ref>.lock` (`composer install`); without one, the run resolves them and the report artifact holds the lock to commit.
 
 Results: the run's job summary (lists cut at 60 issues per section) and the `version-diff-report` artifact:
 

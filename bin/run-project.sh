@@ -57,8 +57,18 @@ install() {
     git -C "$PROJ" -c advice.detachedHead=false checkout -q FETCH_HEAD
     if [ -n "$before_install" ]; then (cd "$PROJ" && bash -c "$before_install"); fi
     if [ "$composer" = true ] && [ -f "$PROJ/composer.json" ]; then
-        (cd "$PROJ" && COMPOSER_ROOT_VERSION="${TAG#v}" composer update --no-dev --no-scripts --no-plugins \
+        # Dependencies pinned per corpus commit (locks/<project>/<ref>.lock), so runs differ only by Psalm.
+        local lock="$HERE/../locks/$NAME/$REF.lock" command=update
+        if [ -f "$lock" ]; then
+            cp "$lock" "$PROJ/composer.lock"
+            command=install
+        fi
+        (cd "$PROJ" && COMPOSER_ROOT_VERSION="${TAG#v}" composer "$command" --no-dev --no-scripts --no-plugins \
             --ignore-platform-reqs --no-interaction --no-progress)
+        if [ "$command" = update ]; then
+            mkdir -p "$OUT/locks/$NAME"
+            cp "$PROJ/composer.lock" "$OUT/locks/$NAME/$REF.lock"
+        fi
     fi
 }
 

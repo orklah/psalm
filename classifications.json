@@ -219,7 +219,8 @@
             "file": "src/Symfony/Component/Emoji/EmojiTransliterator.php",
             "message_pattern": "/ is part of the ext-intl extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: src/Symfony/Component/Emoji/composer.json requires ext-intl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: src/Symfony/Component/Emoji/composer.json requires ext-intl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -228,7 +229,8 @@
             "file": "src/Symfony/Component/HtmlSanitizer/Parser/NativeParser.php",
             "message_pattern": "/ is part of the ext-dom extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: src/Symfony/Component/HtmlSanitizer/composer.json requires ext-dom; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: src/Symfony/Component/HtmlSanitizer/composer.json requires ext-dom; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -237,7 +239,8 @@
             "file": "src/Symfony/Component/KeyManagement/Bridge/GoogleCloudKms/ServiceAccountTokenProvider.php",
             "message_pattern": "/ is part of the ext-openssl extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the GoogleCloudKms bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the GoogleCloudKms bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -246,7 +249,8 @@
             "file": "src/Symfony/Component/Mailer/Bridge/Google/TokenManager.php",
             "message_pattern": "/ is part of the ext-openssl extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Mailer Google bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Mailer Google bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -255,7 +259,8 @@
             "file": "src/Symfony/Component/Messenger/Bridge/Amqp/Transport/AmqpFactory.php",
             "message_pattern": "/ is part of the ext-amqp extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Messenger Amqp bridge composer.json requires ext-amqp; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Messenger Amqp bridge composer.json requires ext-amqp; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -264,7 +269,8 @@
             "file": "src/Symfony/Component/Messenger/Bridge/Amqp/Transport/Connection.php",
             "message_pattern": "/ is part of the ext-amqp extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Messenger Amqp bridge composer.json requires ext-amqp; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Messenger Amqp bridge composer.json requires ext-amqp; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -273,7 +279,8 @@
             "file": "src/Symfony/Component/Messenger/Bridge/MongoDb/Transport/Connection.php",
             "message_pattern": "/ is part of the ext-mongodb extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Messenger MongoDb bridge composer.json requires ext-mongodb; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Messenger MongoDb bridge composer.json requires ext-mongodb; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -282,7 +289,8 @@
             "file": "src/Symfony/Component/Notifier/Bridge/Firebase/FirebaseTransport.php",
             "message_pattern": "/ is part of the ext-openssl extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Notifier Firebase bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Notifier Firebase bridge composer.json requires ext-openssl; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -291,7 +299,8 @@
             "file": "src/Symfony/Component/Notifier/Bridge/KazInfoTeh/KazInfoTehTransport.php",
             "message_pattern": "/ is part of the ext-simplexml extension, which composer.json/",
             "verdict": "false-positive",
-            "note": "Monorepo: the Notifier KazInfoTeh bridge composer.json requires ext-simplexml; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file."
+            "note": "Monorepo: the Notifier KazInfoTeh bridge composer.json requires ext-simplexml; Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file.",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -299,7 +308,8 @@
             "project": "symfony",
             "message_pattern": "/^(grapheme_\\w+|normalizer_\\w+|Normalizer|idn_to_ascii|idn_to_utf8) is part of the ext-intl extension/",
             "verdict": "false-positive",
-            "note": "Polyfilled: root composer.json requires symfony/polyfill-intl-grapheme, -normalizer and -idn, which define these symbols in full, but they do not `provide` ext-intl, and ExtensionRequirementAnalyzer deliberately ignores polyfills without `provide` (its docblock: \"A polyfill doesn't make the extension optional\"); the symbol is always available, so asking for ext-intl is noise (design decision to revisit)."
+            "note": "Polyfilled: root composer.json requires symfony/polyfill-intl-grapheme, -normalizer and -idn, which define these symbols in full, but they do not `provide` ext-intl, and ExtensionRequirementAnalyzer deliberately ignores polyfills without `provide` (its docblock: \"A polyfill doesn't make the extension optional\"); the symbol is always available, so asking for ext-intl is noise (design decision to revisit).",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -315,7 +325,8 @@
             "project": "monolog",
             "message_pattern": "/^Redis is part of the ext-redis extension/",
             "verdict": "false-positive",
-            "note": "Guard not recognized: RedisHandler.php:72 `\\defined('Redis::MULTI') ? Redis::MULTI : 1`; AssertionFinder::getCheckedExtensions only handles extension_loaded/function_exists/class_exists/interface_exists/enum_exists, not defined('Class::CONST') (snippet vd-ext-a reproduces it)."
+            "note": "Guard not recognized: RedisHandler.php:72 `\\defined('Redis::MULTI') ? Redis::MULTI : 1`; AssertionFinder::getCheckedExtensions only handles extension_loaded/function_exists/class_exists/interface_exists/enum_exists, not defined('Class::CONST') (snippet vd-ext-a reproduces it).",
+            "link": "https://github.com/vimeo/psalm/issues/14754"
         },
         {
             "side": "new",
@@ -324,7 +335,8 @@
             "file": "src/wp-admin/includes/class-wp-debug-data.php",
             "message_pattern": "/ is part of the ext-imagick extension/",
             "verdict": "false-positive",
-            "note": "Guard not recognized: every use is inside `if (... && $imagick instanceof Imagick)` (line 645) and most also inside `defined('imagick::RESOURCETYPE_*') ? ... : ...`; neither instanceof nor defined('Class::CONST') sets the extension pseudo-variable in AssertionFinder (snippet vd-ext-a reproduces both)."
+            "note": "Guard not recognized: every use is inside `if (... && $imagick instanceof Imagick)` (line 645) and most also inside `defined('imagick::RESOURCETYPE_*') ? ... : ...`; neither instanceof nor defined('Class::CONST') sets the extension pseudo-variable in AssertionFinder (snippet vd-ext-a reproduces both).",
+            "link": "https://github.com/vimeo/psalm/issues/14754"
         },
         {
             "side": "new",
@@ -332,7 +344,8 @@
             "project": "doctrine-orm",
             "message_pattern": "/ is part of the ext-libxml extension/",
             "verdict": "false-positive",
-            "note": "Implied extension: composer.json suggests ext-dom and these libxml_* calls are in the XSD (DOM) validation path of XmlDriver; ext-dom cannot load without ext-libxml (ZEND_MOD_REQUIRED), but the analyzer does not know extension dependencies (snippet vd-ext-a: require ext-dom + libxml_use_internal_errors() is reported)."
+            "note": "Implied extension: composer.json suggests ext-dom and these libxml_* calls are in the XSD (DOM) validation path of XmlDriver; ext-dom cannot load without ext-libxml (ZEND_MOD_REQUIRED), but the analyzer does not know extension dependencies (snippet vd-ext-a: require ext-dom + libxml_use_internal_errors() is reported).",
+            "link": "https://github.com/vimeo/psalm/issues/14755"
         },
         {
             "side": "new",
@@ -340,7 +353,8 @@
             "project": "wordpress",
             "message_pattern": "/ is part of the ext-libxml extension/",
             "verdict": "false-positive",
-            "note": "Implied extension: root composer.json suggests ext-dom, which hard-depends on ext-libxml; the analyzer does not derive dependencies between extensions (snippet vd-ext-a reproduces it)."
+            "note": "Implied extension: root composer.json suggests ext-dom, which hard-depends on ext-libxml; the analyzer does not derive dependencies between extensions (snippet vd-ext-a reproduces it).",
+            "link": "https://github.com/vimeo/psalm/issues/14755"
         },
         {
             "side": "new",
@@ -348,7 +362,8 @@
             "project": "drupal",
             "message_pattern": "/ is part of the ext-swoole extension/",
             "verdict": "false-positive",
-            "note": "Wrong extension: ssh2_* are the pecl ssh2 functions (core/lib/Drupal/Core/FileTransfer/SSH.php), but ssh2 is not in the stub image and swoole (built with its ssh2 hook) defines functions of the same name, so dictionaries/autogen/CallMapExtensions_8*.php map ssh2_* to swoole (from 4cbf04d625 / the stub image); the message asks for ext-swoole."
+            "note": "Wrong extension: ssh2_* are the pecl ssh2 functions (core/lib/Drupal/Core/FileTransfer/SSH.php), but ssh2 is not in the stub image and swoole (built with its ssh2 hook) defines functions of the same name, so dictionaries/autogen/CallMapExtensions_8*.php map ssh2_* to swoole (from 4cbf04d625 / the stub image); the message asks for ext-swoole.",
+            "link": "https://github.com/vimeo/psalm/issues/14757"
         },
         {
             "side": "new",
@@ -356,7 +371,8 @@
             "project": "drupal",
             "message_pattern": "/ is part of the ext-libxml extension/",
             "verdict": "false-positive",
-            "note": "Implied extension + subpackage: core/composer.json (drupal/core, the package of core/lib and core/modules) requires ext-dom, ext-SimpleXML and ext-xml; ext-dom/simplexml hard-depend on ext-libxml. Psalm reads only the root composer.json and knows no extension dependencies."
+            "note": "Implied extension + subpackage: core/composer.json (drupal/core, the package of core/lib and core/modules) requires ext-dom, ext-SimpleXML and ext-xml; ext-dom/simplexml hard-depend on ext-libxml. Psalm reads only the root composer.json and knows no extension dependencies.",
+            "link": "https://github.com/vimeo/psalm/issues/14755"
         },
         {
             "side": "new",
@@ -364,7 +380,8 @@
             "project": "drupal",
             "message_pattern": "/ is part of the ext-(pdo|gd|dom|filter|session|simplexml|tokenizer|zlib|zip) extension/",
             "verdict": "false-positive",
-            "note": "Subpackage: core/composer.json (drupal/core, the package that ships core/lib and core/modules) requires these (ext-zip in suggest); the root composer.json is the project template, and Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file (drupal/core is installed by path, only its provide/replace are read)."
+            "note": "Subpackage: core/composer.json (drupal/core, the package that ships core/lib and core/modules) requires these (ext-zip in suggest); the root composer.json is the project template, and Psalm reads only the root composer.json (Config::getDeclaredExtensions: root require/require-dev/suggest + provide/replace of installed packages), not the composer.json of the monorepo sub-package that ships this file (drupal/core is installed by path, only its provide/replace are read).",
+            "link": "https://github.com/vimeo/psalm/issues/14756"
         },
         {
             "side": "new",
@@ -490,7 +507,8 @@
             "message_pattern": "/^Cannot access array value on mixed variable \\$(RIFFchunk|thisfile_riff\\w*)\\[/",
             "file": "src/wp-includes/ID3/module.audio-video.riff.php",
             "verdict": "false-positive",
-            "note": "7.x regression: an array item just assigned is read back as mixed in the next write. Minimal snippet: `$r = array(); while ($b) { $i = 0; if (isset($r[$k]) && is_array($r[$k])) { $i = count($r[$k]); } $r[$k][$i]['offset'] = 1; if ($k === 'scot') { $r[$k][$i]['data'] = $s; } }` -> 7.17.0 MixedArrayAssignment on $r[$k][$i]['data'], 6.21.3 nothing; suspects: array-write rework (fd3df073e8 forget narrowings after offset writes, 3834682209/745ce72ca0 mixed-root write chain)"
+            "note": "7.x regression: an array item just assigned is read back as mixed in the next write. Minimal snippet: `$r = array(); while ($b) { $i = 0; if (isset($r[$k]) && is_array($r[$k])) { $i = count($r[$k]); } $r[$k][$i]['offset'] = 1; if ($k === 'scot') { $r[$k][$i]['data'] = $s; } }` -> 7.17.0 MixedArrayAssignment on $r[$k][$i]['data'], 6.21.3 nothing; suspects: array-write rework (fd3df073e8 forget narrowings after offset writes, 3834682209/745ce72ca0 mixed-root write chain)",
+            "link": "https://github.com/vimeo/psalm/issues/14759"
         },
         {
             "project": "wordpress",
@@ -23335,7 +23353,8 @@
             "file": "src/Symfony/Component/Emoji/EmojiTransliterator.php",
             "verdict": "false-positive",
             "note": "`for ($i = 0; $i < 9 && false !== $j = strpos($s, \":\"); $i = $j) { echo $j; }` → 7.x: Possibly undefined variable $j in the body and increment (6.x: no such issue). Variable assigned on the right of && in a for condition is defined whenever the body runs. Suspected loop-condition rework (696b849694 / d8958ca4d6). Snippet confirmed.",
-            "project": "symfony"
+            "project": "symfony",
+            "link": "https://github.com/vimeo/psalm/issues/14762"
         },
         {
             "side": "new",
@@ -23343,7 +23362,8 @@
             "file": "src/Symfony/Component/Emoji/EmojiTransliterator.php",
             "verdict": "false-positive",
             "note": "Same for-loop FP as PossiblyUndefinedVariable $j: `$i = $j` increment after `false !== $j = strpos(...)` makes $i int|null at the next strpos($s, \":\", $i). Snippet confirmed.",
-            "project": "symfony"
+            "project": "symfony",
+            "link": "https://github.com/vimeo/psalm/issues/14762"
         },
         {
             "side": "new",
@@ -23351,7 +23371,8 @@
             "file": "src/Symfony/Component/Emoji/EmojiTransliterator.php",
             "verdict": "false-positive",
             "note": "Same for-loop FP: $j assigned on the right of && in the for condition is seen as int|null in the body. Snippet confirmed.",
-            "project": "symfony"
+            "project": "symfony",
+            "link": "https://github.com/vimeo/psalm/issues/14762"
         },
         {
             "side": "new",
@@ -28424,7 +28445,8 @@
             "message_pattern": "/^Argument \\d+ of curl_\\w+ expects CurlHandle, but (null\\|)?object\\|resource provided$/",
             "verdict": "false-positive",
             "note": "`/** @param object|resource $h */ curl_getinfo($h)`: 6.x ArgumentTypeCoercion, 7.x InvalidArgument; the object part can be a CurlHandle, so at most PossiblyInvalidArgument. `object` alone or `object|null` still give ArgumentTypeCoercion in 7.x: only the resource member flips it. Commit not found. Snippet confirmed.",
-            "project": "symfony"
+            "project": "symfony",
+            "link": "https://github.com/vimeo/psalm/issues/14765"
         },
         {
             "side": "new",
@@ -29135,7 +29157,8 @@
             "type": "InvalidStaticInvocation",
             "message_pattern": "/^Method Drupal\\\\Core\\\\Block\\\\BlockPluginTrait::__construct is not static, but is called statically$/",
             "verdict": "false-positive",
-            "note": "Regression: reported on `extends BlockBase` of block classes without their own constructor (PageTitleBlock.php:20); BlockBase gets __construct from BlockPluginTrait, which calls parent::__construct(). Snippet (PluginBase / trait with ctor calling parent::__construct / BlockBase uses trait / final PageTitleBlock extends BlockBase) -> 7.x only: InvalidStaticInvocation at the extends clause. Suspected: the virtual inherited-constructor analysis of checkPropertyInitialization (c06b25b5da or 171aaeee35)."
+            "note": "Regression: reported on `extends BlockBase` of block classes without their own constructor (PageTitleBlock.php:20); BlockBase gets __construct from BlockPluginTrait, which calls parent::__construct(). Snippet (PluginBase / trait with ctor calling parent::__construct / BlockBase uses trait / final PageTitleBlock extends BlockBase) -> 7.x only: InvalidStaticInvocation at the extends clause. Suspected: the virtual inherited-constructor analysis of checkPropertyInitialization (c06b25b5da or 171aaeee35).",
+            "link": "https://github.com/vimeo/psalm/issues/14554"
         },
         {
             "project": "drupal",
@@ -29375,7 +29398,8 @@
             "text": "$value ? $this->pingBefore($url) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29384,7 +29408,8 @@
             "text": "$value ? $this->thenPing($url) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29393,7 +29418,8 @@
             "text": "$value ? $this->onSuccess($this->pingCallback($url)) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29402,7 +29428,8 @@
             "text": "$value ? $this->onFailure($this->pingCallback($url)) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29411,7 +29438,8 @@
             "text": "$this->withTimestamps ? $this->withPivot($pivots) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29420,7 +29448,8 @@
             "text": "$concurrency === null ? $this->usePrefetchStrategy('aggressive') : $this->usePrefetchStrategy('waterfall', ['concurrency' => $concurrency])",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29429,7 +29458,8 @@
             "text": "$condition ? $this->throw(func_get_args()[1] ?? null) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29438,7 +29468,8 @@
             "text": "value($condition, $this) ? $this->throw($callback) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29447,7 +29478,8 @@
             "text": "$this->status() === $statusCode ? throw new RequestException($this, $this->truncateExceptionsAt) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29456,7 +29488,8 @@
             "text": "$statusCode($this->status(), $this) ? $this : throw new RequestException($this, $this->truncateExceptionsAt)",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29465,7 +29498,8 @@
             "text": "$this->status() === $statusCode ? $this : throw new RequestException($this, $this->truncateExceptionsAt)",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29474,7 +29508,8 @@
             "text": "$this->clientError() ? $this->throw() : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29483,7 +29518,8 @@
             "text": "$this->serverError() ? $this->throw() : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29492,7 +29528,8 @@
             "text": "tap($this, function (Request $request) use ($input) { $request->getInputSource() ->replace((new Collection($input))->reduce( function ($requestInput, $value, $key) { Arr::set($requestInput, $key, $val…",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29501,7 +29538,8 @@
             "text": "empty($models) ? $this->middleware(['can:'.$ability]) : $this->middleware(['can:'.$ability.','.implode(',', Arr::wrap($models))])",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -29510,7 +29548,8 @@
             "text": "$boolean ? $this->add($key, $message) : $this",
             "message_pattern": "/requires returning \\$this/",
             "verdict": "false-positive",
-            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512)."
+            "note": "New $this-return check (79b4a542d8 / 9afd814afc, #12263) only recognises a bare $this / $this->fluent() as returning $this: `$v ? $this->ping($u) : $this`, `$c ? $this : throw ...`, `$c ? $this->a() : $this->b()` with both @return $this, and tap($this, ...) are flagged though every branch returns $this. Repro: /** @return $this */ function pingIf(bool $v){ return $v ? $this->ping(\"\") : $this; } with ping() @return $this -> 7.17.0 InvalidReturnStatement, 6.21.3 clean (Console/Scheduling/Event.php:512).",
+            "link": "https://github.com/vimeo/psalm/issues/14760"
         },
         {
             "project": "laravel",
@@ -30661,7 +30700,8 @@
             "type": "MethodSignatureMismatch",
             "message_pattern": "/should accept named arguments\\s+as /",
             "verdict": "false-positive",
-            "note": "b34d358514 applies class-level @no-named-arguments to every method, and FunctionLikeAnalyzer then flags parameterless overrides (Countable::count, Iterator::*, IteratorAggregate::getIterator, FilterIterator::accept, RecursiveIterator::*, Stringable::__toString, InvocationStubber::seal) where named arguments cannot occur. Snippet: /** @no-named-arguments */ final class C implements Countable { public function count(): int { return 0; } } -> 7.17.0 MethodSignatureMismatch, 6.21.3 none."
+            "note": "b34d358514 applies class-level @no-named-arguments to every method, and FunctionLikeAnalyzer then flags parameterless overrides (Countable::count, Iterator::*, IteratorAggregate::getIterator, FilterIterator::accept, RecursiveIterator::*, Stringable::__toString, InvocationStubber::seal) where named arguments cannot occur. Snippet: /** @no-named-arguments */ final class C implements Countable { public function count(): int { return 0; } } -> 7.17.0 MethodSignatureMismatch, 6.21.3 none.",
+            "link": "https://github.com/vimeo/psalm/issues/14763"
         },
         {
             "project": "phpunit",
@@ -32443,7 +32483,8 @@
             "file": "packages/date-time/src/Psl/DateTime/Interval.php",
             "message": "Cannot call an impure constructor from a pure context",
             "verdict": "false-negative",
-            "note": "`new DateTimeImmutable($parts[0])` in a @pure method: the ctor reads the clock and the default timezone, but 7.x treats it as pure because the stub ctor in CoreImmutableClasses.phpstub has an empty body and applyTrivialConstructorCapabilities() (efbe0447c5) gives it NONE (no stub check). Snippet `/** @pure */ function f(): DateTimeImmutable { return new DateTimeImmutable(); }`: 6.x ImpureMethodCall, 7.x silent (new DateTime() still reported)."
+            "note": "`new DateTimeImmutable($parts[0])` in a @pure method: the ctor reads the clock and the default timezone, but 7.x treats it as pure because the stub ctor in CoreImmutableClasses.phpstub has an empty body and applyTrivialConstructorCapabilities() (efbe0447c5) gives it NONE (no stub check). Snippet `/** @pure */ function f(): DateTimeImmutable { return new DateTimeImmutable(); }`: 6.x ImpureMethodCall, 7.x silent (new DateTime() still reported).",
+            "link": "https://github.com/vimeo/psalm/issues/14761"
         },
         {
             "project": "psl",
@@ -32816,7 +32857,8 @@
             "type": "MixedArgument",
             "message_pattern": "/^Argument 1 cannot be mixed, expecting T:fn-psl\\\\tree\\\\/",
             "verdict": "false-positive",
-            "note": "fold.php:37 `if (!$tree instanceof TreeNode) return $function($tree->getValue(), []);`: NodeInterface<T> has @psalm-inheritors LeafNode|TreeNode, the negated instanceof narrows to a bare LeafNode (no <T>; both versions trace it), so getValue() is mixed in 7.x (6.x gave an InvalidArgument T:LeafNode instead). Should narrow to LeafNode<T>. Reproduced in a snippet."
+            "note": "fold.php:37 `if (!$tree instanceof TreeNode) return $function($tree->getValue(), []);`: NodeInterface<T> has @psalm-inheritors LeafNode|TreeNode, the negated instanceof narrows to a bare LeafNode (no <T>; both versions trace it), so getValue() is mixed in 7.x (6.x gave an InvalidArgument T:LeafNode instead). Should narrow to LeafNode<T>. Reproduced in a snippet.",
+            "link": "https://github.com/vimeo/psalm/issues/14754"
         },
         {
             "project": "psl",
@@ -32984,7 +33026,8 @@
             "type": "MixedReturnStatement",
             "file": "packages/iter/src/Psl/Iter/random.php",
             "verdict": "false-positive",
-            "note": "array_values() on array<array-key, T> returns list<T|mixed> in 7.x (6.x list<T>). Snippet `/** @template T @param iterable<T> $it */ if (is_array($it)) { $a = array_values($it); }` traces list<(T as mixed)|mixed>. Stub unchanged (`TArray is non-empty-array ? non-empty-list<value-of<TArray>> : list<value-of<TArray>>`): conditional-return evaluation regression, suspect 51549c7f28 (true branch bounds the template by its condition)."
+            "note": "array_values() on array<array-key, T> returns list<T|mixed> in 7.x (6.x list<T>). Snippet `/** @template T @param iterable<T> $it */ if (is_array($it)) { $a = array_values($it); }` traces list<(T as mixed)|mixed>. Stub unchanged (`TArray is non-empty-array ? non-empty-list<value-of<TArray>> : list<value-of<TArray>>`): conditional-return evaluation regression, suspect 51549c7f28 (true branch bounds the template by its condition).",
+            "link": "https://github.com/vimeo/psalm/issues/14758"
         },
         {
             "project": "psl",
@@ -32992,7 +33035,8 @@
             "type": "InvalidReturnType",
             "message_pattern": "/::zip is incorrect/",
             "verdict": "worse",
-            "note": "zip() starts with `$elements = array_values($elements)`; 7.x array_values() regression yields Tu|mixed, so the message now carries |mixed."
+            "note": "zip() starts with `$elements = array_values($elements)`; 7.x array_values() regression yields Tu|mixed, so the message now carries |mixed.",
+            "link": "https://github.com/vimeo/psalm/issues/14758"
         },
         {
             "project": "psl",
@@ -33000,7 +33044,8 @@
             "type": "InvalidReturnStatement",
             "message_pattern": "/::zip$/",
             "verdict": "worse",
-            "note": "array_values() regression: (Tu|mixed) in the inferred type."
+            "note": "array_values() regression: (Tu|mixed) in the inferred type.",
+            "link": "https://github.com/vimeo/psalm/issues/14758"
         },
         {
             "project": "psl",
@@ -34117,7 +34162,8 @@
             "type": "RedundantCondition",
             "message_pattern": "/^PHP_EXTENSION (pcntl|posix) is true has already been asserted/",
             "verdict": "false-positive",
-            "note": "SignalHandler.php:98 extension_loaded('pcntl') && function_exists('pcntl_signal') && ... is the first check in that branch. Minimal repro (temp/vd-small-a): function h(){ if (\\extension_loaded('pcntl') && \\function_exists('pcntl_signal')) {} } -> 7.17.0 RedundantCondition \"PHP_EXTENSION pcntl is true has already been asserted\" (function_exists of an extension function seems to assert the extension pseudo-var and the && chain reports the earlier clause). Extension pseudo-variable from f520940c5b."
+            "note": "SignalHandler.php:98 extension_loaded('pcntl') && function_exists('pcntl_signal') && ... is the first check in that branch. Minimal repro (temp/vd-small-a): function h(){ if (\\extension_loaded('pcntl') && \\function_exists('pcntl_signal')) {} } -> 7.17.0 RedundantCondition \"PHP_EXTENSION pcntl is true has already been asserted\" (function_exists of an extension function seems to assert the extension pseudo-var and the && chain reports the earlier clause). Extension pseudo-variable from f520940c5b.",
+            "link": "https://github.com/vimeo/psalm/issues/14764"
         },
         {
             "project": "monolog",
