@@ -1,0 +1,103 @@
+name: Taint trace 14377
+
+# One-off: symfony taint traces for vimeo/psalm#14377, base vs head, to find the lost FileFormField flow.
+on:
+  push:
+    branches: [taint-trace-14377]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rev: base
+            ref: eda66f2b294b0a511bd2156750d98ddfc01fc4f1
+          - rev: head
+            ref: refs/pull/14377/head
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vimeo/psalm
+          ref: ${{ matrix.ref }}
+          path: psalm
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          ini-file: production
+          tools: composer:v2
+          coverage: none
+          extensions: intl, bcmath, gmp, mbstring, pcntl, posix, sodium, zip, xml, dom, simplexml, tokenizer, opcache
+
+      - name: Install Psalm
+        run: |
+          git -C psalm log -1 --format='%H %s'
+          composer update --working-dir=psalm --no-dev --no-scripts --no-interaction --no-progress
+
+      - name: Install symfony
+        run: |
+          mkdir symfony && cd symfony
+          git init -q && git remote add origin https://github.com/symfony/symfony
+          git fetch -q --depth 1 origin 4ac528bb8ca9b549af38e2ea8050fd144821516e
+          git -c advice.detachedHead=false checkout -q FETCH_HEAD
+          COMPOSER_ROOT_VERSION=8.2.0-BETA1 composer update --no-dev --no-scripts --no-plugins --ignore-platform-reqs --no-interaction --no-progress
+          cat > psalm-perf.xml <<'XML'
+          <?xml version="1.0"?>
+          <psalm
+              errorLevel="1"
+              resolveFromConfigFile="true"
+              findUnusedCode="false"
+              findUnusedBaselineEntry="false"
+              findUnusedIssueHandlerSuppression="false"
+              ensureOverrideAttribute="false"
+              loadLibraryPlugins="false"
+              xmlns="https://getpsalm.org/schema/config"
+          >
+              <projectFiles>
+                  <directory name="src"/>
+                  <ignoreFiles allowMissingFiles="true">
+                      <directory name="src/Symfony/*/*/Tests"/>
+                      <directory name="src/Symfony/*/*/*/Tests"/>
+                      <directory name="src/Symfony/*/*/*/*/Tests"/>
+                      <directory name="src/Symfony/Component/Intl/Resources/data"/>
+                      <directory name="src/Symfony/Component/Emoji/Resources/data"/>
+                      <directory name="src/Symfony/*/*/Resources/views"/>
+                      <directory name="src/Symfony/*/*/*/Resources/views"/>
+                      <directory name="vendor"/>
+                  </ignoreFiles>
+              </projectFiles>
+          </psalm>
+          XML
+          sed -i 's/^          //' psalm-perf.xml
+
+      - name: Run Psalm
+        env:
+          PSALM_ALLOW_XDEBUG: "1"
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          cd symfony
+          php -d memory_limit=-1 -d opcache.enable=1 -d opcache.enable_cli=1 -d opcache.jit=0 \
+            ../psalm/psalm --root="$PWD" -c psalm-perf.xml --no-cache --no-progress --ignore-baseline --threads=1 \
+            --output-format=console --report="$RUNNER_TEMP/out/report.json" --memory-limit=12G \
+            > "$RUNNER_TEMP/out/psalm.log" 2>&1 || echo "psalm exit $?"
+          tail -n 5 "$RUNNER_TEMP/out/psalm.log"
+          jq '[.[] | select((.type | startswith("Tainted")) and (.file_name | contains("FileFormField.php")))]' \
+            "$RUNNER_TEMP/out/report.json" > "$RUNNER_TEMP/out/fileformfield.json"
+          jq 'length' "$RUNNER_TEMP/out/fileformfield.json"
+          gzip -k "$RUNNER_TEMP/out/report.json"
+          rm "$RUNNER_TEMP/out/report.json"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trace-${{ matrix.rev }}
+          path: ${{ runner.temp }}/out
+          retention-days: 7
