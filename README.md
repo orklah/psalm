@@ -63,6 +63,8 @@ An issue gone and one new of the same type on the same line (same column first) 
 
 An entry that matches nothing in a compared project is **stale**: a new issue classified earlier that 7.x no longer
 reports, or a gone issue that 7.x reports again. The report counts them per project; remove them once understood.
+`"flaky": true` marks an entry for issues that come and go between runs of the same Psalm version (6.21.3 picks
+the `DuplicateClass` copy of WordPress's duplicated SimplePie classes by scan order): it is never stale.
 
 Check the file before pushing:
 

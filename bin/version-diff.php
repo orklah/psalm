@@ -176,6 +176,10 @@ function classificationProblems(array $entries): array
             $problems[] = "{$where}: note is required (why this verdict)";
         }
 
+        if (isset($e['flaky']) && !is_bool($e['flaky'])) {
+            $problems[] = "{$where}: flaky must be a boolean";
+        }
+
         foreach (['project', 'file', 'text', 'message', 'message_pattern', 'link'] as $field) {
             if (isset($e[$field]) && !is_string($e[$field])) {
                 $problems[] = "{$where}: {$field} must be a string";
@@ -373,7 +377,7 @@ function report(array $opts): void
     // An entry matching nothing is stale, but only if a project it may cover was compared.
     $stale = [];
     foreach ($entries as $i => $entry) {
-        if ($used[$i] > 0) {
+        if ($used[$i] > 0 || ($entry['flaky'] ?? false)) {
             continue;
         }
 

@@ -3,6 +3,42 @@
         {
             "project": "wordpress",
             "side": "new",
+            "type": "DuplicateClass",
+            "message_pattern": "/^Class SimplePie\\w* has already been defined in src\\/wp-includes\\/SimplePie\\//",
+            "verdict": "expected",
+            "note": "WordPress ships SimplePie classes twice (library/ and src/); 6.21.3 reports DuplicateClass on one copy and ClassMustBeFinal on the other depending on scan order, so the pair swaps between runs (7.17.0 is stable)",
+            "flaky": true
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "ClassMustBeFinal",
+            "message_pattern": "/^Class SimplePie\\w* is never extended/",
+            "verdict": "expected",
+            "note": "WordPress ships SimplePie classes twice (library/ and src/); 6.21.3 reports DuplicateClass on one copy and ClassMustBeFinal on the other depending on scan order, so the pair swaps between runs (7.17.0 is stable)",
+            "flaky": true
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "DuplicateClass",
+            "message_pattern": "/^Class SimplePie\\w* has already been defined in src\\/wp-includes\\/SimplePie\\//",
+            "verdict": "expected",
+            "note": "WordPress ships SimplePie classes twice (library/ and src/); 6.21.3 reports DuplicateClass on one copy and ClassMustBeFinal on the other depending on scan order, so the pair swaps between runs (7.17.0 is stable)",
+            "flaky": true
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "ClassMustBeFinal",
+            "message_pattern": "/^Class SimplePie\\w* is never extended/",
+            "verdict": "expected",
+            "note": "WordPress ships SimplePie classes twice (library/ and src/); 6.21.3 reports DuplicateClass on one copy and ClassMustBeFinal on the other depending on scan order, so the pair swaps between runs (7.17.0 is stable)",
+            "flaky": true
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
             "type": "MixedArrayAssignment",
             "file": "src/wp-includes/ID3/module.audio-video.asf.php",
             "message": "Cannot access array value on mixed variable $thisfile_audio['codec']",
