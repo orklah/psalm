@@ -1,6 +1,791 @@
 {
     "entries": [
         {
+            "project": "psl",
+            "side": "new",
+            "type": "InvalidPropertyAssignmentValue",
+            "message_pattern": "/^\\$this->ongoing with declared type .*int<0, max>.* cannot be assigned type .*int<-1, max>/",
+            "verdict": "expected",
+            "note": "Semaphore.php:119 / KeyedSemaphore.php:379 `$this->ongoing--` on an int<0, max> property (psl itself marks it mago-expect): Psalm reports this in both versions, but 6.x skipped the body of waitFor()/release because its `@param Tin` was an UndefinedDocblockClass; c87c38e8cb (Support `@template-contravariant`, #14669) makes Tin a template so the body is analysed (snippet vd-p4-psl-sem: 6.21.4 reports the same decrement only in a method without Tin)."
+        },
+        {
+            "project": "psl",
+            "side": "new",
+            "type": "ImplementedReturnTypeMismatch",
+            "message_pattern": "/::offsetGet '\\(Tv?:Psl.Collection.Mutable(Map|Vector) as mixed\\)\\|null'$/",
+            "verdict": "true-positive",
+            "note": "MutableMap/MutableVector::offsetGet declare `@return Tv|null` while MutableAccessibleCollectionInterface::offsetGet returns `Tv`: a widened return type. 6.x let null pass as contained by an unbounded template; 17ae417b52 (#14550, fixes #13500) stopped that (snippet vd-p4-psl-impl)."
+        },
+        {
+            "project": "psl",
+            "side": "new",
+            "type": "InvalidReturnType",
+            "file": "packages/type/src/Psl/Type/Internal/ShapeType.php",
+            "verdict": "expected",
+            "note": "ShapeType::coerce/coerceIterable/assert write `$result[$key] = null` for optional NullishType elements into an array declared array<Tk, Tv> (unbounded Tv): null is no longer treated as contained by an unbounded template since 17ae417b52 (#14550, fixes #13500); the code is fine at runtime (Tv includes null for nullish elements) but Psalm cannot prove it (snippet vd-p4-psl-shape). The extra `array-key`/`mixed` parts of the union were already accepted and still are."
+        },
+        {
+            "project": "psl",
+            "side": "new",
+            "type": "InvalidReturnStatement",
+            "file": "packages/type/src/Psl/Type/Internal/ShapeType.php",
+            "verdict": "expected",
+            "note": "ShapeType::coerce/coerceIterable/assert write `$result[$key] = null` for optional NullishType elements into an array declared array<Tk, Tv> (unbounded Tv): null is no longer treated as contained by an unbounded template since 17ae417b52 (#14550, fixes #13500); the code is fine at runtime (Tv includes null for nullish elements) but Psalm cannot prove it (snippet vd-p4-psl-shape). The extra `array-key`/`mixed` parts of the union were already accepted and still are."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "UndefinedDocblockClass",
+            "message_pattern": "/named Psl.Async.T(in|k) does not exist$/",
+            "verdict": "fixed-false-positive",
+            "note": "6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MismatchingDocblockParamType",
+            "message_pattern": "/has wrong type 'Psl.Async.Tk'/",
+            "verdict": "fixed-false-positive",
+            "note": "6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "InvalidDocblock",
+            "message_pattern": "/Invalid array key type Psl.Async.Tk /",
+            "verdict": "fixed-false-positive",
+            "note": "6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "InvalidArgument",
+            "message_pattern": "/^Argument \\d of Psl.Async.(Keyed)?Sequence::\\w+ expects (Closure\\()?Psl.Async.T(in|k)\\b/",
+            "verdict": "fixed-false-positive",
+            "note": "6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "InvalidReturnType",
+            "message_pattern": "/got 'list\\{Psl.(IO.Internal.ResourceHandle|TLS.Internal.Stream), /",
+            "verdict": "fixed-false-positive",
+            "note": "waitFor() of a Sequence whose Tin was not a template returned the input list instead of Tout. 6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "InvalidReturnStatement",
+            "message_pattern": "/^The inferred type 'list\\{Psl.(IO.Internal.ResourceHandle|TLS.Internal.Stream), /",
+            "verdict": "fixed-false-positive",
+            "note": "waitFor() of a Sequence whose Tin was not a template returned the input list instead of Tout. 6.x ignored `@template-contravariant` (Psl\\Async\\Semaphore/Sequence/KeyedSemaphore/KeyedSequence) and read Tin/Tk as class names; c87c38e8cb (Support `@template-contravariant`, #14669) supports it (snippet vd-p4-psl-seq reproduces the whole family on 6.21.4, nothing on 7.18.0)."
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedAssignment",
+            "file": "packages/async/src/Psl/Async/KeyedSemaphore.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedMethodCall",
+            "file": "packages/async/src/Psl/Async/KeyedSemaphore.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedArgument",
+            "file": "packages/async/src/Psl/Async/KeyedSemaphore.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedAssignment",
+            "file": "packages/async/src/Psl/Async/KeyedSequence.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedArrayAccess",
+            "file": "packages/async/src/Psl/Async/KeyedSequence.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedMethodCall",
+            "file": "packages/async/src/Psl/Async/KeyedSequence.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "psl",
+            "side": "gone",
+            "type": "MixedArgument",
+            "file": "packages/async/src/Psl/Async/KeyedSequence.php",
+            "verdict": "fixed-false-positive",
+            "note": "Follow-on of the invalid `array<Tk, ...>` property docblocks (Tk read as a class): the properties fell back to mixed. c87c38e8cb (Support `@template-contravariant`, #14669)"
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "MixedOperand",
+            "file": "src/Symfony/Bridge/PhpUnit/bin/simple-phpunit.php",
+            "verdict": "true-positive",
+            "note": "Real (mixed values from $getEnvVar()). Code after $passthruOrFail(...) (lines 235-239) was unreachable for 6.21.4 and 7.17.0: they inferred never for the closure whose `if ($status) { exit($status); }` falls through; 7.18.0 infers void (ee151b9fa6), so the rest of the script is analysed (repro: closure with untyped param and a conditional exit, called in both branches of an if, then echo strlen(getcwd()) is reported only by 7.18.0)."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "MixedArgument",
+            "file": "src/Symfony/Bridge/PhpUnit/bin/simple-phpunit.php",
+            "verdict": "true-positive",
+            "note": "Real (mixed values from $getEnvVar()/$root). Code after $passthruOrFail(...) (lines 235-239) was unreachable for 6.21.4 and 7.17.0: they inferred never for the closure whose `if ($status) { exit($status); }` falls through; 7.18.0 infers void (ee151b9fa6), so the rest of the script is analysed (repro: closure with untyped param and a conditional exit, called in both branches of an if, then echo strlen(getcwd()) is reported only by 7.18.0)."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "PossiblyFalseArgument",
+            "file": "src/Symfony/Bridge/PhpUnit/bin/simple-phpunit.php",
+            "verdict": "true-positive",
+            "note": "Real (file_get_contents()/getcwd()/proc_open() can return false). Code after $passthruOrFail(...) (lines 235-239) was unreachable for 6.21.4 and 7.17.0: they inferred never for the closure whose `if ($status) { exit($status); }` falls through; 7.18.0 infers void (ee151b9fa6), so the rest of the script is analysed (repro: closure with untyped param and a conditional exit, called in both branches of an if, then echo strlen(getcwd()) is reported only by 7.18.0)."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "PossiblyNullArgument",
+            "file": "src/Symfony/Bridge/PhpUnit/bin/simple-phpunit.php",
+            "verdict": "true-positive",
+            "note": "Real (preg_replace() can return null). Code after $passthruOrFail(...) (lines 235-239) was unreachable for 6.21.4 and 7.17.0: they inferred never for the closure whose `if ($status) { exit($status); }` falls through; 7.18.0 infers void (ee151b9fa6), so the rest of the script is analysed (repro: closure with untyped param and a conditional exit, called in both branches of an if, then echo strlen(getcwd()) is reported only by 7.18.0)."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "InvalidPropertyAssignmentValue",
+            "file": "src/Symfony/Component/Config/Definition/Builder/NodeBuilder.php",
+            "message_pattern": "/^\\$this->parent with declared type 'TNewParent:fn-symfony\\\\component\\\\config\\\\definition\\\\builder\\\\nodebuilder::setparent as /",
+            "verdict": "expected",
+            "note": "Was PossiblyInvalidPropertyAssignmentValue in 6.21.4/7.17.0: the bound (NodeDefinition&ParentNodeDefinitionInterface)|null assigned to a template-typed property only shares null with it, and e2c8f6a0a3 drops the value's null/false parts before the containment check, so it is now Invalid (snippet: 6.21.4/7.17.0 Possibly, 7.18.0 Invalid). The declared type printed as the method template TNewParent (from @psalm-this-out) already appeared in 7.17.0."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "PossiblyNullArgument",
+            "file": "src/Symfony/Component/HttpClient/HttpClientTrait.php",
+            "message": "Argument 3 of preg_replace_callback cannot be null, possibly null value provided",
+            "verdict": "true-positive",
+            "note": "$parts[$part] was just assigned preg_replace_callback() (string|null) at line 710; 7.18.0 recomputes the item under the narrowed key (55946c1fa6/9fc0f32899, #7221) instead of the union of every shape value (6.21.4 reported PossiblyInvalidArgument int|null|string + PossiblyUndefinedArrayOffset there)."
+        },
+        {
+            "project": "symfony",
+            "side": "new",
+            "type": "InvalidPropertyAssignmentValue",
+            "file": "src/Symfony/Component/Intl/Data/Util/RingBuffer.php",
+            "message_pattern": "/^\\$this->values with declared type 'array<int, TValue:/",
+            "verdict": "true-positive",
+            "note": "offsetUnset() writes null into array<int, TValue>; an unbounded template no longer contains null (17ae417b52, fixes #13500). Snippet reproduces with 7.18.0 only."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "ParamNameMismatch",
+            "verdict": "expected",
+            "note": "Each method overrides both an interface method and a parent-class method that already uses the implementer's name (AbstractFactory/HttpBasicFactory::addConfiguration($node), OutputStyle::write*($type), ParameterBag::get/has($name), AbstractSessionHandler::*($sessionId/$savePath/$sessionName)); 0636d2685b/df7139052f (#11633) skip a name another overridden method uses since no name fits all. The parent declarations are still reported."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "PossiblyUndefinedMethod",
+            "file": "src/Symfony/Component/Console/Command/LazyCommand.php",
+            "message_pattern": "/^Method Closure::set(Application|HelperSet) does not exist$/",
+            "verdict": "fixed-false-positive",
+            "note": "Call guarded by `$this->command instanceof parent` (Command); 7.18.0 narrows instanceof parent to the parent class (06f2880006, #14246)."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "InvalidPropertyFetch",
+            "file": "src/Symfony/Component/String/AbstractUnicodeString.php",
+            "message_pattern": "/^Cannot fetch property on non-object \\$(prefix|suffix) of type array<array-key, string>$/",
+            "verdict": "fixed-false-positive",
+            "note": "`elseif ($prefix instanceof parent) { $prefix = $prefix->string; }`: 6.21.4 did not narrow by parent; 7.18.0 does (06f2880006, #14246) and reports the docblock contradiction instead."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "NullArgument",
+            "file": "src/Symfony/Component/HttpClient/TraceableHttpClient.php",
+            "message": "Argument 1 of ArrayObject::offsetSet cannot be null, null value provided to parameter with type array-key",
+            "verdict": "fixed-false-positive",
+            "note": "`$this->tracedRequests[] = ...` on an ArrayObject is a valid append; 5a42876ee9 (#14499) lets ArrayObject::offsetSet() take a null offset."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "ImplementedReturnTypeMismatch",
+            "file": "src/Symfony/Component/HttpFoundation/InputBag.php",
+            "verdict": "fixed-false-positive",
+            "note": "InputBag::getEnum() repeats ParameterBag::getEnum()'s `($default is null ? T|null : T)` exactly; 632db325ef/09cb0a1720 (#12988) compare conditional returns by branch."
+        },
+        {
+            "project": "symfony",
+            "side": "gone",
+            "type": "PossiblyNullPropertyAssignmentValue",
+            "file": "src/Symfony/Component/Validator/Constraints/CssColor.php",
+            "verdict": "fixed-false-positive",
+            "note": "`$this->formats = $formats ?? $this->formats` with $formats never null; b532820a08 (#14251): ?? of a set non-null variable is the variable (snippet: 6.21.4 and 7.17.0 report, 7.18.0 not)."
+        },
+        {
+            "project": "symfony",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
+            "message_pattern": "/cannot be .*Symfony\\\\Component\\\\DependencyInjection\\\\Definition\\|list\\{0: 'Closure'\\|Symfony\\\\Component\\\\DependencyInjection\\\\Definition\\|mixed, 1\\?: 'fromCallable'\\}\\|mixed/",
+            "verdict": "neutral",
+            "note": "Same MixedArgument; only the non-mixed members of the printed union differ (7.18.0 with taint off adds 'Closure'/'exception' and drops true/string). Replaces entries 6529-6543, written for 7.17.0 with taint on, which printed array<array-key, mixed> or no 'Closure'."
+        },
+        {
+            "project": "symfony",
+            "side": "changed",
+            "type": "InvalidDocblock",
+            "message_pattern": "/^@template-implements must include the name of an implemented interface, got /",
+            "verdict": "better",
+            "note": "IteratorAggregate is an interface; message names it correctly (666ae9404a/c8bf6b7a06, #6096)."
+        },
+        {
+            "project": "symfony",
+            "side": "changed",
+            "type": "InvalidScalarArgument",
+            "file": "src/Symfony/Component/Mime/Crypto/PgpProcess.php",
+            "verdict": "better",
+            "note": "$options[$option] with $option among 5 literal keys is now the union of those keys' values (66c490c0e2, #9714), so the bool of the unread hide_recipients key is gone."
+        },
+        {
+            "project": "symfony",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/Symfony/Component/JsonSchema/Schema.php",
+            "verdict": "neutral",
+            "note": "Still mixed; 7.18.0 keeps the array written to $definition[$keyword][$key] in the loop when the key is narrowed (75285114a1/9fc0f32899, #7221)."
+        },
+        {
+            "project": "symfony",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/Symfony/Component/String/AbstractUnicodeString.php",
+            "message": "Argument 1 of preg_quote cannot be mixed|string, expecting string",
+            "verdict": "better",
+            "note": "The `instanceof parent` branch now yields $prefix->string (string) since 06f2880006 (#14246); the union is more precise."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "RiskyCast",
+            "file": "src/wp-admin/users.php",
+            "message": "Casting array<int|non-empty-string, mixed> to int has possibly unintended value of 0/1",
+            "verdict": "expected",
+            "note": "f8572feaa2 (#11036, 7.18.0): intval() / array_map('intval', ...) now report what an (int) cast reports. Elements of (array) $_REQUEST['users'] can themselves be arrays (users[a][b]=), and intval(array) is 0/1; array_map('intval', (array) $mixed) alone is not reported (snippet vd-p4-wp-cast)."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "RiskyCast",
+            "file": "src/wp-includes/class-wp-date-query.php",
+            "message": "Casting array<array-key, mixed> to int has possibly unintended value of 0/1",
+            "verdict": "expected",
+            "note": "f8572feaa2 (#11036): array_map('intval', $value) reports like (int) of each element. $value can hold the original array (array($value, $value) when count != 2); the preceding foreach is_numeric()/return false guard is not used by Psalm to narrow array elements (an explicit (int) $v would be reported the same)."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "RiskyCast",
+            "file": "src/wp-includes/comment.php",
+            "message": "Casting array<array-key, WP_Comment|int> to int has possibly unintended value of 0/1",
+            "verdict": "expected",
+            "note": "f8572feaa2 (#11036): array_map('intval', $comment_count) where each element is get_comments(), documented WP_Comment[]|int[]|int; 'count' => true makes it an int at runtime, which the WordPress docblock cannot express."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "InvalidCast",
+            "file": "src/wp-includes/taxonomy.php",
+            "message": "WP_Term cannot be cast to int",
+            "verdict": "expected",
+            "note": "f8572feaa2 (#11036): array_map('intval', $terms) checks each element like (int); $terms comes from wp_get_object_terms(), documented WP_Term[]|int[]|string[]|string|WP_Error ('fields' => 'ids' gives ints at runtime, not expressible in the docblock)."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "RedundantCondition",
+            "file": "src/wp-includes/ID3/getid3.lib.php",
+            "message": "int always contains int",
+            "verdict": "expected",
+            "note": "62fe3b5882 (7.18.0): pow() of two int literals is evaluated to its literal result, and 2**31 is an int on the 64-bit PHP Psalm runs on (6.x typed it as a float literal, wrongly for small powers). is_int(pow(2, 31)) is getID3's 32-bit-platform probe, redundant under Psalm's usual 64-bit assumption."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "PossiblyFalseArgument",
+            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
+            "message": "Argument 2 of preg_match cannot be false, possibly string value expected",
+            "verdict": "true-positive",
+            "note": "75285114a1 (fixes #14759, 7.18.0): the item written just before ($RIFFchunk[..]['data'] = $this->fread(...), getid3_handler::fread() is @return string|false) keeps its type instead of becoming mixed, so the real PossiblyFalseArgument replaces the 6.21.4 MixedArrayAssignment/MixedArgument."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "PossiblyUndefinedArrayOffset",
+            "file": "src/wp-includes/ID3/module.tag.apetag.php",
+            "message_pattern": "/^Possibly undefined array key \\$thisfile_ape_items_current\\['data'\\] on array\\{data\\?: string, /",
+            "verdict": "expected",
+            "note": "Same issue as the former entry: 45135f22da analyses the property reference $thisfile_ape_items_current = &$info[...], so the shape is known; 'data' is unset on another path of the do/while. 7.18.0 prints the optional keys as string instead of array|int|mixed|string because an offset under several literal keys is now the value of those keys (66c490c0e2, #9714)."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "ParadoxicalCondition",
+            "file": "src/wp-includes/class-avif-info.php",
+            "message": "Condition ($this->features->props is has-at-least-32) contradicts a previously-established condition ($this->features->props is not has-at-least-32)",
+            "verdict": "false-positive",
+            "note": "Regression of 7.x with taint off only (7.17.0 and 7.18.0 with runTaintAnalysis=\"false\"; not 6.21.4, not 7.18.0 with taint on): the inner for loop appends to $this->features->props ($features is an untyped property, so mixed), but the outer `count(props) >= 32` clause survives into the inner loop. Snippet vd-p4-wp-avif (untyped $features, a private method writing $this->features->props, nested for loops). No issue filed yet."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "MixedArrayAccess",
+            "file": "src/wp-includes/customize/class-wp-customize-nav-menu-item-setting.php",
+            "message": "Cannot access array value on mixed variable $menu_item_value",
+            "verdict": "expected",
+            "note": "$menu_item_value is mixed (wp_array_slice_assoc() is an UndefinedFunction in 7.x, 8e1b0d0158). 6.x/7.17 turned it into an array after the previous foreach wrote $menu_item_value[$key]; 7.18.0 keeps it mixed (6b46bfd710 / 75285114a1, #7656 #14759), the same MixedArrayAccess all versions report in the first loop. Snippet: `foreach ([..] as $k) { $v[$k] = (int) $v[$k]; } foreach ([..] as $k) { $v[$k] = (string) $v[$k]; }` with mixed $v: 7.18.0 reports the second read too, 6.21.4/7.17.0 only the first."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "InvalidArgument",
+            "file": "src/wp-includes/media.php",
+            "message": "Argument 3 of get_adjacent_image_link expects bool, but false|string provided",
+            "verdict": "expected",
+            "note": "cb4e0ee342 (7.18.0): the false of a bool no longer makes a value possibly fit, so string|false passed to a bool param is InvalidArgument like for Bar|false (was PossiblyInvalidArgument, the gone pair at the same lines). WordPress documents $text as bool there, wrongly."
+        },
+        {
+            "project": "wordpress",
+            "side": "new",
+            "type": "MixedArrayAccess",
+            "file": "src/wp-includes/theme.php",
+            "message": "Cannot access array value on mixed variable $_wp_theme_features[$feature]",
+            "verdict": "expected",
+            "note": "$_wp_theme_features is @global array, so the item is mixed. 6.x/7.17 forgot the item when switch($feature) narrowed the key and rebuilt it from the next isset(); 7.18.0 keeps what is known about it (75285114a1 / 9fc0f32899, #7221 #7656) and then reports like all versions do without the switch (snippet: `if (!isset($a[$f])) return; if (isset($a[$f][0][$k])) echo $a[$f][0][$k];` reports MixedArrayAccess $a[$f] in 6.21.4 and 7.18.0)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "PossiblyFalseArgument",
+            "file": "src/wp-admin/includes/class-pclzip.php",
+            "message": "Argument 1 of trim cannot be false, possibly string value expected",
+            "verdict": "fixed-false-positive",
+            "note": "3b0dfbe136 (#14809, 7.18.0): ini_get() of a core setting (memory_limit) never returns false."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "PossiblyFalseArgument",
+            "file": "src/wp-includes/ID3/getid3.php",
+            "message": "Argument 2 of preg_match cannot be false, possibly string value expected",
+            "verdict": "fixed-false-positive",
+            "note": "3b0dfbe136 (#14809): $memoryLimit = ini_get('memory_limit') is string, a core setting never gives false."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "PossiblyUndefinedVariable",
+            "message_pattern": "/^Possibly undefined variable \\$(auto_updates|cached), first seen on line \\d+$/",
+            "verdict": "fixed-false-positive",
+            "note": "The variable is assigned under `if ($this->show_autoupdates)` / `if ($can_use_cached)` and only read under the same condition in a later foreach (class-wp-ms-themes-list-table.php, class-wp-plugins-list-table.php, global-styles-and-settings.php). 7.x with taint off links the definition to the condition and does not report; 7.18.0 with taint on still reports it like 6.21.4 (snippet vd-p4-wp-taint: taint on gives PossiblyUndefinedVariable + PossiblyNullArgument, taint off nothing). Type inference depending on runTaintAnalysis."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedArgument",
+            "file": "src/wp-admin/includes/image.php",
+            "message": "Argument 1 of utf8_encode cannot be float|int|non-empty-list<mixed>|non-empty-mixed|non-falsy-string, expecting string",
+            "verdict": "fixed-false-positive",
+            "note": "66c490c0e2 (#9714, 7.18.0): $meta[$key] with $key one of the literal keys 'title'|'caption'|...|'iso' is the union of those keys' values (strings), not of every value of the array. The 7.17.0 PossiblyInvalidArgument with the same type is gone too."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "InvalidOperand",
+            "file": "src/wp-includes/ID3/getid3.lib.php",
+            "message": "Cannot process numeric types together in strict operands mode, please cast explicitly",
+            "verdict": "fixed-false-positive",
+            "note": "62fe3b5882 (7.18.0): pow(2, $exponentbits - 1) with literal ints is an int literal (6.x: float(128)), so `pow(...) - 1` is int - int (snippet vd-p4-wp-pow)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "RedundantCast",
+            "file": "src/wp-includes/ID3/getid3.lib.php",
+            "message": "Redundant cast to float",
+            "verdict": "fixed-false-positive",
+            "note": "62fe3b5882: pow(2, 8) is int 256 (6.x: float), so int / pow(2, 8) is float|int and the (float) cast is needed (snippet vd-p4-wp-pow)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "PossiblyInvalidArgument",
+            "file": "src/wp-includes/ID3/module.audio-video.asf.php",
+            "message": "Argument 1 of getid3_asf::TrimTerm expects string, but possibly different type float|int|non-falsy-string provided",
+            "verdict": "fixed-false-positive",
+            "note": "66c490c0e2 (#9714): $thisfile_asf_contentdescriptionobject[$keytocopyfrom] with $keytocopyfrom one of 'title'|'author'|'copyright'|'description'|'rating' is the value of those keys (substr() strings), not the *_length ints of the shape."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedArrayAssignment",
+            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
+            "message": "Cannot access array value on mixed variable $RIFFchunk[$chunkname][$thisindex]['data']",
+            "verdict": "fixed-false-positive",
+            "note": "75285114a1 (fixes #14759): the item written just before in the loop keeps its type (string|false from fread()); 6.21.4 saw it as mixed."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedArgument",
+            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
+            "message": "Argument 2 of preg_match cannot be mixed, expecting string",
+            "verdict": "fixed-false-positive",
+            "note": "75285114a1 (fixes #14759): $RIFFchunk[..]['data'] = $this->fread() is string|false, now reported as PossiblyFalseArgument (new entry) instead of mixed."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedAssignment",
+            "file": "src/wp-includes/ID3/module.tag.apetag.php",
+            "message": "Unable to determine the type of this assignment",
+            "verdict": "fixed-false-positive",
+            "note": "66c490c0e2 (#9714): $thisfile_ape_items_current[$picture_key] with $picture_key one of 8 literal keys is the union of those keys' (string) values, not mixed."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "PossiblyInvalidArgument",
+            "file": "src/wp-includes/class-wp-query.php",
+            "message": "Argument 1 of strlen expects string, but possibly different type non-empty-array<array-key, string>|non-falsy-string provided",
+            "verdict": "fixed-false-positive",
+            "note": "04b03c439b (#14138, 7.18.0): preg_replace('|[^0-9]|', '', $qv['m']) under is_scalar() reads the scalar subject as it is for the conditional return, so it is string|null, never array (snippet vd-p4-wp-preg: 6.21.4/7.17.0 array<array-key, string>|null|string, 7.18.0 null|string)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedArrayOffset",
+            "file": "src/wp-includes/functions.php",
+            "message": "Cannot access value on variable $output_formats using mixed offset",
+            "verdict": "fixed-false-positive",
+            "note": "$mime_type = $file_type['type'] from wp_check_filetype() (hash docblock: string|false), narrowed through $is_image = !empty($mime_type) && ...; it is never mixed. 6.21.4/7.17.0 lost it after the preceding while loops, 7.18.0 keeps it (loop/key-narrowing changes 6b46bfd710, fa1a76735c; commit not pinned, not reproduced in a snippet)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "MixedArrayAccess",
+            "file": "src/wp-includes/media.php",
+            "message": "Cannot access array value on mixed variable $meta",
+            "verdict": "fixed-false-positive",
+            "note": "$meta = wp_get_attachment_metadata() is array{...}|false from its hash docblock, never mixed; 6.21.4/7.17.0 lost it after the foreach reading $meta['sizes'][$size] under a narrowed key, 7.18.0 keeps it (75285114a1 / 9fc0f32899, #7221 #7656; commit not pinned, not reproduced in a snippet)."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "InvalidScalarArgument",
+            "file": "src/wp-includes/pluggable.php",
+            "message": "Argument 1 of strpbrk expects string, but int|string provided",
+            "verdict": "fixed-false-positive",
+            "note": "66c490c0e2 (#9714): $lp[$component] with $component 'user'|'pass'|'host' is the value of those parse_url() keys (string), not also the int of 'port'."
+        },
+        {
+            "project": "wordpress",
+            "side": "gone",
+            "type": "ParamNameMismatch",
+            "file": "src/wp-includes/rest-api/endpoints/class-wp-rest-template-autosaves-controller.php",
+            "message": "Argument 1 of WP_REST_Template_Autosaves_Controller::get_parent has wrong name $parent_id, expecting $parent_post_id as defined by WP_REST_Revisions_Controller::get_parent",
+            "verdict": "expected",
+            "note": "0636d2685b / df7139052f (#11633, 7.18.0): $parent_id is the name of the direct parent WP_REST_Autosaves_Controller::get_parent, so calls through it bind; only the parent itself mismatches the grandparent (reported there)."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "PossiblyInvalidOperand",
+            "file": "src/wp-admin/includes/class-wp-comments-list-table.php",
+            "message": "Cannot perform a numeric operation with non-numeric types string and string",
+            "verdict": "neutral",
+            "note": "`$start += $_REQUEST['offset']` with request values (array|string): both messages name a real failing case (array + string, non-numeric string + string); which one is printed follows the operand types. Taint-dependent: only with runTaintAnalysis=\"false\"; 7.18.0 with taint on (run 45418083096) matches 6.21.4 here / keeps the 7.17.0 message."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MissingPropertyType",
+            "file": "src/wp-admin/includes/class-wp-site-health.php",
+            "message": "Property WP_Site_Health::$php_memory_limit does not have a declared type - consider string",
+            "verdict": "better",
+            "note": "3b0dfbe136 (#14809): ini_get('memory_limit') of a core setting is string, never false."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/wp-admin/includes/media.php",
+            "message": "Argument 1 of wp_add_id3_tag_data cannot be array<never, never>|mixed, expecting array<array-key, mixed>",
+            "verdict": "neutral",
+            "note": "Only the printed mixed-containing type changed: the 6.x/7.17 fabricated ArrayAccess|array{created_timestamp?: ...} shape on a mixed value is gone (mixed stays mixed); array<never, never> is the array() initialisation. Taint-dependent: only with runTaintAnalysis=\"false\"; 7.18.0 with taint on (run 45418083096) matches 6.21.4 here / keeps the 7.17.0 message."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/wp-admin/theme-editor.php",
+            "message_pattern": "/^Argument \\d of (preg_match|is_writable) cannot be mixed, expecting string$/",
+            "verdict": "neutral",
+            "note": "$file is mixed ($allowed_files[...]) or a concat; 6.21.4 prints mixed|string, 7.18.0 absorbs it into mixed. Same issue. Taint-dependent: only with runTaintAnalysis=\"false\"; 7.18.0 with taint on (run 45418083096) matches 6.21.4 here / keeps the 7.17.0 message."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "PossiblyInvalidPropertyAssignmentValue",
+            "file": "src/wp-includes/ID3/getid3.php",
+            "message": "$this->memory_limit with declared type 'int' cannot be assigned possibly different type 'float|int|string'",
+            "verdict": "better",
+            "note": "3b0dfbe136 (#14809): ini_get('memory_limit') never returns false."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "PossiblyUndefinedArrayOffset",
+            "file": "src/wp-includes/ID3/module.audio.mp3.php",
+            "message": "Possibly undefined array key $ExplodedOptions[1] on list{0: string, 1?: string, ...<string>}",
+            "verdict": "neutral",
+            "note": "Same real issue (explode(' ', ..., 4) may have no [1] for --preset/--alt-preset); 7.18.0 prints the list shape (more precise) but no longer the switch-narrowed literal values of [0] (less precise). 7.17.0 did not report it at all."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/wp-includes/SimplePie/src/Cache/Redis.php",
+            "message": "Argument 1 of Redis::auth cannot be mixed, expecting array{0?: string, 1?: string, pass?: string, user?: string}|string",
+            "verdict": "better",
+            "note": "17b7855915 (7.18.0): Redis::auth() accepts phpredis ACL credential arrays; the expected type is now accurate."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/wp-includes/SimplePie/src/Parser.php",
+            "message": "Argument 1 of end cannot be mixed, expecting array<array-key, mixed>",
+            "verdict": "neutral",
+            "note": "Only the printed mixed-containing type changed ($this->xml_base / xml_base_explicit, mixed|non-empty-list<...> -> mixed). Taint-dependent: only with runTaintAnalysis=\"false\"; 7.18.0 with taint on (run 45418083096) matches 6.21.4 here / keeps the 7.17.0 message."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "RiskyTruthyFalsyComparison",
+            "file": "src/wp-includes/class-wp-query.php",
+            "message": "Operand of type null|string contains type string, which can be falsy and truthy. This can cause possibly unexpected behavior. Use strict comparison instead.",
+            "verdict": "better",
+            "note": "04b03c439b (#14138): preg_replace() of an is_scalar() subject is string|null, not array (snippet vd-p4-wp-preg)."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArgument",
+            "file": "src/wp-includes/customize/class-wp-customize-nav-menu-item-setting.php",
+            "message": "Argument 2 of explode cannot be mixed, expecting string",
+            "verdict": "neutral",
+            "note": "Same issue on $value = $menu_item_value[$key] (mixed, see the new MixedArrayAccess entry of this file); 6.x printed mixed|string from the array it fabricated after the previous loop's writes, 7.18.0 keeps mixed (6b46bfd710 / 75285114a1)."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "PossiblyInvalidMethodCall",
+            "file": "src/wp-includes/formatting.php",
+            "message": "Cannot call method on possible non-empty-list<non-falsy-string> variable $value",
+            "verdict": "better",
+            "note": "More precise type of the array branch of sanitize_option() (illegal_names: array_values(array_filter(array_map('trim', ...))) then `if (!$value) $value = ''`): a non-empty list of non-falsy strings. Commit not pinned (7.18.0 array/list changes)."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "PossiblyInvalidArgument",
+            "file": "src/wp-includes/functions.php",
+            "message": "Argument 3 of recurse_dirsize expects int|null, but possibly different type float|int|string provided",
+            "verdict": "better",
+            "note": "3b0dfbe136 (#14809): ini_get('max_execution_time') never returns false."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "InvalidOperand",
+            "file": "src/wp-includes/ID3/getid3.lib.php",
+            "message": "Cannot process ints and floats in strict binary operands mode, please cast explicitly",
+            "verdict": "better",
+            "note": "62fe3b5882: pow(2, int) is float|int in 7.18.0 (6.x: float), so `pow(...) * (1 + float)` mixes ints and floats, which the new message names precisely (snippet vd-p4-wp-pow)."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "MixedArrayAccess",
+            "file": "src/wp-includes/ID3/module.audio.ogg.php",
+            "message": "Cannot access array value on mixed variable $info['ogg']",
+            "verdict": "neutral",
+            "note": "Both versions read a mixed part of $info = &$this->getid3->info on line 362; 6.21.4 flags $info['audio'] (read under !empty($info['audio']['sample_rate'])), 7.18.0 flags $info['ogg'] (mixed stays mixed after the offset writes just above). Taint-dependent: only with runTaintAnalysis=\"false\"; 7.18.0 with taint on (run 45418083096) matches 6.21.4 here / keeps the 7.17.0 message."
+        },
+        {
+            "project": "wordpress",
+            "side": "changed",
+            "type": "ParadoxicalCondition",
+            "file": "src/wp-includes/class-wp-term-query.php",
+            "message": "Condition ($_orderby is string(term_id)) contradicts a previously-established condition ($_orderby is not string(term_id))",
+            "verdict": "better",
+            "note": "fbe4e63a03 (7.18.0): the dead `'term_id' === $_orderby` operand (term_id handled by an earlier in_array branch) is reported again and now points at that operand instead of the whole || condition; 7.17.0 lost it."
+        },
+        {
+            "project": "amphp-amp",
+            "side": "new",
+            "type": "RedundantConditionGivenDocblockType",
+            "message_pattern": "/^Operand of type non-empty-list<array\\{args\\?: list<mixed>.* is always truthy$/",
+            "text": "$trace ?? false",
+            "verdict": "expected",
+            "note": "b532820a08 (#14251): `??` of a set non-null variable is now the variable, so `if ($trace ?? false)` (trace assigned inside assert(), captured by reference) also gets the truthiness report next to the 'never null' one all versions already give on the same operand; consistent with Psalm treating assert() as executed. Snippet temp/vd-p4-rest-amp."
+        },
+        {
+            "project": "doctrine-orm",
+            "side": "gone",
+            "type": "PossiblyInvalidIterator",
+            "file": "src/Mapping/ClassMetadataFactory.php",
+            "message": "Cannot iterate over bool",
+            "verdict": "fixed-false-positive",
+            "note": "`$parentClass->table[$indexType]` with $indexType 'uniqueConstraints'|'indexes' is now the value of those keys (array), not the union of every shape value (array|bool|string): 66c490c0e2 (#9714, closed)."
+        },
+        {
+            "project": "doctrine-orm",
+            "side": "gone",
+            "type": "MixedStringOffsetAssignment",
+            "file": "src/Mapping/ClassMetadataFactory.php",
+            "verdict": "fixed-false-positive",
+            "note": "Same root as the gone PossiblyInvalidIterator: the offset under several literal keys no longer includes the string member of the shape, so the write isn't a string-offset write: 66c490c0e2 (#9714)."
+        },
+        {
+            "project": "doctrine-orm",
+            "side": "gone",
+            "type": "NullArgument",
+            "file": "src/Mapping/Driver/AttributeReader.php",
+            "message_pattern": "/^Argument 1 of Doctrine\\\\ORM\\\\Mapping\\\\Driver\\\\RepeatableAttributeCollection::offsetSet cannot be null/",
+            "verdict": "fixed-false-positive",
+            "note": "`$collection[] = $instance` on an ArrayObject subclass: ArrayObject/ArrayIterator offsetSet() accept a null offset since 5a42876ee9 (#14499, closed)."
+        },
+        {
+            "project": "drupal",
+            "side": "new",
+            "type": "InvalidArgument",
+            "file": "core/modules/jsonapi/src/Normalizer/JsonApiDocumentTopLevelNormalizer.php",
+            "message_pattern": "/^Parameter 1 of closure passed to function array_map expects Symfony\\\\Component\\\\HttpKernel\\\\Exception\\\\HttpExceptionInterface, but Drupal\\\\jsonapi\\\\JsonApiResource\\\\ResourceIdentifierInterface provided$/",
+            "verdict": "expected",
+            "note": "Was PossiblyInvalidArgument in 6.21.4/7.17.0: b3498d6947 makes array_map closure params use the same containment check as ordinary arguments (interface A to a B param is InvalidArgument everywhere else too; snippet temp/vd-p4-rest-drupal). The finding is real: Data::toArray() is documented ResourceIdentifierInterface[] while OmittedData holds HTTP exceptions."
+        },
+        {
+            "project": "drupal",
+            "side": "gone",
+            "type": "InvalidReturnStatement",
+            "file": "core/modules/ckeditor5/src/SmartDefaultSettings.php",
+            "message_pattern": "/^The inferred type '0\\|float' does not match the declared return type 'int'/",
+            "verdict": "fixed-false-positive",
+            "note": "$surplus_score += pow(10, 4) etc.: pow() of two int literals now returns an int literal (62fe3b5882, #14505), so the sum stays int."
+        },
+        {
+            "project": "drupal",
+            "side": "gone",
+            "type": "PossiblyInvalidArrayAssignment",
+            "file": "core/modules/user/src/AccountForm.php",
+            "message_pattern": "/of type -10$/",
+            "verdict": "fixed-false-positive",
+            "note": "isset($form['account'][$key]) with $key 'mail'|'name'|'pass' read the union of every value of the shape (incl. '#weight' => -10); now the value of those keys: 66c490c0e2 (#9714). Snippet temp/vd-p4-rest-drupal-form: 6.21.4/7.17.0 report it, 7.18.0 nothing."
+        },
+        {
+            "project": "guzzle-promises",
+            "side": "gone",
+            "type": "ImplementedReturnTypeMismatch",
+            "message_pattern": "/for GuzzleHttp\\\\Promise\\\\PromiseInterface::then is different to the implemented return type/",
+            "verdict": "fixed-false-positive",
+            "note": "Promise::then/Coroutine::then repeat the interface's conditional return type; implementations' conditional returns are now compared branch by branch as the guide's: 632db325ef, 09cb0a1720 (#12988, closed)."
+        },
+        {
+            "project": "laravel",
+            "side": "gone",
+            "type": "ParamNameMismatch",
+            "file": "src/Illuminate/Console/OutputStyle.php",
+            "verdict": "expected",
+            "note": "Symfony's OutputInterface ($options) and OutputStyle/SymfonyStyle ($type) already disagree on these names, so no name satisfies every ancestor; no ParamNameMismatch for a name another overridden method uses: 0636d2685b, df7139052f (#11633, closed)."
+        },
+        {
+            "project": "laravel",
+            "side": "gone",
+            "type": "InvalidArgument",
+            "file": "src/Illuminate/Database/Concerns/BuildsQueries.php",
+            "message_pattern": "/^Argument 1 expects Illuminate\\\\Support\\\\Collection<int, TValue:Illuminate\\\\Database\\\\Concerns\\\\BuildsQueries as mixed>, but Illuminate\\\\Support\\\\Collection<int, stdClass> provided$/",
+            "verdict": "fixed-false-positive",
+            "note": "Query\\Builder has `@use BuildsQueries<\\stdClass>`; trait method params now use the types given to @use: a7e693cb34 / 809095698e (#4538, closed). Snippet temp/vd-p4-rest-laravel-bq: 6.21.4/7.17.0 InvalidArgument, 7.18.0 none."
+        },
+        {
+            "project": "laravel",
+            "side": "gone",
+            "type": "InvalidArgument",
+            "file": "src/Illuminate/Redis/Connectors/PhpRedisConnector.php",
+            "message_pattern": "/^Argument 1 of Redis::auth expects string/",
+            "verdict": "fixed-false-positive",
+            "note": "phpredis accepts [user, pass] ACL credentials; callmaps fixed in 17b7855915 (#14796, closed)."
+        },
+        {
+            "project": "php-parser",
+            "side": "gone",
+            "type": "PropertyTypeCoercion",
+            "message_pattern": "/^\\$this->items expects 'array<int, PhpParser\\\\Node\\\\Expr\\\\ArrayItem\\|null>'/",
+            "verdict": "fixed-false-positive",
+            "note": "PropertyMap no longer overrides Array_/List_::$items with the deprecated v4 Expr\\ArrayItem: 221bfc1168 (#14490, closed)."
+        },
+        {
+            "project": "php-parser",
+            "side": "changed",
+            "type": "PossiblyNullPropertyFetch",
+            "file": "lib/PhpParser/ParserAbstract.php",
+            "verdict": "better",
+            "note": "Same finding; the item type is now the real Node\\ArrayItem instead of the deprecated alias from the stale PropertyMap entry (221bfc1168, #14490)."
+        },
+        {
+            "project": "tempest",
+            "side": "new",
+            "type": "MixedArrayAccess",
+            "file": "packages/support/src/Arr/functions.php",
+            "message": "Cannot access array value on mixed variable $array",
+            "verdict": "true-positive",
+            "note": "has_key(): `$array = &$array[$key]` makes $array mixed after one iteration; the by-value form is reported by every version. 6.21.4/7.17.0 missed it because the earlier `if (isset($array[$key])) return true;` on the parameter $key survived foreach reassigning $key; 7.18.0 drops it (#7221 index-reconciliation series, e.g. 3a53e14a5a). Snippet temp/vd-p4-rest-tempest-has."
+        },
+        {
+            "project": "tempest",
+            "side": "gone",
+            "type": "NullArgument",
+            "file": "packages/container/src/GenericContainer.php",
+            "message_pattern": "/^Argument 1 of ArrayIterator::offsetSet cannot be null/",
+            "verdict": "fixed-false-positive",
+            "note": "`$this->dynamicInitializers[] = ...` on an ArrayIterator: offsetSet() accepts a null offset since 5a42876ee9 (#14499, closed)."
+        },
+        {
             "project": "wordpress",
             "side": "new",
             "type": "DuplicateClass",
@@ -402,15 +1187,6 @@
             "type": "MixedArrayAccess",
             "file": "src/wp-includes/ID3/module.audio.mp3.php",
             "message": "Cannot access array value on mixed variable $info['mpeg']",
-            "verdict": "expected",
-            "note": "45135f22da (references analysed, incl. `$x = &$this->getid3->info[...]` property references, instead of UnsupportedPropertyReferenceUsage + an untyped variable): the reference-bound variables now carry the types that flow through the reference, and Psalm reports on them by its ordinary rules: mixed elements of getid3::$info / $q give Mixed*, shapes filled with dynamic keys give unions with int/false members (PossiblyInvalidArrayAssignment \"of type int\", PossiblyFalse*), loops with `isset($x) && is_array($x)` give the same RedundantCondition as on a plain variable (snippet: `$a = null; foreach (...) { if (isset($a) && is_array($a)) ...; $a[$i] = 'x'; }` reports it in 6.21.3 and 7.17.0 alike). Settles the pass-1 unsure entries."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyUndefinedArrayOffset",
-            "file": "src/wp-includes/ID3/module.tag.apetag.php",
-            "message": "Possibly undefined array key $thisfile_ape_items_current['data'] on array{data?: string, data_filename?: non-falsy-string, data_length: int<0, max>, data_offset: mixed, datalength?: array<array-key, mixed>|int<0, max>|mixed|string, description?: array<array-key, mixed>|int<0, max>|mixed|string, filename: string, flags: array<array-key, mixed>, image_height?: array<array-key, mixed>|int<0, max>|mixed|string, image_mime: '', image_width?: array<array-key, mixed>|int<0, max>|mixed|string, imagetype?: array<array-key, mixed>|int<0, max>|mixed|string, offset: mixed, picturetype?: array<array-key, mixed>|int<0, max>|mixed|string}",
             "verdict": "expected",
             "note": "45135f22da (references analysed, incl. `$x = &$this->getid3->info[...]` property references, instead of UnsupportedPropertyReferenceUsage + an untyped variable): the reference-bound variables now carry the types that flow through the reference, and Psalm reports on them by its ordinary rules: mixed elements of getid3::$info / $q give Mixed*, shapes filled with dynamic keys give unions with int/false members (PossiblyInvalidArrayAssignment \"of type int\", PossiblyFalse*), loops with `isset($x) && is_array($x)` give the same RedundantCondition as on a plain variable (snippet: `$a = null; foreach (...) { if (isset($a) && is_array($a)) ...; $a[$i] = 'x'; }` reports it in 6.21.3 and 7.17.0 alike). Settles the pass-1 unsure entries."
         },
@@ -5453,60 +6229,6 @@
             "type": "MixedArgument",
             "file": "src/wp-admin/privacy.php",
             "message": "Argument 2 of explode cannot be mixed, expecting TGeneratedFromParam1:fn-explode as string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 1 of is_file cannot be mixed|non-falsy-string, expecting string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 1 of filesize cannot be mixed|non-falsy-string, expecting string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 1 of fopen cannot be mixed|non-falsy-string, expecting string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 1 of str_ends_with cannot be mixed|non-falsy-string, expecting string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 2 of preg_match cannot be mixed|non-falsy-string, expecting string",
-            "verdict": "neutral",
-            "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/theme-editor.php",
-            "message": "Argument 1 of is_writable cannot be mixed|non-falsy-string, expecting string",
             "verdict": "neutral",
             "note": "message change on a value from a call 7.x newly reports as UndefinedFunction (8e1b0d0158): mixed now instead of the type 6.x inferred"
         },
@@ -11013,15 +11735,6 @@
             "type": "PossiblyUndefinedArrayOffset",
             "file": "src/wp-includes/ID3/module.audio.mp3.php",
             "message": "Possibly undefined array key $info['mpeg'] on array{audio?: ArrayAccess|array{bitrate: mixed, ...<array-key, mixed>}|mixed, avdataoffset?: int|mixed, fileformat?: 'mp3'|mixed, mpeg?: ArrayAccess|array{audio: mixed, ...<array-key, mixed>}|mixed, ...<array-key, mixed>}",
-            "verdict": "expected",
-            "note": "45135f22da analyses references to properties (`$x = &$info[...]` with $info = &$this->...) instead of reporting UnsupportedPropertyReferenceUsage and leaving the bound variable untyped; issues on such variables changed accordingly"
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
-            "type": "MixedArrayAccess",
-            "file": "src/wp-includes/ID3/module.audio.ogg.php",
-            "message": "Cannot access array value on mixed variable $info['audio']",
             "verdict": "expected",
             "note": "45135f22da analyses references to properties (`$x = &$info[...]` with $info = &$this->...) instead of reporting UnsupportedPropertyReferenceUsage and leaving the bound variable untyped; issues on such variables changed accordingly"
         },
@@ -17962,24 +18675,6 @@
             "side": "changed",
             "type": "MixedArgument",
             "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::set_custom_fields cannot be mixed|null, expecting int",
-            "verdict": "neutral",
-            "note": "refinement of the printed mixed-containing type; same issue"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::add_enclosure_if_new cannot be mixed|null, expecting int",
-            "verdict": "neutral",
-            "note": "refinement of the printed mixed-containing type; same issue"
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
             "message": "Argument 2 of wp_xmlrpc_server::attach_uploads cannot be mixed|non-falsy-string, expecting string",
             "verdict": "neutral",
             "note": "refinement of the printed mixed-containing type; same issue"
@@ -18854,24 +19549,6 @@
             "type": "MixedAssignment",
             "file": "src/wp-includes/media.php",
             "message": "Unable to determine the type that $y is being assigned to",
-            "verdict": "expected",
-            "note": "destructuring (list()/[...] =) now fetches each item from the source array by key (db6db50495, e52cdcb53b): items taken from an `array`/array<mixed> are mixed and get one MixedAssignment each, as `$x = $arr[k]` does; when 6.x saw the source as mixed it reported nameless MixedArrayAccess per item instead (snippet: `list($c, $d) = h()` with `@return array`: 6.21.3 nothing, 7.17.0 MixedAssignment for $c and $d)"
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "MixedAssignment",
-            "file": "src/wp-includes/post.php",
-            "message": "Unable to determine the type that $singular_base is being assigned to",
-            "verdict": "expected",
-            "note": "destructuring (list()/[...] =) now fetches each item from the source array by key (db6db50495, e52cdcb53b): items taken from an `array`/array<mixed> are mixed and get one MixedAssignment each, as `$x = $arr[k]` does; when 6.x saw the source as mixed it reported nameless MixedArrayAccess per item instead (snippet: `list($c, $d) = h()` with `@return array`: 6.21.3 nothing, 7.17.0 MixedAssignment for $c and $d)"
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "MixedAssignment",
-            "file": "src/wp-includes/post.php",
-            "message": "Unable to determine the type that $plural_base is being assigned to",
             "verdict": "expected",
             "note": "destructuring (list()/[...] =) now fetches each item from the source array by key (db6db50495, e52cdcb53b): items taken from an `array`/array<mixed> are mixed and get one MixedAssignment each, as `$x = $arr[k]` does; when 6.x saw the source as mixed it reported nameless MixedArrayAccess per item instead (snippet: `list($c, $d) = h()` with `@return array`: 6.21.3 nothing, 7.17.0 MixedAssignment for $c and $d)"
         },
@@ -26345,27 +27022,9 @@
         },
         {
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Alias::__construct cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting string",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
             "type": "PossiblyInvalidArgument",
             "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
             "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Alias::__construct expects string, but possibly different type 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed provided",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Alias::setPublic cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting bool",
             "verdict": "neutral",
             "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
             "project": "symfony"
@@ -26381,27 +27040,9 @@
         },
         {
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 3 of sprintf cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting float|int|object{__tostring()}|string",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
             "type": "PossiblyInvalidArgument",
             "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
             "message": "Argument 3 of sprintf expects float|int|object{__tostring()}|string, but possibly different type 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed provided",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of substr cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting string",
             "verdict": "neutral",
             "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
             "project": "symfony"
@@ -26417,27 +27058,9 @@
         },
         {
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\ChildDefinition::__construct cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting string",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
             "type": "PossiblyInvalidArgument",
             "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
             "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\ChildDefinition::__construct expects string, but possibly different type 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed provided",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setClass cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting null|string",
             "verdict": "neutral",
             "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
             "project": "symfony"
@@ -26453,27 +27076,9 @@
         },
         {
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setShared cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting bool",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
             "type": "PossiblyInvalidArgument",
             "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
             "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setShared expects bool, but possibly different type 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed provided",
-            "verdict": "neutral",
-            "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setSynthetic cannot be 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed, expecting bool",
             "verdict": "neutral",
             "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
             "project": "symfony"
@@ -27988,15 +28593,6 @@
             "message": "Argument 1 of Symfony\\Component\\Translation\\Dumper\\PoFileDumper::escape cannot be mixed, expecting string",
             "verdict": "neutral",
             "note": "Only the mixed part of the union is printed differently (non-empty-mixed vs mixed, mixed|string folded into mixed or not); same issue, same location.",
-            "project": "symfony"
-        },
-        {
-            "side": "changed",
-            "type": "PossiblyNullOperand",
-            "file": "src/Symfony/Component/Translation/Extractor/Visitor/AbstractVisitor.php",
-            "message": "Cannot concatenate with a possibly null array<array-key, string>|null|string",
-            "verdict": "neutral",
-            "note": "Union printed with one more member next to mixed; same issue.",
             "project": "symfony"
         },
         {
@@ -30650,15 +31246,6 @@
         {
             "project": "phpunit",
             "side": "new",
-            "type": "MethodSignatureMismatch",
-            "message_pattern": "/should accept named arguments\\s+as /",
-            "verdict": "false-positive",
-            "note": "b34d358514 applies class-level @no-named-arguments to every method, and FunctionLikeAnalyzer then flags parameterless overrides (Countable::count, Iterator::*, IteratorAggregate::getIterator, FilterIterator::accept, RecursiveIterator::*, Stringable::__toString, InvocationStubber::seal) where named arguments cannot occur. Snippet: /** @no-named-arguments */ final class C implements Countable { public function count(): int { return 0; } } -> 7.17.0 MethodSignatureMismatch, 6.21.3 none.",
-            "link": "https://github.com/vimeo/psalm/issues/14763"
-        },
-        {
-            "project": "phpunit",
-            "side": "new",
             "type": "NamedArgumentNotAllowed",
             "verdict": "expected",
             "note": "PHPUnit classes carry class-level @no-named-arguments (Generator.php:58, Job.php:17, Assert), honoured since b34d358514; these calls pass named or string-keyed arguments to them."
@@ -31591,14 +32178,6 @@
         {
             "project": "tempest",
             "side": "new",
-            "type": "PropertyTypeCoercion",
-            "message_pattern": "/^\\$this->(container|connection) expects/",
-            "verdict": "unsure",
-            "note": "AutowireDiscovery.php:20, GenericDatabase.php:44: a class-level @property narrows a real promoted property (PHPStan style) and 7.x then flags the constructor assignment; a 7-line snippet (@property G $c + promoted C $c, also private(set)) does not reproduce it, so the trigger is unknown."
-        },
-        {
-            "project": "tempest",
-            "side": "new",
             "type": "NoValue",
             "verdict": "true-positive",
             "note": "MakeConfigCommand.php:68: `default` arm of a match that already lists every ConfigType case is dead code (6.x had the value as mixed)."
@@ -32385,20 +32964,6 @@
         },
         {
             "project": "psl",
-            "side": "new",
-            "type": "TooManyTemplateParams",
-            "verdict": "expected",
-            "note": "Relocated copy of the 6.x TooManyTemplateParams on the same Sequence/KeyedSequence properties (6.x: property statement line; 7.x: docblock line)."
-        },
-        {
-            "project": "psl",
-            "side": "new",
-            "type": "IncompatibleTypeParameters",
-            "verdict": "unsure",
-            "note": "new Async\\Sequence(...) assigned to a Sequence<A, B> property while Psalm sees one template (@template-contravariant ignored): follow-up of the TooManyTemplateParams confusion, replaces the 6.x InvalidPropertyAssignmentValue at the same line."
-        },
-        {
-            "project": "psl",
             "side": "gone",
             "type": "InvalidPropertyAssignmentValue",
             "file": "packages/io/src/Psl/IO/Internal/ResourceHandle.php",
@@ -32420,14 +32985,6 @@
             "file": "packages/cache/src/Psl/Cache/LocalStore.php",
             "verdict": "unsure",
             "note": "KeyedSequence template-arity confusion; 7.x reports InvalidPropertyAssignmentValue at the same line."
-        },
-        {
-            "project": "psl",
-            "side": "new",
-            "type": "InvalidPropertyAssignmentValue",
-            "file": "packages/cache/src/Psl/Cache/LocalStore.php",
-            "verdict": "unsure",
-            "note": "KeyedSequence template-arity confusion, same spot as the 6.x MixedPropertyTypeCoercion."
         },
         {
             "project": "psl",
@@ -33214,14 +33771,6 @@
             "message_pattern": "/and !isset assertion$/",
             "verdict": "fixed-false-positive",
             "note": "Same nullable-chain ?? as the gone \"is always isset\" entries."
-        },
-        {
-            "project": "psl",
-            "side": "gone",
-            "type": "RedundantCondition",
-            "message": "'0' can never contain non-falsy-string",
-            "verdict": "fixed-false-positive",
-            "note": "Duration.php:696 `'0' !== $concatenatedSeconds`: the string can be '0'."
         },
         {
             "project": "psl",
@@ -34457,33 +35006,6 @@
         },
         {
             "project": "php-parser",
-            "side": "new",
-            "type": "DeprecatedClass",
-            "message_pattern": "/Expr\\\\ArrayItem is marked as deprecated/",
-            "file": "lib/PhpParser/Node/Expr/Array_.php",
-            "verdict": "expected",
-            "note": "Pre-existing FP in both versions (PropertyMap names the deprecated alias Expr\\ArrayItem for Array_::$items); location moved from the native type (line 14) to the docblock (line 13): 06043f18eb (#8266)."
-        },
-        {
-            "project": "php-parser",
-            "side": "new",
-            "type": "DeprecatedClass",
-            "message_pattern": "/Expr\\\\ArrayItem is marked as deprecated/",
-            "file": "lib/PhpParser/Node/Expr/List_.php",
-            "verdict": "expected",
-            "note": "Same as Array_.php: pre-existing alias FP, moved to the docblock line (06043f18eb)."
-        },
-        {
-            "project": "php-parser",
-            "side": "new",
-            "type": "DeprecatedClass",
-            "message_pattern": "/Expr\\\\ArrayItem is marked as deprecated/",
-            "file": "lib/PhpParser/ParserAbstract.php",
-            "verdict": "false-positive",
-            "note": "ParserAbstract.php:1014 closure param written as the non-deprecated Node\\ArrayItem is reported as deprecated Expr\\ArrayItem (class_alias Node\\ArrayItem -> Expr\\ArrayItem plus PropertyMap naming the alias); 6.x reported PossiblyInvalidArgument there instead."
-        },
-        {
-            "project": "php-parser",
             "side": "gone",
             "type": "DeprecatedClass",
             "verdict": "expected",
@@ -35587,15 +36109,6 @@
         {
             "project": "wordpress",
             "side": "new",
-            "type": "RiskyTruthyFalsyComparison",
-            "file": "src/wp-admin/includes/class-wp-debug-data.php",
-            "message": "Operand of type false|string contains type string, which can be falsy and truthy. This can cause possibly unexpected behavior. Use strict comparison instead.",
-            "verdict": "expected",
-            "note": "consequence of 8e1b0d0158 / 2593074387 (function_exists()/negated defined() no longer switch checks off for the rest of the scope): this function/file now has UndefinedFunction/UndefinedConstant reports in 7.x, and the values coming from those calls/constants are mixed or newly analysed."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
             "type": "PossiblyInvalidOperand",
             "file": "src/wp-admin/includes/class-wp-debug-data.php",
             "message": "Cannot perform a numeric operation with a non-numeric type non-falsy-string",
@@ -35752,24 +36265,6 @@
             "type": "PossiblyInvalidPropertyFetch",
             "file": "src/wp-admin/includes/class-wp-ms-sites-list-table.php",
             "message": "Cannot fetch property on possible non-object $_site of type false",
-            "verdict": "expected",
-            "note": "at the same location 6.x reported a Mixed*/coercion issue (the value was mixed or less precise, see gone issue at the same line); 7.x infers the type (more precise inference from the changes above: kept globals, parsed hash docblocks, kept mixed narrowing, stubs) and reports the concrete problem instead. Not checked per location."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyNullArgument",
-            "file": "src/wp-admin/includes/class-wp-ms-themes-list-table.php",
-            "message": "Argument 2 of in_array cannot be null, possibly null value provided",
-            "verdict": "expected",
-            "note": "at the same location 6.x reported a Mixed*/coercion issue (the value was mixed or less precise, see gone issue at the same line); 7.x infers the type (more precise inference from the changes above: kept globals, parsed hash docblocks, kept mixed narrowing, stubs) and reports the concrete problem instead. Not checked per location."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyNullArgument",
-            "file": "src/wp-admin/includes/class-wp-plugins-list-table.php",
-            "message": "Argument 2 of in_array cannot be null, possibly null value provided",
             "verdict": "expected",
             "note": "at the same location 6.x reported a Mixed*/coercion issue (the value was mixed or less precise, see gone issue at the same line); 7.x infers the type (more precise inference from the changes above: kept globals, parsed hash docblocks, kept mixed narrowing, stubs) and reports the concrete problem instead. Not checked per location."
         },
@@ -36145,15 +36640,6 @@
         {
             "project": "wordpress",
             "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/wp-admin/includes/image.php",
-            "message": "Argument 1 of utf8_encode expects string, but possibly different type float|int|non-empty-list<mixed>|non-empty-mixed|non-falsy-string provided",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
             "type": "RedundantCondition",
             "file": "src/wp-admin/includes/image.php",
             "message": "PHP_EXTENSION gd is true has already been asserted",
@@ -36177,15 +36663,6 @@
             "message": "Cannot access value on variable $num_posts using mixed offset",
             "verdict": "expected",
             "note": "The variable is mixed in both versions (untyped param, element of array<mixed>, unknown-function result...); 6.x turned it into a narrowed/fabricated type (ArrayAccess|array{...}|mixed, non-empty-mixed) after isset()/empty()/offset writes or || operands and stopped reporting, 7.x keeps it mixed (3716d4b858, 159dd8ab22, 5daaa1bd6c, fd3df073e8); snippet: `foreach ($a as $x) { if (empty($x['f']) || preg_match('/x/', $x['f'])) continue; echo $x['f']; }` → 7.17.0 MixedArrayAccess on the echo, 6.21.3 none."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/wp-admin/includes/media.php",
-            "message": "Argument 1 of wp_add_id3_tag_data expects array<array-key, mixed>, but possibly different type ArrayAccess|array{created_timestamp?: non-empty-mixed, ...<array-key, mixed>}|mixed provided",
-            "verdict": "expected",
-            "note": "consequence of 8e1b0d0158 / 2593074387 (function_exists()/negated defined() no longer switch checks off for the rest of the scope): this function/file now has UndefinedFunction/UndefinedConstant reports in 7.x, and the values coming from those calls/constants are mixed or newly analysed."
         },
         {
             "project": "wordpress",
@@ -37549,24 +38026,6 @@
         {
             "project": "wordpress",
             "side": "new",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
-            "message": "Argument 1 of trim cannot be mixed, expecting string",
-            "verdict": "expected",
-            "note": "45135f22da (references analysed: `$x = &$this->info[...]` property references and by-ref bindings, instead of UnsupportedPropertyReferenceUsage and an untyped variable; gone UnsupportedPropertyReferenceUsage in this function): the bound variables now carry the shape built through the reference, so issues on them changed accordingly."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "MixedArrayAccess",
-            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
-            "message": "Cannot access array value on mixed variable $RIFFchunk[$chunkname][$thisindex]['parsed']",
-            "verdict": "expected",
-            "note": "45135f22da (references analysed: `$x = &$this->info[...]` property references and by-ref bindings, instead of UnsupportedPropertyReferenceUsage and an untyped variable; gone UnsupportedPropertyReferenceUsage in this function): the bound variables now carry the shape built through the reference, so issues on them changed accordingly."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
             "type": "MixedAssignment",
             "file": "src/wp-includes/ID3/module.audio-video.riff.php",
             "message": "Unable to determine the type of this assignment",
@@ -38179,15 +38638,6 @@
         {
             "project": "wordpress",
             "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/wp-includes/block-supports/layout.php",
-            "message": "Argument 4 of wp_get_layout_style expects array<array-key, string>|null|string, but possibly different type array<array-key, mixed|null>|mixed|null provided",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
             "type": "DocblockTypeContradiction",
             "file": "src/wp-includes/block-supports/typography.php",
             "message": "Docblock-defined type WP_Block_Type for $block_type is always WP_Block_Type",
@@ -38488,15 +38938,6 @@
             "type": "MixedPropertyFetch",
             "file": "src/wp-includes/capabilities.php",
             "message": "Cannot fetch property on mixed var $post",
-            "verdict": "expected",
-            "note": "The variable is mixed in both versions (untyped param, element of array<mixed>, unknown-function result...); 6.x turned it into a narrowed/fabricated type (ArrayAccess|array{...}|mixed, non-empty-mixed) after isset()/empty()/offset writes or || operands and stopped reporting, 7.x keeps it mixed (3716d4b858, 159dd8ab22, 5daaa1bd6c, fd3df073e8); snippet: `foreach ($a as $x) { if (empty($x['f']) || preg_match('/x/', $x['f'])) continue; echo $x['f']; }` → 7.17.0 MixedArrayAccess on the echo, 6.21.3 none."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "MixedReturnStatement",
-            "file": "src/wp-includes/category.php",
-            "message": "Possibly-mixed return value",
             "verdict": "expected",
             "note": "The variable is mixed in both versions (untyped param, element of array<mixed>, unknown-function result...); 6.x turned it into a narrowed/fabricated type (ArrayAccess|array{...}|mixed, non-empty-mixed) after isset()/empty()/offset writes or || operands and stopped reporting, 7.x keeps it mixed (3716d4b858, 159dd8ab22, 5daaa1bd6c, fd3df073e8); snippet: `foreach ($a as $x) { if (empty($x['f']) || preg_match('/x/', $x['f'])) continue; echo $x['f']; }` → 7.17.0 MixedArrayAccess on the echo, 6.21.3 none."
         },
@@ -39844,47 +40285,11 @@
         {
             "project": "wordpress",
             "side": "new",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 2 of ArrayAccess::offsetSet cannot be mixed, expecting TValue:ArrayAccess as mixed",
-            "verdict": "expected",
-            "note": "The variable is mixed in both versions (untyped param, element of array<mixed>, unknown-function result...); 6.x turned it into a narrowed/fabricated type (ArrayAccess|array{...}|mixed, non-empty-mixed) after isset()/empty()/offset writes or || operands and stopped reporting, 7.x keeps it mixed (3716d4b858, 159dd8ab22, 5daaa1bd6c, fd3df073e8); snippet: `foreach ($a as $x) { if (empty($x['f']) || preg_match('/x/', $x['f'])) continue; echo $x['f']; }` → 7.17.0 MixedArrayAccess on the echo, 6.21.3 none."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::_toggle_sticky expects array<array-key, mixed>, but possibly different type ArrayAccess|mixed|non-empty-array<array-key, mixed> provided",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
             "type": "PossiblyInvalidArrayAccess",
             "file": "src/wp-includes/class-wp-xmlrpc-server.php",
             "message": "Cannot access array value on non-array variable $content_struct of type IXR_Error",
             "verdict": "expected",
             "note": "1de0072c5f (#14237): array access on a non-ArrayAccess object is (Possibly)InvalidArrayAccess/Assignment, 6.x reported UndefinedMethod X::offsetGet/offsetSet at the same location (gone)."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyNullArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::set_custom_fields cannot be null, possibly null value provided",
-            "verdict": "expected",
-            "note": "at the same location 6.x reported a Mixed*/coercion issue (the value was mixed or less precise, see gone issue at the same line); 7.x infers the type (more precise inference from the changes above: kept globals, parsed hash docblocks, kept mixed narrowing, stubs) and reports the concrete problem instead. Not checked per location."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyNullArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::add_enclosure_if_new cannot be null, possibly null value provided",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
         },
         {
             "project": "wordpress",
@@ -39993,15 +40398,6 @@
             "message": "Property wpdb::$queries is not defined in constructor of wpdb or in any methods called in the constructor",
             "verdict": "expected",
             "note": "consequence of d4dbda1817 (WordPress hash notation `@return array {...}`/`@param array $x {...}` read as a description): 6.x reported InvalidDocblock and ignored the docblock (gone InvalidDocblock), 7.x uses the declared type, so values/returns are now checked against it."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "ReferenceConstraintViolation",
-            "file": "src/wp-includes/class-wpdb.php",
-            "message": "Variable $data is limited to values of type string because it is passed by reference, float|string type found. Use @param-out to specify a different output type",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
         },
         {
             "project": "wordpress",
@@ -40623,15 +41019,6 @@
             "message": "Cannot access array value on mixed variable $alloptions",
             "verdict": "expected",
             "note": "consequence of 60cb4d3750 (globals keep their type across calls; @global as docblock type cfeae2cdc1/78248bf856): in this function 6.x lost the type of a global (gone MixedMethodCall/MixedPropertyFetch on it), 7.x keeps it (e.g. $wpdb stays wpdb), so the values derived from it are now checked."
-        },
-        {
-            "project": "wordpress",
-            "side": "new",
-            "type": "PossiblyUndefinedArrayOffset",
-            "file": "src/wp-includes/functions.php",
-            "message": "Possibly undefined array key $server_parts[0] on array{0?: string, 1?: string, ...<int<0, max>, string>}",
-            "verdict": "unsure",
-            "note": "not investigated (long tail of the slice)."
         },
         {
             "project": "wordpress",
@@ -42994,15 +43381,6 @@
         {
             "project": "wordpress",
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-admin/includes/media.php",
-            "message": "Argument 1 of wp_add_id3_tag_data cannot be ArrayAccess|array{created_timestamp?: non-empty-mixed, ...<array-key, mixed>}|mixed, expecting array<array-key, mixed>",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
             "type": "MixedArgumentTypeCoercion",
             "file": "src/wp-admin/includes/misc.php",
             "message": "Argument 2 of implode expects array<array-key, null|object{__tostring()}|scalar>, but parent type non-empty-array<array-key, mixed|string> provided",
@@ -43291,15 +43669,6 @@
         {
             "project": "wordpress",
             "side": "changed",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
-            "message": "Argument 2 of getid3_riff::parseComments expects array<array-key, mixed>, but possibly different type array<array-key, ArrayAccess|array<array-key, mixed>|mixed>|false|float|int provided",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
             "type": "RedundantConditionGivenDocblockType",
             "file": "src/wp-includes/ID3/module.audio-video.riff.php",
             "message": "Docblock-defined type array<array-key, array<'data'|'offset'|'parsed'|'size'|int<0, max>, mixed>|false|float|int|mixed> for $RIFFchunk[$chunkname] is always array<array-key, mixed>",
@@ -43543,15 +43912,6 @@
         {
             "project": "wordpress",
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/SimplePie/src/Parser.php",
-            "message": "Argument 1 of end cannot be mixed|non-empty-list<mixed>, expecting array<array-key, mixed>",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
             "type": "InvalidReturnType",
             "file": "src/wp-includes/SimplePie/src/Registry.php",
             "message": "The declared return type 'T:fn-simplepie\\registry::create as object' for SimplePie\\Registry::create is incorrect, got '(T:fn-simplepie\\registry::create as object)|object'",
@@ -43654,15 +44014,6 @@
             "type": "MixedArgument",
             "file": "src/wp-includes/block-supports/layout.php",
             "message": "Argument 2 of wp_get_layout_style cannot be array<never, never>|mixed, expecting array<array-key, mixed>",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/block-supports/layout.php",
-            "message": "Argument 4 of wp_get_layout_style cannot be array<array-key, mixed|null>|mixed|null, expecting array<array-key, string>|null|string",
             "verdict": "neutral",
             "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
         },
@@ -44209,15 +44560,6 @@
         {
             "project": "wordpress",
             "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Argument 1 of wp_xmlrpc_server::_toggle_sticky cannot be ArrayAccess|mixed|non-empty-array<array-key, mixed>, expecting array<array-key, mixed>",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
             "type": "PossiblyInvalidArrayOffset",
             "file": "src/wp-includes/class-wp-xmlrpc-server.php",
             "message": "Cannot access value on variable $content_struct using offset value of 'post_status|page_status', expecting 0",
@@ -44302,15 +44644,6 @@
             "type": "LessSpecificReturnStatement",
             "file": "src/wp-includes/customize/class-wp-customize-nav-menu-setting.php",
             "message": "The type 'array<array-key, WP_Term|object{term_id:int|mixed, term_taxonomy_id:int|mixed, slug:mixed, count:0|mixed, term_group:0|mixed, taxonomy:'nav_menu'|mixed, filter:'raw'|mixed}&stdClass>|mixed' is more general than the declared return type 'array<array-key, WP_Term>' for WP_Customize_Nav_Menu_Setting::filter_wp_get_nav_menus",
-            "verdict": "neutral",
-            "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
-        },
-        {
-            "project": "wordpress",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/wp-includes/customize/class-wp-customize-nav-menu-setting.php",
-            "message": "Argument 2 of WP_Customize_Nav_Menu_Setting::filter_nav_menu_options_value cannot be int<min, max>|mixed, expecting int",
             "verdict": "neutral",
             "note": "only the printed type changed (mixed absorbed into or split out of unions, non-empty/non-falsy/literal refinements, array<never,...> for empty literal arrays); same issue at the same location."
         },
@@ -47735,22 +48068,6 @@
         {
             "project": "laravel",
             "side": "new",
-            "type": "InvalidArgument",
-            "file": "src/Illuminate/Database/Eloquent/Relations/Concerns/InteractsWithPivotTable.php",
-            "verdict": "unsure",
-            "note": "InteractsWithPivotTable.php:597 when(fn ($query) => $query->whereIn(...)) on a Query\\Builder whose callable(static, bool) return is bound to the BelongsToMany template: trait caller again (see the trait-self entries), not reduced."
-        },
-        {
-            "project": "laravel",
-            "side": "new",
-            "type": "UndefinedMagicMethod",
-            "file": "src/Illuminate/Testing/Fluent/Concerns/Has.php",
-            "verdict": "false-positive",
-            "note": "Has.php:106 ->first() on HigherOrderTapProxy: consequence of the trait-self closure false positive on line 101 (the tap() callback is judged invalid, so the conditional return picks the $callback-is-null branch); snippet temp/vd-laravel2-c shows the same pair (InvalidArgument + Proxy::first) in both versions; newly reached because the Conditionable/EnumeratesValues docblocks with `callable($this, ...)` params now parse (6.x: InvalidDocblock, pass 1), so when()/unless()/whenEmpty()/tap() calls and the closures given to them are typed and checked."
-        },
-        {
-            "project": "laravel",
-            "side": "new",
             "type": "InvalidReturnStatement",
             "file": "src/Illuminate/Support/Facades/Facade.php",
             "verdict": "false-positive",
@@ -48571,22 +48888,6 @@
             "file": "src/Internal/UnitOfWork/InsertBatch.php",
             "verdict": "expected",
             "note": "Same finding as the 6.x InvalidArrayOffset at this line ($batchIndex int<-1,max> on a list), downgraded: 86c87df9d4 reports an int-range offset that partly fits the keys as possibly invalid."
-        },
-        {
-            "project": "doctrine-orm",
-            "side": "new",
-            "type": "PossiblyInvalidArrayOffset",
-            "file": "src/Mapping/ClassMetadataFactory.php",
-            "verdict": "expected",
-            "note": "Same finding as the 6.x InvalidArrayOffset at this line, downgraded to Possibly because the union only partly rejects a string offset (86c87df9d4). Snippet vd-psl-doctrine-b a3 reproduces the swap. Root (both versions): `$table[$indexType]` with $indexType = 'uniqueConstraints'|'indexes' reads the union of every shape value (array|bool|string)."
-        },
-        {
-            "project": "doctrine-orm",
-            "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/Mapping/ClassMetadataFactory.php",
-            "verdict": "false-positive",
-            "note": "`$subClass->table[$indexType] ?? []` with $indexType a literal 'uniqueConstraints'|'indexes' is always an array, but both versions read the union of all shape values (array|bool|string; 6.x already reported PossiblyInvalidIterator \"bool\" there). 6.x called it a mixed coercion; afbf9b9565 (#3957) now needs every unaccepted member to come from mixed, so the bool|string atoms make it PossiblyInvalidArgument. Snippet vd-psl-doctrine-b a3."
         },
         {
             "project": "doctrine-orm",
@@ -49960,16 +50261,6 @@
             "message": "$this->controller with declared type 'array<array-key, mixed>|object|string' cannot be assigned possibly different type 'Closure|callable'",
             "verdict": "expected",
             "note": "Still reported by 7.x on the same expression as InvalidPropertyAssignmentValue (\"$this->controller with declared type 'array<array-key, mixed>|object|string' cannot be assigned type 'callable[impure]'\"): the inferred type or the issue kind changed, nothing was lost."
-        },
-        {
-            "project": "symfony",
-            "side": "gone",
-            "type": "PossiblyNullArgument",
-            "file": "src/Symfony/Component/Lock/Store/FlockStore.php",
-            "text": "preg_replace('/[^a-z0-9\\._-]+/i', '-', $key)",
-            "message": "Argument 1 of substr cannot be null, possibly null value provided",
-            "verdict": "expected",
-            "note": "Still reported by 7.x on the same expression as PossiblyInvalidArgument (\"Argument 1 of substr expects string, but possibly different type array<array-key, string>|null|string provided\"): the inferred type or the issue kind changed, nothing was lost."
         },
         {
             "project": "symfony",
@@ -52696,14 +52987,6 @@
         {
             "project": "symfony",
             "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/Symfony/Component/Validator/Constraints/BicValidator.php",
-            "verdict": "true-positive",
-            "note": "$value is Stringable|scalar; str_replace() on it returns array|string by the stub."
-        },
-        {
-            "project": "symfony",
-            "side": "new",
             "type": "RedundantCondition",
             "file": "src/Symfony/Component/Cache/Adapter/TraceableAdapter.php",
             "verdict": "true-positive",
@@ -54759,14 +55042,6 @@
         {
             "project": "symfony",
             "side": "new",
-            "type": "PossiblyInvalidArgument",
-            "file": "src/Symfony/Component/Lock/Store/FlockStore.php",
-            "verdict": "true-positive",
-            "note": "preg_replace() returns array|string|null here."
-        },
-        {
-            "project": "symfony",
-            "side": "new",
             "type": "MixedArgument",
             "file": "src/Symfony/Component/Mailer/Bridge/Amazon/Transport/SesTransportFactory.php",
             "verdict": "true-positive",
@@ -54989,14 +55264,6 @@
             "file": "src/Symfony/Component/Translation/Command/XliffLintCommand.php",
             "verdict": "true-positive",
             "note": "RecursiveIteratorIterator returned as iterable<string>; template params unknown."
-        },
-        {
-            "project": "symfony",
-            "side": "new",
-            "type": "PossiblyInvalidOperand",
-            "file": "src/Symfony/Component/Translation/Extractor/Visitor/AbstractVisitor.php",
-            "verdict": "true-positive",
-            "note": "preg_replace()/str_replace() result array|string|null concatenated."
         },
         {
             "project": "symfony",
@@ -55510,14 +55777,6 @@
         {
             "project": "symfony",
             "side": "changed",
-            "type": "PossiblyInvalidPropertyAssignmentValue",
-            "file": "src/Symfony/Component/Config/Definition/Builder/NodeBuilder.php",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
             "type": "InvalidPropertyAssignmentValue",
             "file": "src/Symfony/Component/Config/Definition/Builder/NodeDefinition.php",
             "verdict": "neutral",
@@ -55802,141 +56061,6 @@
             "file": "src/Symfony/Component/DependencyInjection/Loader/Configurator/Traits/TagTrait.php",
             "verdict": "neutral",
             "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setPublic cannot be Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed|string, expecting bool",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setAbstract cannot be Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed|string, expecting bool",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setFile cannot be Symfony\\Component\\DependencyInjection\\Definition|list{0: 'Closure'|Symfony\\Component\\DependencyInjection\\Definition|mixed, 1?: 'fromCallable'}|mixed|string, expecting null|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of substr cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 2 of sprintf cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting float|int|object{__tostring()}|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setDecoratedService cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting null|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 2 of Symfony\\Component\\DependencyInjection\\Definition::setDecoratedService cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|null|string, expecting null|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 3 of Symfony\\Component\\DependencyInjection\\Definition::setDecoratedService cannot be 0|Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting int",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setAutowired cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting bool",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 1 of Symfony\\Component\\DependencyInjection\\Definition::setAutoconfigured cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting bool",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 2 of Symfony\\Component\\DependencyInjection\\Loader\\PhpFileLoader::registerClasses cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 2 of Symfony\\Component\\DependencyInjection\\Loader\\YamlFileLoader::registerClasses cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 4 of Symfony\\Component\\DependencyInjection\\Loader\\PhpFileLoader::registerClasses cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|null|string, expecting array<array-key, string>|null|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 4 of Symfony\\Component\\DependencyInjection\\Loader\\YamlFileLoader::registerClasses cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|null|string, expecting array<array-key, string>|null|string",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/DependencyInjection/Loader/ContentLoaderTrait.php",
-            "message": "Argument 3 of sprintf cannot be Symfony\\Component\\DependencyInjection\\Definition|array<array-key, mixed>|mixed|string, expecting float|int|object{__tostring()}|string",
-            "verdict": "neutral",
-            "note": "Same issue; the type is printed with explicit template params (Generator<mixed, mixed, mixed, mixed>, Traversable<mixed, mixed>, closure signatures) or a broader but equivalent union."
         },
         {
             "project": "symfony",
@@ -56323,42 +56447,6 @@
             "side": "changed",
             "type": "MixedArgument",
             "file": "src/Symfony/Component/HttpClient/NativeHttpClient.php",
-            "message": "Argument 4 of Symfony\\Component\\HttpClient\\NativeHttpClient::dnsResolve cannot be Closure[impure](mixed...):never|Closure[read-props]():never|empty-mixed, expecting Closure[impure]|null",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/HttpClient/NativeHttpClient.php",
-            "message": "Argument 4 of Symfony\\Component\\HttpClient\\NativeHttpClient::dnsResolve cannot be Closure[impure]|Closure[impure](mixed...):never|Closure[read-props]():never|empty-mixed|null, expecting Closure[impure]|null",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/HttpClient/NativeHttpClient.php",
-            "message": "Argument 6 of Symfony\\Component\\HttpClient\\NativeHttpClient::createRedirectResolver cannot be Closure[impure]|Closure[impure](mixed...):never|Closure[read-props]():never|empty-mixed|null, expecting Closure[impure]|null",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/HttpClient/NativeHttpClient.php",
-            "message": "Argument 7 of Symfony\\Component\\HttpClient\\Response\\NativeResponse::__construct cannot be Closure[impure](mixed...):never|Closure[read-props]():never|empty-mixed, expecting callable[impure]|null",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "MixedArgument",
-            "file": "src/Symfony/Component/HttpClient/NativeHttpClient.php",
             "message": "Argument 1 of Symfony\\Component\\HttpClient\\NativeHttpClient::createRedirectResolver cannot be ArrayAccess|mixed|non-empty-array<array-key, mixed>, expecting array<array-key, mixed>",
             "verdict": "better",
             "note": "Same issue; the type in the message has fewer mixed parts (more precise inference, fake array shapes from narrowed mixed are gone: 3716d4b858/159dd8ab22)."
@@ -56711,14 +56799,6 @@
             "side": "changed",
             "type": "MismatchingDocblockPropertyType",
             "file": "src/Symfony/Component/ObjectMapper/Condition/ClassRule.php",
-            "verdict": "neutral",
-            "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "TypeDoesNotContainType",
-            "file": "src/Symfony/Component/ObjectMapper/Condition/ClassRuleList.php",
             "verdict": "neutral",
             "note": "Same issue at the same location; only the printed type differs (union members ordering/folding, literal vs generic, list vs array, template printing)."
         },
@@ -58214,14 +58294,6 @@
             "side": "changed",
             "type": "LessSpecificImplementedReturnType",
             "file": "src/Symfony/Component/DependencyInjection/Kernel/AbstractKernel.php",
-            "verdict": "better",
-            "note": "Method name printed with its declared casing (pass-1 cause)."
-        },
-        {
-            "project": "symfony",
-            "side": "changed",
-            "type": "ImplementedReturnTypeMismatch",
-            "file": "src/Symfony/Component/HttpFoundation/InputBag.php",
             "verdict": "better",
             "note": "Method name printed with its declared casing (pass-1 cause)."
         },
@@ -61235,16 +61307,6 @@
             "side": "gone",
             "type": "MixedArrayAccess",
             "file": "src/wp-includes/class-wp-xmlrpc-server.php",
-            "message": "Cannot access array value on mixed variable $post_data",
-            "text": "$post_data['enclosure']",
-            "verdict": "fixed-false-positive",
-            "note": "Read in the true branch of a ternary guarded by isset()/!empty() of the same expression (`isset($x['k']) ? $x['k'] : d`): 6.x did not give the first branch the offset clauses of the condition; 6066bf8add (ternary condition analysed like an if) does (snippet: xmlrpc `isset($filter['number']) ? absint($filter['number'])` reported in 6.x only)."
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
-            "type": "MixedArrayAccess",
-            "file": "src/wp-includes/class-wp-xmlrpc-server.php",
             "message": "Cannot access array value on mixed variable $filter",
             "verdict": "fixed-false-positive",
             "note": "Read in the true branch of a ternary guarded by isset()/!empty() of the same expression (`isset($x['k']) ? $x['k'] : d`): 6.x did not give the first branch the offset clauses of the condition; 6066bf8add (ternary condition analysed like an if) does (snippet: xmlrpc `isset($filter['number']) ? absint($filter['number'])` reported in 6.x only)."
@@ -63533,16 +63595,6 @@
         {
             "project": "wordpress",
             "side": "gone",
-            "type": "PossiblyFalseArgument",
-            "file": "src/wp-includes/ID3/module.audio-video.riff.php",
-            "message": "Argument 1 of trim cannot be false, possibly string value expected",
-            "verdict": "false-negative",
-            "note": "Known 7.x regression #14759: an item written just before in a loop is read back as mixed (`$RIFFchunk[$chunkname][$thisindex]['parsed'][...] = substr(...)`), so 7.x reports MixedArrayAccess/MixedArgument instead of the real PossiblyFalseArgument (substr() is string|false for PHP 7.2) (snippet vd-wpg3-1-riff).",
-            "link": "https://github.com/vimeo/psalm/issues/14759"
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
             "type": "RedundantCondition",
             "file": "src/wp-includes/ID3/module.audio-video.riff.php",
             "message": "Type array<never, never> for $RIFFchunk[$chunkname][$thisindex] is never non-empty",
@@ -63845,15 +63897,6 @@
             "message": "Property WP_Comment_Query::$query_var_defaults is not defined in constructor of WP_Comment_Query or in any methods called in the constructor",
             "verdict": "expected",
             "note": "45135f22da analyses references: query() called from the constructor passes `array(&$this)` to do_action_ref_array()/apply_filters_ref_array(), which made 6.x forget what the constructor had set ($this->query_var_defaults is set in its first statement)."
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
-            "type": "RiskyTruthyFalsyComparison",
-            "file": "src/wp-includes/class-wp-comment-query.php",
-            "message": "Operand of type ''|'0'|'ASC'|'DESC'|string contains type string, which can be falsy and truthy. This can cause possibly unexpected behavior. Use strict comparison instead.",
-            "verdict": "fixed-false-positive",
-            "note": "$comment_id_order is '' or a (ASC|DESC) regex group / 'ASC'/'DESC': 7.x types the preg_match group precisely, so it holds no possibly-falsy non-empty string and `!$comment_id_order` is not risky."
         },
         {
             "project": "wordpress",
@@ -64718,15 +64761,6 @@
             "message": "Argument 1 of sizeof cannot be list<SimplePie\\Enclosure>|mixed, expecting Countable|array<array-key, mixed>",
             "verdict": "fixed-false-positive",
             "note": "Same get_links() cascade pass 2 proved for Item.php: a write with a mixed key (`$this->data['links'][$link_rel][] = ...`) made 6.x turn the whole $this->data['links'] into `array<array-key|mixed, list|mixed>|mixed`, so array_keys()/array_merge()/array_unique() on it were MixedArgument; 7.x keeps the array (d52c71161e). The enclosures lines of Item.php (sizeof()/array_unique() on `list<Enclosure>|mixed`) are the get_enclosures() variant pass 2 left unsure; same fabricated-union shape."
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
-            "type": "RiskyTruthyFalsyComparison",
-            "file": "src/wp-includes/SimplePie/src/Item.php",
-            "message": "Operand of type non-empty-array<array-key, mixed>|string contains type string, which can be falsy and truthy. This can cause possibly unexpected behavior. Use strict comparison instead.",
-            "verdict": "unsure",
-            "note": "unsure: a reduced snippet of $description_parent/$player_parent/$title_parent (null | sanitize() string | non-empty-array) reports the same RiskyTruthyFalsyComparison in both versions (vd-wpg3-2-a/a8.php a8_desc); the difference comes from the surrounding get_enclosures() context, like the gone Mixed* on $this->data['enclosures'] that pass 2 left unsure. Possibly the same mixed-write cascade."
         },
         {
             "project": "wordpress",
@@ -66343,14 +66377,6 @@
             "file": "src/wp-includes/class-wp-term-query.php",
             "verdict": "fixed-false-positive",
             "note": "Set unconditionally in the constructor; 6.x lost it because a method the constructor calls passes `array(&$this)` to do_action_ref_array() (snippet vd-wpg3-3-rest: 6.21.3 PropertyNotSetInConstructor, 7.17.0 none; references analysed, 45135f22da family)."
-        },
-        {
-            "project": "wordpress",
-            "side": "gone",
-            "type": "ParadoxicalCondition",
-            "file": "src/wp-includes/class-wp-term-query.php",
-            "verdict": "false-negative",
-            "note": "Real dead operand: `in_array($_orderby, ['term_id', ...])` returned before, so `'term_id' === $_orderby` in a later `elseif (... || 'term_id' === $_orderby)` is impossible. 7.x no longer reports an impossible operand of `||` (snippet vd-wpg3-3-rest f2-f4: also `if ('a' === $o) return; if ('b' === $o || 'a' === $o)`); suspected the clause-keeping/algebra changes (9c8673b589, d75990dc7d, 1c00224823); no issue filed."
         },
         {
             "project": "wordpress",
