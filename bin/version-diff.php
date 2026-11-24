@@ -67,8 +67,8 @@ function writeJson(string $path, mixed $data): void
 }
 
 /**
- * Drops the root attributes this Psalm's config.xsd does not know (e.g. ensureOverrideAttribute on an old 6.x):
- * Psalm rejects a config with unknown attributes.
+ * Turns taint analysis off, then drops the root attributes this Psalm's config.xsd does not know (e.g.
+ * ensureOverrideAttribute on an old 6.x): Psalm rejects a config with unknown attributes.
  */
 function fitConfig(string $configFile, string $xsdFile): void
 {
@@ -86,6 +86,8 @@ function fitConfig(string $configFile, string $xsdFile): void
     }
 
     $root = $doc->documentElement ?? fail("{$configFile} has no root element");
+    // 6.x doesn't run taint analysis by default and 7.x does: off on both, so taint issues don't flood the diff.
+    $root->setAttribute('runTaintAnalysis', 'false');
     foreach (iterator_to_array($root->attributes) as $attribute) {
         if (!isset($known[$attribute->name])) {
             fwrite(STDERR, "version-diff: dropping {$attribute->name}, unknown to this Psalm\n");
