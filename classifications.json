@@ -357,7 +357,8 @@
             "file": "src/wp-includes/class-avif-info.php",
             "message": "Condition ($this->features->props is has-at-least-32) contradicts a previously-established condition ($this->features->props is not has-at-least-32)",
             "verdict": "false-positive",
-            "note": "Regression of 7.x with taint off only (7.17.0 and 7.18.0 with runTaintAnalysis=\"false\"; not 6.21.4, not 7.18.0 with taint on): the inner for loop appends to $this->features->props ($features is an untyped property, so mixed), but the outer `count(props) >= 32` clause survives into the inner loop. Snippet vd-p4-wp-avif (untyped $features, a private method writing $this->features->props, nested for loops). No issue filed yet."
+            "note": "Regression of 7.x with taint off only (7.17.0 and 7.18.0 with runTaintAnalysis=\"false\"; not 6.21.4, not 7.18.0 with taint on): the inner for loop appends to $this->features->props ($features is an untyped property, so mixed), but the outer `count(props) >= 32` clause survives into the inner loop. Snippet vd-p4-wp-avif (untyped $features, a private method writing $this->features->props, nested for loops). No issue filed yet.",
+            "link": "https://github.com/vimeo/psalm/issues/14894"
         },
         {
             "project": "wordpress",
