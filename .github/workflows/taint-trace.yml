@@ -6,6 +6,9 @@ on:
     branches: [taint-trace-14377]
   workflow_dispatch:
 
+env:
+  COMPOSER_ROOT_VERSION: dev-master
+
 permissions:
   contents: read
 
