@@ -175,7 +175,7 @@ final class Populator
         }
 
         if ($storage->readonly) {
-            return true;
+            return $this->hasPropertyThatCanCarryTaints($storage);
         }
 
         if (!$storage->final || $storage->parent_classes !== []) {
@@ -201,7 +201,36 @@ final class Populator
             }
         }
 
-        return $has_instance_property;
+        return $has_instance_property && $this->hasPropertyThatCanCarryTaints($storage);
+    }
+
+    /** @psalm-capabilities read-props */
+    private function hasPropertyThatCanCarryTaints(ClassLikeStorage $storage): bool
+    {
+        foreach ($storage->declaring_property_ids as $name => $declaring_class) {
+            $property = $this->classlike_storage_provider->get($declaring_class)->properties[$name] ?? null;
+            if ($property === null || $property->is_static) {
+                continue;
+            }
+            if ($property->type === null) {
+                return true;
+            }
+            foreach ($property->type->getAtomicTypes() as $atomic) {
+                if ($atomic instanceof \Psalm\Type\Atomic\TInt
+                    || $atomic instanceof \Psalm\Type\Atomic\TFloat
+                    || $atomic instanceof \Psalm\Type\Atomic\TBool
+                    || $atomic instanceof \Psalm\Type\Atomic\TNull
+                    || $atomic instanceof \Psalm\Type\Atomic\TEnumCase
+                    || ($atomic instanceof TNamedObject
+                        && $this->classlike_storage_provider->has($atomic->value)
+                        && $this->classlike_storage_provider->get($atomic->value)->is_enum)
+                ) {
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
