@@ -770,13 +770,15 @@ final class Populator
 
         // A readonly object cannot change once constructed: its properties hold the taints of its own
         // construction rather than those of every object of its class
+        $auto_specialized = false;
         if (!$storage->specialize_instance && $this->cannotChangeOnceConstructed($storage)) {
             $storage->specialize_instance = true;
+            $auto_specialized = true;
         }
 
         if ($storage->specialize_instance) {
-            foreach ($storage->methods as $method) {
-                if (!$method->is_static) {
+            foreach ($storage->methods as $name => $method) {
+                if (!$method->is_static && !($auto_specialized && $name === "__construct")) {
                     $method->specialize_call = true;
                 }
             }
