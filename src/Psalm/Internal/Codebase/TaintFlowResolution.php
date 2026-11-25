@@ -1037,7 +1037,73 @@ final class TaintFlowResolution
             }
         }
 
+        $this->freeWalkState();
         $this->reportFlows();
+    }
+
+    /**
+     * Frees what only the walk reads, before the reporting builds its caches
+     *
+     * @psalm-external-mutation-free
+     */
+    private function freeWalkState(): void
+    {
+        $this->sink_reachable = [];
+        $this->observable_depths = [];
+        $this->taint_adding_reachable = [];
+        $this->unwalked_files = [];
+        $this->sink_taints = [];
+        $this->path_type_ids = [];
+        $this->path_type_effects = [];
+        $this->array_conversion_path_types = [];
+        $this->overwrite_path_types = [];
+        $this->open_assignment_ids = [];
+        $this->open_assignments = [];
+        $this->open_assignment_slots = [];
+        $this->slots = [];
+        $this->slot_ids = [];
+        $this->foreach_markers = [];
+        $this->open_assignment_transitions = [];
+        $this->open_assignment_compositions = [];
+        $this->open_assignment_truncations = [];
+        $this->open_assignment_widenings = [];
+        $this->open_assignment_forgettings = [];
+        $this->state_ids = [];
+        $this->state_open_assignments = [];
+        $this->queue = [];
+        $this->queued = [];
+        $this->entry_ids = [];
+        $this->entry_nodes = [];
+        $this->entry_kinds = [];
+        $this->entry_facts = [];
+        $this->entry_filters = [];
+        $this->filter_ids = [];
+        $this->entry_conversion_filters = [];
+        $this->entry_anywhere_filters = [];
+        $this->filter_conversions = [];
+        $this->filter_anywhere = [];
+        $this->entry_class_filters = [];
+        $this->entry_class_dependents = [];
+        $this->entry_class_levels = [];
+        $this->call_entries_reaching = [];
+        $this->convergence_open_assignments = [];
+        $this->entry_conversions = [];
+        $this->exits_of_entered = [];
+        $this->entry_leaving_states = [];
+        $this->entry_filter_counts = [];
+        $this->entry_taint_dependents = [];
+        $this->entry_caller_versions = [];
+        $this->state_copies = [];
+        $this->copy_positions = [];
+        $this->entry_exits = [];
+        $this->entry_sinks = [];
+        $this->entry_sink_origins = [];
+        $this->entry_sink_callers = [];
+        $this->entry_sink_caller_taints = [];
+        $this->entry_sink_ranks = [];
+        $this->entry_unshared_sinks = [];
+        $this->link_ids = [];
+        $this->reported_pointers = [];
     }
 
     /**
