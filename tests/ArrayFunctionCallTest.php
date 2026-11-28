@@ -190,13 +190,17 @@ final class ArrayFunctionCallTest extends TestCase
     public static function providerValidCodeParse(): iterable
     {
         return [
-            'arrayFilterWithOnlyANamedCallbackDoesNotCrash' => [
+            'arrayFilterWithTheArrayPassedByPositionNameOrUnpackingIsNotTooFewArguments' => [
                 'code' => '<?php
-                    function f(): void {
-                        array_filter(callback: fn($x) => true);
+                    /** @param list<mixed> $args */
+                    function f(array $args): void {
+                        array_filter([1], callback: fn(int $x): bool => true);
+                        array_filter(array: [1], callback: fn(int $x): bool => true);
+                        array_filter(callback: fn(int $x): bool => true, array: [1]);
+                        array_filter(...$args);
                     }',
                 'assertions' => [],
-                'ignored_issues' => ['UnusedFunctionCall', 'MissingClosureParamType'],
+                'ignored_issues' => ['UnusedFunctionCall', 'MixedArgument'],
             ],
             'implodeOfAShapeWithAUnionOfLiterals' => [
                 'code' => '<?php
@@ -5936,6 +5940,14 @@ final class ArrayFunctionCallTest extends TestCase
 
                     array_map("foo", ["hello"]);',
                 'error_message' => 'InvalidScalarArgument',
+            ],
+            'arrayFilterWithOnlyANamedCallbackIsTooFewArguments' => [
+                'code' => '<?php
+                    function f(): void {
+                        array_filter(callback: fn(int $x): bool => true);
+                    }',
+                'error_message' => 'TooFewArguments',
+                'error_levels' => [],
             ],
             'arrayMapTooFewArgs' => [
                 'code' => '<?php

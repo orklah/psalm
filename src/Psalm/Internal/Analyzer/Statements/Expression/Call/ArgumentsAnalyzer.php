@@ -1889,7 +1889,15 @@ final class ArgumentsAnalyzer
                     ),
                     $statements_analyzer->getSuppressedIssues(),
                 );
-            } elseif ($f && count($args) < 1) {
+            } elseif ($f
+                // the array is the first parameter: it is passed by any positional or unpacked argument, or by name
+                && !array_any(
+                    $args,
+                    static fn(PhpParser\Node\Arg $arg): bool => $arg->unpack
+                        || $arg->name === null
+                        || $arg->name->name === 'array',
+                )
+            ) {
                 IssueBuffer::maybeAdd(
                     new TooFewArguments(
                         'Too few arguments for ' . $method_id,
