@@ -16,7 +16,6 @@ use Psalm\Internal\Analyzer\Statements\DeclareAnalyzer;
 use Psalm\Internal\Codebase\Functions;
 use Psalm\Internal\Codebase\Reflection;
 use Psalm\Internal\FileManipulation\FileManipulationBuffer;
-use Psalm\Internal\FileManipulation\LegacySyntaxFixes;
 use Psalm\Internal\MethodIdentifier;
 use Psalm\Internal\Provider\ClassLikeStorageProvider;
 use Psalm\Internal\Provider\FileReferenceProvider;
@@ -192,23 +191,16 @@ class FileAnalyzer extends SourceAnalyzer
 
         $fix_legacy_syntax = $codebase->alter_code && isset($this->project_analyzer->getIssuesToFix()['LegacySyntax']);
 
-        $legacy_syntax_fixes = [];
-
         foreach ($file_storage->legacy_syntax_issues as [$legacy_syntax, $suppressed_issues]) {
             if (!$fix_legacy_syntax) {
                 IssueBuffer::maybeAdd($legacy_syntax, $suppressed_issues, true);
             } elseif (!IssueBuffer::isSuppressedInList($legacy_syntax, $suppressed_issues)) {
-                $legacy_syntax_fixes[] = new FileManipulation(
+                FileManipulationBuffer::add($this->file_path, [new FileManipulation(
                     $legacy_syntax->code_location->raw_file_start,
                     $legacy_syntax->code_location->raw_file_end,
                     $legacy_syntax->replacement,
-                );
+                )]);
             }
-        }
-
-        if ($fix_legacy_syntax) {
-            LegacySyntaxFixes::set($this->file_path, $legacy_syntax_fixes);
-            FileManipulationBuffer::add($this->file_path, $legacy_syntax_fixes);
         }
 
         // if there are any leftover statements, evaluate them,

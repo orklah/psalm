@@ -5,53 +5,56 @@ declare(strict_types=1);
 namespace Psalm\Internal\FileManipulation;
 
 use PhpParser\Comment\Doc;
-use Psalm\FileManipulation;
+use Psalm\Internal\Analyzer\ProjectAnalyzer;
+use Psalm\IssueBuffer;
 
-use function array_reverse;
+use function krsort;
 use function strlen;
 use function substr_replace;
 
 /**
- * The LegacySyntax fixes of each file, which a manipulator that rewrites a whole docblock applies to it, as its edit
- * replaces theirs
+ * Applies the LegacySyntax fixes to a docblock a manipulator rewrites whole, as its edit replaces theirs
  *
  * @internal
  */
 final class LegacySyntaxFixes
 {
-    /** @var array<string, list<FileManipulation>> the fixes of each file, in the order of the file */
-    private static array $fixes = [];
-
-    /**
-     * Replaces the fixes of the file, which its analysis decides
-     *
-     * @param list<FileManipulation> $fixes
-     * @psalm-capabilities read-globals|write-globals
-     */
-    public static function set(string $file_path, array $fixes): void
-    {
-        self::$fixes[$file_path] = $fixes;
-    }
-
-    /**
-     * @psalm-capabilities read-props|read-globals
-     */
     public static function apply(Doc $docblock, string $file_path): Doc
     {
+        $project_analyzer = ProjectAnalyzer::getInstance();
+
+        if (!isset($project_analyzer->getIssuesToFix()['LegacySyntax'])) {
+            return $docblock;
+        }
+
         $text = $docblock->getText();
         $docblock_start = $docblock->getStartFilePos();
-        $docblock_length = strlen($text);
+        $docblock_end = $docblock_start + strlen($text);
+        $fixes = [];
 
-        // from the last, so that each fix leaves the offsets of the ones before it
-        foreach (array_reverse(self::$fixes[$file_path] ?? []) as $fix) {
-            if ($fix->start >= $docblock_start && $fix->end - $docblock_start <= $docblock_length) {
-                $start = $fix->start - $docblock_start;
-                $text = substr_replace($text, $fix->insertion_text, $start, $fix->end - $fix->start);
+        $file_storage = $project_analyzer->getCodebase()->file_storage_provider->get($file_path);
+
+        foreach ($file_storage->legacy_syntax_issues as [$legacy_syntax, $suppressed_issues]) {
+            $location = $legacy_syntax->code_location;
+
+            if ($location->raw_file_start >= $docblock_start
+                && $location->raw_file_end <= $docblock_end
+                && !IssueBuffer::isSuppressedInList($legacy_syntax, $suppressed_issues)
+            ) {
+                $fixes[$location->raw_file_start - $docblock_start] = $legacy_syntax;
             }
         }
 
-        if ($text === $docblock->getText()) {
+        if (!$fixes) {
             return $docblock;
+        }
+
+        // from the last, so that each fix leaves the offsets of the ones before it
+        krsort($fixes);
+
+        foreach ($fixes as $start => $legacy_syntax) {
+            $length = $legacy_syntax->code_location->raw_file_end - $docblock_start - $start;
+            $text = substr_replace($text, $legacy_syntax->replacement, $start, $length);
         }
 
         return new Doc(
