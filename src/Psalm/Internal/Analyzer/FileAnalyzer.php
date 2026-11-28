@@ -16,6 +16,7 @@ use Psalm\Internal\Analyzer\Statements\DeclareAnalyzer;
 use Psalm\Internal\Codebase\Functions;
 use Psalm\Internal\Codebase\Reflection;
 use Psalm\Internal\FileManipulation\FileManipulationBuffer;
+use Psalm\Internal\FileManipulation\LegacySyntaxFixes;
 use Psalm\Internal\MethodIdentifier;
 use Psalm\Internal\Provider\ClassLikeStorageProvider;
 use Psalm\Internal\Provider\FileReferenceProvider;
@@ -206,7 +207,8 @@ class FileAnalyzer extends SourceAnalyzer
         }
 
         if ($fix_legacy_syntax) {
-            FileManipulationBuffer::setLegacySyntaxFixes($this->file_path, $legacy_syntax_fixes);
+            LegacySyntaxFixes::set($this->file_path, $legacy_syntax_fixes);
+            FileManipulationBuffer::add($this->file_path, $legacy_syntax_fixes);
         }
 
         // if there are any leftover statements, evaluate them,

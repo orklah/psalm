@@ -148,7 +148,7 @@ final class PropertyDocblockManipulator
 
         if ($docblock) {
             $parsed_docblock = DocComment::parsePreservingLength(
-                FileManipulationBuffer::fixLegacySyntax($docblock, $this->file_path),
+                LegacySyntaxFixes::apply($docblock, $this->file_path),
             );
         } else {
             $parsed_docblock = new ParsedDocblock('', []);

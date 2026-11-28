@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Psalm\Internal\FileManipulation;
 
-use PhpParser\Comment\Doc;
 use Psalm\CodeLocation;
 use Psalm\CodeLocation\DocblockTypeLocation;
 use Psalm\FileManipulation;
@@ -12,7 +11,6 @@ use Psalm\Internal\Analyzer\ProjectAnalyzer;
 use Psalm\Internal\Provider\FileProvider;
 
 use function array_merge;
-use function array_reverse;
 use function preg_match;
 use function strlen;
 use function strpos;
@@ -31,9 +29,6 @@ final class FileManipulationBuffer
 
     /** @var CodeMigration[] */
     private static array $code_migrations = [];
-
-    /** @var array<string, list<FileManipulation>> the LegacySyntax fixes of each file, in the order of the file */
-    private static array $legacy_syntax_fixes = [];
 
     /**
      * @param FileManipulation[] $file_manipulations
@@ -184,56 +179,6 @@ final class FileManipulationBuffer
                     $comment_text === '',
                 ),
             ],
-        );
-    }
-
-    /**
-     * Replaces the LegacySyntax fixes of the file, which its analysis decides
-     *
-     * @param list<FileManipulation> $fixes
-     * @psalm-capabilities read-props|write-this-props|write-refs|read-globals|write-globals
-     */
-    public static function setLegacySyntaxFixes(string $file_path, array $fixes): void
-    {
-        self::$legacy_syntax_fixes[$file_path] = $fixes;
-        self::add($file_path, $fixes);
-    }
-
-    /**
-     * The docblock a manipulator rewrites whole, with the LegacySyntax fixes in it, as its edit replaces theirs
-     *
-     * @psalm-capabilities read-props|read-globals
-     */
-    public static function fixLegacySyntax(Doc $docblock, string $file_path): Doc
-    {
-        $text = $docblock->getText();
-        $docblock_start = $docblock->getStartFilePos();
-        $docblock_length = strlen($text);
-
-        // from the last, so that each fix leaves the offsets of the ones before it
-        foreach (array_reverse(self::$legacy_syntax_fixes[$file_path] ?? []) as $fix) {
-            if ($fix->start >= $docblock_start && $fix->end - $docblock_start <= $docblock_length) {
-                $text = substr_replace(
-                    $text,
-                    $fix->insertion_text,
-                    $fix->start - $docblock_start,
-                    $fix->end - $fix->start,
-                );
-            }
-        }
-
-        if ($text === $docblock->getText()) {
-            return $docblock;
-        }
-
-        return new Doc(
-            $text,
-            $docblock->getStartLine(),
-            $docblock_start,
-            $docblock->getStartTokenPos(),
-            $docblock->getEndLine(),
-            $docblock->getEndFilePos(),
-            $docblock->getEndTokenPos(),
         );
     }
 
