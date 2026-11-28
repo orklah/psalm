@@ -25,6 +25,7 @@ use function array_diff_assoc;
 use function array_diff_key;
 use function array_fill_keys;
 use function array_filter;
+use function array_intersect_key;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -396,19 +397,9 @@ final class AndAnalyzer
                 $left_core = $left_core->expr;
             }
 
-            $vars_assigned_always = [];
-
-            if (self::isAnd($left_core)) {
-                $vars_assigned_always = $left_context->vars_assigned_always_in_and;
-            } else {
-                foreach ($left_context->assigned_var_ids as $var_id => $_) {
-                    if (isset($left_context->vars_in_scope[$var_id])) {
-                        $vars_assigned_always[$var_id] = $left_context->vars_in_scope[$var_id];
-                    }
-                }
-            }
-
-            $context->vars_assigned_always_in_and = $vars_assigned_always;
+            $context->vars_assigned_always_in_and = self::isAnd($left_core)
+                ? $left_context->vars_assigned_always_in_and
+                : array_intersect_key($left_context->vars_in_scope, $left_context->assigned_var_ids);
         }
 
         return true;
