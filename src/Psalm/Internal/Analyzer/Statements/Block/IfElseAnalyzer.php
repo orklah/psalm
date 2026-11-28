@@ -399,6 +399,14 @@ final class IfElseAnalyzer
                     continue;
                 }
 
+                // the type a branch left in an offset or a property it bound to something else (assigning the variable
+                // detaches them) is not written through the old binding
+                if ((str_contains($var_id, '[') || str_contains($var_id, '->'))
+                    && self::isReboundInABranch($context, $if_scope->end_contexts, $var_id)
+                ) {
+                    $context->removePossibleReference($var_id);
+                }
+
                 $context->vars_in_scope[$var_id] = $type;
                 $if_scope->updated_vars[$var_id] = true;
 
@@ -518,6 +526,35 @@ final class IfElseAnalyzer
         foreach ($assigned_var_ids as $assigned_var_id => $_) {
             if (str_starts_with($var_id, $assigned_var_id . '[') || str_starts_with($var_id, $assigned_var_id . '->')) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the variable, bound by reference in the context, is bound differently at the end of a branch
+     *
+     * @param list<Context> $end_contexts
+     * @psalm-mutation-free
+     */
+    private static function isReboundInABranch(Context $context, array $end_contexts, string $var_id): bool
+    {
+        $referenced_id = $context->references_in_scope[$var_id] ?? null;
+
+        if ($referenced_id === null && !($context->referenced_counts[$var_id] ?? 0)) {
+            return false;
+        }
+
+        foreach ($end_contexts as $end_context) {
+            if (($end_context->references_in_scope[$var_id] ?? null) !== $referenced_id) {
+                return true;
+            }
+
+            foreach ($context->references_in_scope as $reference_id => $id) {
+                if ($id === $var_id && ($end_context->references_in_scope[$reference_id] ?? null) !== $var_id) {
+                    return true;
+                }
             }
         }
 

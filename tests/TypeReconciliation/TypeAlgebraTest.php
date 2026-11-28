@@ -4691,6 +4691,159 @@ final class TypeAlgebraTest extends TestCase
                     '$var===' => "''|'x'",
                 ],
             ],
+            'offsetKnownBeforeAnArrayUnionIsKeptAfterTheArrayWasAssigned' => [
+                'code' => '<?php
+                    final class O {
+                        public ?int $p = null;
+                    }
+
+                    /** @param array<string, O> $b */
+                    function f(O $o, array $b): int {
+                        $a = ["o" => $o];
+
+                        if ($a["o"]->p === null) {
+                            return 0;
+                        }
+
+                        $a += $b;
+                        $v = $a["o"]->p;
+                        /** @psalm-check-type-exact $v = int */
+
+                        return $v;
+                    }',
+            ],
+            'offsetReadWithAKeyTheRightSideOfAnArrayUnionAssignsIsNotKept' => [
+                'code' => '<?php
+                    /** @param array{1: int, 2: string} $a */
+                    function f(array $a): string {
+                        $k = 1;
+                        $_v = $a[$k];
+                        $a += [$k = 2];
+                        $w = $a[$k];
+                        /** @psalm-check-type-exact $w = string */
+
+                        return $w;
+                    }',
+            ],
+            'offsetKnownBeforeAnArrayUnionIsNotKeptWhenItsRightSideAssignsTheArray' => [
+                'code' => '<?php
+                    final class O {
+                        public ?int $p = null;
+                    }
+
+                    function f(O $o, O $o2): ?int {
+                        $a = ["o" => $o];
+
+                        if ($a["o"]->p === null) {
+                            return 0;
+                        }
+
+                        $a += ($a = ["o" => $o2]);
+                        $v = $a["o"]->p;
+                        /** @psalm-check-type-exact $v = int|null */
+
+                        return $v;
+                    }',
+            ],
+            'offsetKnownBeforeAnArrayUnionIntoAnOffsetIsKept' => [
+                'code' => '<?php
+                    /** @param array<string, int> $b */
+                    function f(array $b, int $i): int {
+                        $a = ["x" => ["y" => $i > 0 ? $i : null]];
+
+                        if ($a["x"]["y"] === null) {
+                            return 0;
+                        }
+
+                        $a["x"] += $b;
+                        $v = $a["x"]["y"];
+                        /** @psalm-check-type-exact $v = int<1, max> */
+
+                        return $v;
+                    }',
+            ],
+            'offsetKnownBeforeAnArrayUnionIntoAPropertyIsKept' => [
+                'code' => '<?php
+                    final class A {
+                        /** @var array<string, int|null> */
+                        public array $a = [];
+                    }
+
+                    /** @param array<string, int> $b */
+                    function f(A $o, array $b): int {
+                        if (!isset($o->a["y"])) {
+                            return 0;
+                        }
+
+                        $o->a += $b;
+                        $v = $o->a["y"];
+                        /** @psalm-check-type-exact $v = int */
+
+                        return $v;
+                    }',
+            ],
+            'referenceToAnOffsetIsDetachedWhenEveryBranchReassignsTheArray' => [
+                'code' => '<?php
+                    $a = ["x" => 1];
+                    $r = &$a["x"];
+
+                    if (rand(0, 1)) {
+                        $a = ["x" => 2];
+                        $_v = $a["x"];
+                    } else {
+                        $a = ["x" => 3];
+                        $_v = $a["x"];
+                    }
+
+                    $s = $r;
+                    /** @psalm-check-type-exact $s = 1 */',
+            ],
+            'referenceToAnOffsetFollowsWhatEveryBranchWritesToIt' => [
+                'code' => '<?php
+                    $a = ["x" => 1];
+                    $r = &$a["x"];
+
+                    if (rand(0, 1)) {
+                        $a["x"] = 2;
+                    } else {
+                        $a["x"] = 3;
+                    }
+
+                    $s = $r;
+                    /** @psalm-check-type-exact $s = 2|3 */',
+            ],
+            'referenceToAnOffsetIsDetachedWhenOneBranchReassignsTheArray' => [
+                'code' => '<?php
+                    $a = ["x" => 1];
+                    $r = &$a["x"];
+
+                    if (rand(0, 1)) {
+                        $a = ["x" => 2];
+                        $_v = $a["x"];
+                    } else {
+                        $_v = $a["x"];
+                    }
+
+                    $s = $r;
+                    /** @psalm-check-type-exact $s = 1 */',
+            ],
+            'offsetBoundByReferenceIsDetachedWhenEveryBranchReassignsTheArray' => [
+                'code' => '<?php
+                    $y = 1;
+                    $a = [];
+                    $a["x"] = &$y;
+
+                    if (rand(0, 1)) {
+                        $a = ["x" => 2];
+                        $_v = $a["x"];
+                    } else {
+                        $a = ["x" => 3];
+                        $_v = $a["x"];
+                    }
+
+                    $s = $y;
+                    /** @psalm-check-type-exact $s = 1 */',
+            ],
             'offsetKnownFromTheConditionIsKeptWhenTheArrayIsOnlyUnioned' => [
                 'code' => '<?php
                     $a = ["test" => rand(0, 1) ? null : "x"];

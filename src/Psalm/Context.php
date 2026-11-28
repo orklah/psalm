@@ -466,6 +466,12 @@ final class Context
     public array $possibly_assigned_var_ids = [];
 
     /**
+     * @deprecated Has no effect; will be removed in a future version.
+     * @var array<string, bool>
+     */
+    public array $fully_assigned_var_ids = [];
+
+    /**
      * A list of classes or interfaces that may have been thrown
      *
      * @var array<string, array<array-key, CodeLocation>>

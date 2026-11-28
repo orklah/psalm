@@ -605,6 +605,23 @@ final class AssignmentAnalyzer
             }
 
             $context->inside_general_use = $was_inside_general_use;
+
+            // the offsets an array union keeps are those still known once its right side has run
+            $union_var_id = $assign_value->getAttribute('unionKeepsOffsetsOf');
+
+            if (is_string($union_var_id)) {
+                $kept_offsets = [];
+
+                foreach ($context->vars_in_scope as $offset_var_id => $offset_type) {
+                    if (str_starts_with($offset_var_id, $union_var_id . '[')
+                        || str_starts_with($offset_var_id, $union_var_id . '->')
+                    ) {
+                        $kept_offsets[$offset_var_id] = $offset_type;
+                    }
+                }
+
+                $assign_value->setAttribute('keptOffsets', $kept_offsets);
+            }
         }
 
         if ($comment_type && $comment_type_location) {
@@ -1397,17 +1414,8 @@ final class AssignmentAnalyzer
                 ? $union_var_id
                 : null;
 
-        // what is known of the offsets of the array before the union holds after it
-        $kept_offsets = [];
-
-        if ($stmt instanceof PhpParser\Node\Expr\AssignOp\Plus && $array_union_var_id !== null) {
-            foreach ($context->vars_in_scope as $offset_var_id => $offset_type) {
-                if (str_starts_with($offset_var_id, $array_union_var_id . '[')
-                    || str_starts_with($offset_var_id, $array_union_var_id . '->')
-                ) {
-                    $kept_offsets[$offset_var_id] = $offset_type;
-                }
-            }
+        if ($array_union_var_id !== null) {
+            $operation->setAttribute('unionKeepsOffsetsOf', $array_union_var_id);
         }
 
         if (ExpressionAnalyzer::analyze($statements_analyzer, $fake_assignment, $context) === false) {
@@ -1415,6 +1423,9 @@ final class AssignmentAnalyzer
         }
 
         if ($array_union_var_id !== null) {
+            /** @var array<string, Union> $kept_offsets */
+            $kept_offsets = $operation->getAttribute('keptOffsets', []);
+
             foreach ($kept_offsets as $offset_var_id => $offset_type) {
                 $context->vars_in_scope[$offset_var_id] ??= $offset_type;
             }
