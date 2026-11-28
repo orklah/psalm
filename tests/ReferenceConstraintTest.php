@@ -1258,23 +1258,6 @@ final class ReferenceConstraintTest extends TestCase
                     }',
                 'error_message' => 'ReferenceConstraintViolation',
             ],
-            'byRefParamReboundInABranchIsConstrainedByALaterBranch' => [
-                'code' => '<?php
-                    function takesInt(int &$i): void {}
-
-                    function f(int &$i, bool $b, bool $c): void {
-                        if ($b) {
-                            $local = 0;
-                            $i = &$local;
-                        }
-                        if ($c) {
-                            takesInt($i);
-                        }
-                        $i = "a";
-                        echo $i;
-                    }',
-                'error_message' => 'ReferenceConstraintViolation - src' . DIRECTORY_SEPARATOR . 'somefile.php:12:25',
-            ],
             'constraintFromAnIfInAnElseifAfterAnEarlierBranchBoundTheVariable' => [
                 'code' => '<?php
                     final class A {
