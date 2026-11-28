@@ -1029,7 +1029,10 @@ final class ArgumentsAnalyzer
                 $param_storage->type_inferred = true;
             }
 
-            if ($method_id === 'array_map' || in_array($method_id, self::ARRAY_FILTERLIKE, true)) {
+            // a call with only the callback is reported as too few arguments
+            if (($method_id === 'array_map' || in_array($method_id, self::ARRAY_FILTERLIKE, true))
+                && isset($args[1 - $argument_offset])
+            ) {
                 self::taintClosureParamWithArrayElements(
                     $statements_analyzer,
                     $args[1 - $argument_offset]->value,
@@ -1886,7 +1889,15 @@ final class ArgumentsAnalyzer
                     ),
                     $statements_analyzer->getSuppressedIssues(),
                 );
-            } elseif ($f && count($args) < 1) {
+            } elseif ($f
+                // the array is the first parameter: it is passed by any positional or unpacked argument, or by name
+                && !array_any(
+                    $args,
+                    static fn(PhpParser\Node\Arg $arg): bool => $arg->unpack
+                        || $arg->name === null
+                        || $arg->name->name === 'array',
+                )
+            ) {
                 IssueBuffer::maybeAdd(
                     new TooFewArguments(
                         'Too few arguments for ' . $method_id,
