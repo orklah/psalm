@@ -453,10 +453,6 @@ final class AssignmentAnalyzer
             unset($context->cond_referenced_var_ids[$extended_var_id]);
             $context->assigned_var_ids[$extended_var_id] = (int) $assign_var->getAttribute('startFilePos');
             $context->possibly_assigned_var_ids[$extended_var_id] = true;
-
-            if (!$assign_var instanceof PhpParser\Node\Expr\ArrayDimFetch) {
-                $context->fully_assigned_var_ids[$extended_var_id] = true;
-            }
         }
 
         $root_expr = $assign_var;
@@ -1395,11 +1391,9 @@ final class AssignmentAnalyzer
                 $statements_analyzer,
             )
             : null;
-        // only where it was not assigned as a whole before in the branch, whichever union follows
         $array_union_var_id = $union_var_id !== null
             && isset($context->vars_in_scope[$union_var_id])
             && $context->vars_in_scope[$union_var_id]->isArray()
-            && !isset($context->fully_assigned_var_ids[$union_var_id])
                 ? $union_var_id
                 : null;
 
@@ -1421,9 +1415,6 @@ final class AssignmentAnalyzer
         }
 
         if ($array_union_var_id !== null) {
-            // the union is not an assignment of the array as a whole
-            unset($context->fully_assigned_var_ids[$array_union_var_id]);
-
             foreach ($kept_offsets as $offset_var_id => $offset_type) {
                 $context->vars_in_scope[$offset_var_id] ??= $offset_type;
             }
@@ -1808,10 +1799,6 @@ final class AssignmentAnalyzer
         unset($context->cond_referenced_var_ids[$lhs_var_id]);
         $context->assigned_var_ids[$lhs_var_id] = (int) $stmt->var->getAttribute('startFilePos');
         $context->possibly_assigned_var_ids[$lhs_var_id] = true;
-
-        if (!$stmt->var instanceof ArrayDimFetch) {
-            $context->fully_assigned_var_ids[$lhs_var_id] = true;
-        }
 
         $lhs_location = new CodeLocation($statements_analyzer->getSource(), $stmt->var);
         if (!$stmt->var instanceof ArrayDimFetch

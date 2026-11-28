@@ -4742,6 +4742,86 @@ final class TypeAlgebraTest extends TestCase
                     '$var===' => "''|'x'",
                 ],
             ],
+            'offsetKnownFromTheConditionIsForgottenWhenTheArrayIsReassignedInAnElseIf' => [
+                'code' => '<?php
+                    $a = ["test" => rand(0, 1) ? null : "x"];
+
+                    if (rand(0, 1)) {
+                    } elseif ($a["test"] === null) {
+                        $a = ["test" => ""];
+                    }
+
+                    $var = $a["test"];',
+                'assertions' => [
+                    '$var===' => "''|'x'|null",
+                ],
+            ],
+            'offsetKnownFromTheConditionIsForgottenWhenTheArrayIsReassignedInTheElse' => [
+                'code' => '<?php
+                    $a = ["test" => rand(0, 1) ? null : "x"];
+
+                    if ($a["test"] !== null) {
+                    } else {
+                        $a = ["test" => ""];
+                    }
+
+                    $var = $a["test"];',
+                'assertions' => [
+                    '$var===' => "''|'x'",
+                ],
+            ],
+            'offsetKnownFromTheConditionIsForgottenWhenTheArrayIsReassignedInANestedIf' => [
+                'code' => '<?php
+                    $a = ["test" => rand(0, 1) ? null : "x"];
+
+                    if ($a["test"] === null) {
+                        if (rand(0, 1)) {
+                            $a = ["test" => ""];
+                        }
+                    }
+
+                    $var = $a["test"];',
+                'assertions' => [
+                    '$var===' => "''|'x'|null",
+                ],
+            ],
+            'offsetKnownFromTheConditionIsForgottenWhenTheArrayIsReassignedInALoop' => [
+                'code' => '<?php
+                    /** @param list<int> $xs */
+                    function f(array $xs): string {
+                        $a = ["test" => rand(0, 1) ? null : "x"];
+
+                        if ($a["test"] === null) {
+                            foreach ($xs as $_) {
+                                $a = ["test" => ""];
+                            }
+                        }
+
+                        $var = $a["test"];
+                        /** @psalm-check-type-exact $var = ""|"x"|null */
+
+                        return (string) $var;
+                    }',
+            ],
+            'offsetKnownFromTheConditionIsForgottenWhenThePropertyIsReassigned' => [
+                'code' => '<?php
+                    final class A {
+                        /** @var array{test: ""|"x"|null} */
+                        public array $a = ["test" => null];
+                    }
+
+                    $o = new A();
+                    $o->a = ["test" => rand(0, 1) ? null : "x"];
+
+                    if ($o->a["test"] === null) {
+                        $o->a = ["test" => ""];
+                    }
+
+                    $var = $o->a["test"];',
+                'assertions' => [
+                    '$var===' => "''|'x'",
+                ],
+            ],
             'arrayIsReplacedWhenTheConditionOnAnOffsetAlwaysHolds' => [
                 'code' => '<?php
                     $dummy = ["test" => ""];

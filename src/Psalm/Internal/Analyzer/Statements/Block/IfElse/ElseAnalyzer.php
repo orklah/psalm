@@ -149,7 +149,6 @@ final class ElseAnalyzer
 
         $pre_stmts_assigned_var_ids = $else_context->assigned_var_ids;
         $else_context->assigned_var_ids = [];
-        $else_context->fully_assigned_var_ids = [];
 
         $pre_possibly_assigned_var_ids = $else_context->possibly_assigned_var_ids;
         $else_context->possibly_assigned_var_ids = [];
