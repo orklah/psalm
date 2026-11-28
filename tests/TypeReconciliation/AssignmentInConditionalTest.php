@@ -1234,6 +1234,30 @@ final class AssignmentInConditionalTest extends TestCase
                         return $b && !(!check($x = $s) && $c) && $x === "a";
                     }',
             ],
+            'variableAssignedByReferenceInTheLeftOfNegatedAndIsDefinedInNextAndOperand' => [
+                'code' => '<?php
+                    function f(bool $b, bool $c, string $s): bool {
+                        return $b && !(preg_match("/a/", $s, $m) && $c) && count($m) > 0;
+                    }',
+            ],
+            'arrayKeyAssignedInTheLeftOfNegatedAndIsDefinedInNextAndOperand' => [
+                'code' => '<?php
+                    function check(string $s): bool {
+                        return $s === "b";
+                    }
+
+                    function f(bool $b, bool $c, string $s): bool {
+                        $a = [];
+                        return $b && !(check($a["k"] = $s) && $c) && $a["k"] === "a";
+                    }',
+            ],
+            'variableAssignedByDestructuringInAndOperandIsSetInNextOne' => [
+                'code' => '<?php
+                    /** @param array{string} $l */
+                    function f(bool $b, bool $c, array $l): bool {
+                        return $b && ([$x] = $l) && $c && $x === "a";
+                    }',
+            ],
             'variableAssignedInRightXorOperandIsSetInIf' => [
                 'code' => '<?php
                     function f(?string $s, bool $c): void {

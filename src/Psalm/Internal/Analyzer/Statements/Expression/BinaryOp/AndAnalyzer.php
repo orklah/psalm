@@ -21,6 +21,7 @@ use Psalm\Type\Reconciler;
 use Psalm\Type\Union;
 
 use function array_diff;
+use function array_diff_assoc;
 use function array_diff_key;
 use function array_fill_keys;
 use function array_filter;
@@ -374,14 +375,15 @@ final class AndAnalyzer
             // may change it without assigning it, or forget it, like the keys of an array it reassigned)
             $vars_assigned_in_and = [];
 
-            foreach ($right_context->vars_in_scope as $var_id => $type) {
-                if (isset($vars_assigned_in_left[$var_id])
-                    || isset($left_context->assigned_var_ids[$var_id])
-                    || (isset($right_context->assigned_var_ids[$var_id])
-                        && ($pre_right_assigned_var_ids[$var_id] ?? null)
-                            !== $right_context->assigned_var_ids[$var_id])
-                ) {
-                    $vars_assigned_in_and[$var_id] = $type;
+            $candidate_var_ids = [
+                ...$vars_assigned_in_left,
+                ...$left_context->assigned_var_ids,
+                ...array_diff_assoc($right_context->assigned_var_ids, $pre_right_assigned_var_ids),
+            ];
+
+            foreach ($candidate_var_ids as $var_id => $_) {
+                if (isset($right_context->vars_in_scope[$var_id])) {
+                    $vars_assigned_in_and[$var_id] = $right_context->vars_in_scope[$var_id];
                 }
             }
 
@@ -399,9 +401,9 @@ final class AndAnalyzer
             if (self::isAnd($left_core)) {
                 $vars_assigned_always = $left_context->vars_assigned_always_in_and;
             } else {
-                foreach ($left_context->vars_in_scope as $var_id => $type) {
-                    if (isset($left_context->assigned_var_ids[$var_id])) {
-                        $vars_assigned_always[$var_id] = $type;
+                foreach ($left_context->assigned_var_ids as $var_id => $_) {
+                    if (isset($left_context->vars_in_scope[$var_id])) {
+                        $vars_assigned_always[$var_id] = $left_context->vars_in_scope[$var_id];
                     }
                 }
             }
