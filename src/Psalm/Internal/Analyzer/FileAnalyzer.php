@@ -191,16 +191,22 @@ class FileAnalyzer extends SourceAnalyzer
 
         $fix_legacy_syntax = $codebase->alter_code && isset($this->project_analyzer->getIssuesToFix()['LegacySyntax']);
 
+        $legacy_syntax_fixes = [];
+
         foreach ($file_storage->legacy_syntax_issues as [$legacy_syntax, $suppressed_issues]) {
             if (!$fix_legacy_syntax) {
                 IssueBuffer::maybeAdd($legacy_syntax, $suppressed_issues, true);
             } elseif (!IssueBuffer::isSuppressedInList($legacy_syntax, $suppressed_issues)) {
-                FileManipulationBuffer::addLegacySyntaxFix($this->file_path, new FileManipulation(
+                $legacy_syntax_fixes[] = new FileManipulation(
                     $legacy_syntax->code_location->raw_file_start,
                     $legacy_syntax->code_location->raw_file_end,
                     $legacy_syntax->replacement,
-                ));
+                );
             }
+        }
+
+        if ($fix_legacy_syntax) {
+            FileManipulationBuffer::setLegacySyntaxFixes($this->file_path, $legacy_syntax_fixes);
         }
 
         // if there are any leftover statements, evaluate them,

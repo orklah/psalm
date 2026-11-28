@@ -12,7 +12,7 @@ use Psalm\Internal\Analyzer\ProjectAnalyzer;
 use Psalm\Internal\Provider\FileProvider;
 
 use function array_merge;
-use function krsort;
+use function array_reverse;
 use function preg_match;
 use function strlen;
 use function strpos;
@@ -32,7 +32,7 @@ final class FileManipulationBuffer
     /** @var CodeMigration[] */
     private static array $code_migrations = [];
 
-    /** @var array<string, array<int, FileManipulation>> the LegacySyntax fixes, by file and start offset */
+    /** @var array<string, list<FileManipulation>> the LegacySyntax fixes of each file, in the order of the file */
     private static array $legacy_syntax_fixes = [];
 
     /**
@@ -188,31 +188,37 @@ final class FileManipulationBuffer
     }
 
     /**
-     * @psalm-external-mutation-free
+     * Replaces the LegacySyntax fixes of the file, which its analysis decides
+     *
+     * @param list<FileManipulation> $fixes
+     * @psalm-capabilities read-props|write-this-props|write-refs|read-globals|write-globals
      */
-    public static function addLegacySyntaxFix(string $file_path, FileManipulation $fix): void
+    public static function setLegacySyntaxFixes(string $file_path, array $fixes): void
     {
-        self::$legacy_syntax_fixes[$file_path][$fix->start] = $fix;
-        self::add($file_path, [$fix]);
+        self::$legacy_syntax_fixes[$file_path] = $fixes;
+        self::add($file_path, $fixes);
     }
 
     /**
      * The docblock a manipulator rewrites whole, with the LegacySyntax fixes in it, as its edit replaces theirs
      *
-     * @psalm-capabilities read-props
+     * @psalm-capabilities read-props|read-globals
      */
     public static function fixLegacySyntax(Doc $docblock, string $file_path): Doc
     {
-        $fixes = self::$legacy_syntax_fixes[$file_path] ?? [];
         $text = $docblock->getText();
         $docblock_start = $docblock->getStartFilePos();
         $docblock_length = strlen($text);
 
-        krsort($fixes);
-
-        foreach ($fixes as $start => $fix) {
-            if ($start >= $docblock_start && $fix->end - $docblock_start <= $docblock_length) {
-                $text = substr_replace($text, $fix->insertion_text, $start - $docblock_start, $fix->end - $start);
+        // from the last, so that each fix leaves the offsets of the ones before it
+        foreach (array_reverse(self::$legacy_syntax_fixes[$file_path] ?? []) as $fix) {
+            if ($fix->start >= $docblock_start && $fix->end - $docblock_start <= $docblock_length) {
+                $text = substr_replace(
+                    $text,
+                    $fix->insertion_text,
+                    $fix->start - $docblock_start,
+                    $fix->end - $fix->start,
+                );
             }
         }
 
@@ -310,6 +316,5 @@ final class FileManipulationBuffer
     {
         self::$file_manipulations = [];
         self::$code_migrations = [];
-        self::$legacy_syntax_fixes = [];
     }
 }
