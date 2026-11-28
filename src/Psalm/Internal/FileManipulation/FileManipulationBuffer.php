@@ -10,7 +10,6 @@ use Psalm\CodeLocation\DocblockTypeLocation;
 use Psalm\FileManipulation;
 use Psalm\Internal\Analyzer\ProjectAnalyzer;
 use Psalm\Internal\Provider\FileProvider;
-use Psalm\IssueBuffer;
 
 use function array_merge;
 use function krsort;
@@ -32,6 +31,9 @@ final class FileManipulationBuffer
 
     /** @var CodeMigration[] */
     private static array $code_migrations = [];
+
+    /** @var array<string, array<int, FileManipulation>> the LegacySyntax fixes, by file and start offset */
+    private static array $legacy_syntax_fixes = [];
 
     /**
      * @param FileManipulation[] $file_manipulations
@@ -186,42 +188,36 @@ final class FileManipulationBuffer
     }
 
     /**
-     * The docblock a manipulator rewrites whole, with the LegacySyntax fixes, as its edit replaces theirs
+     * @psalm-external-mutation-free
+     */
+    public static function addLegacySyntaxFix(string $file_path, FileManipulation $fix): void
+    {
+        self::$legacy_syntax_fixes[$file_path][$fix->start] = $fix;
+        self::add($file_path, [$fix]);
+    }
+
+    /**
+     * The docblock a manipulator rewrites whole, with the LegacySyntax fixes in it, as its edit replaces theirs
+     *
+     * @psalm-capabilities read-props
      */
     public static function fixLegacySyntax(Doc $docblock, string $file_path): Doc
     {
-        $project_analyzer = ProjectAnalyzer::getInstance();
-
-        if (!isset($project_analyzer->getIssuesToFix()['LegacySyntax'])) {
-            return $docblock;
-        }
-
+        $fixes = self::$legacy_syntax_fixes[$file_path] ?? [];
         $text = $docblock->getText();
         $docblock_start = $docblock->getStartFilePos();
-        $fixes = [];
-
-        $file_storage = $project_analyzer->getCodebase()->file_storage_provider->get($file_path);
-
-        foreach ($file_storage->legacy_syntax_issues as [$legacy_syntax, $suppressed_issues]) {
-            $start = $legacy_syntax->code_location->raw_file_start - $docblock_start;
-
-            if ($start >= 0
-                && $start < strlen($text)
-                && !IssueBuffer::isSuppressedInList($legacy_syntax, $suppressed_issues)
-            ) {
-                $fixes[$start] = $legacy_syntax;
-            }
-        }
+        $docblock_length = strlen($text);
 
         krsort($fixes);
 
-        foreach ($fixes as $start => $legacy_syntax) {
-            $text = substr_replace(
-                $text,
-                $legacy_syntax->replacement,
-                $start,
-                $legacy_syntax->code_location->raw_file_end - $docblock_start - $start,
-            );
+        foreach ($fixes as $start => $fix) {
+            if ($start >= $docblock_start && $fix->end - $docblock_start <= $docblock_length) {
+                $text = substr_replace($text, $fix->insertion_text, $start - $docblock_start, $fix->end - $start);
+            }
+        }
+
+        if ($text === $docblock->getText()) {
+            return $docblock;
         }
 
         return new Doc(
@@ -314,5 +310,6 @@ final class FileManipulationBuffer
     {
         self::$file_manipulations = [];
         self::$code_migrations = [];
+        self::$legacy_syntax_fixes = [];
     }
 }

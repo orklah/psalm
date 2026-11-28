@@ -195,11 +195,11 @@ class FileAnalyzer extends SourceAnalyzer
             if (!$fix_legacy_syntax) {
                 IssueBuffer::maybeAdd($legacy_syntax, $suppressed_issues, true);
             } elseif (!IssueBuffer::isSuppressedInList($legacy_syntax, $suppressed_issues)) {
-                FileManipulationBuffer::add($this->file_path, [new FileManipulation(
+                FileManipulationBuffer::addLegacySyntaxFix($this->file_path, new FileManipulation(
                     $legacy_syntax->code_location->raw_file_start,
                     $legacy_syntax->code_location->raw_file_end,
                     $legacy_syntax->replacement,
-                )]);
+                ));
             }
         }
 
