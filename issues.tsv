@@ -1,1 +1,0 @@
-15287	crash array_filter/array_find with only named callback	open	(see PR)		yes	isset($args[1 - offset]) before taintClosureParamWithArrayElements	2026-11-28	PR open
