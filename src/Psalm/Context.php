@@ -215,19 +215,12 @@ final class Context
     /**
      * The variables a variable may still be bound to by reference: those it was bound to before a block that rebound
      * one of them, where the block did not run, and those a block that may not run bound it to. A write to the
-     * variable is combined into their types.
+     * variable is combined into their types. The value is true for the first kind: the variable was a reference
+     * before the block, so a block binding it elsewhere does not make it a reference from a confusing scope.
      *
-     * @var array<string, array<string, true>>
+     * @var array<string, array<string, bool>>
      */
     public array $references_possibly_bound_to = [];
-
-    /**
-     * The variables bound to each other before a block that rebound one of them
-     *
-     * @internal
-     * @var array<string, true>
-     */
-    public array $references_detached_by_blocks = [];
 
     /**
      * Whether or not we're inside the conditional of an if/where etc.
@@ -747,8 +740,7 @@ final class Context
             if (!isset($this->references_in_scope[$reference_id])
                 && !isset($this->references_to_external_scope[$reference_id])
                 // a reference before the block that the block rebound
-                && !(isset($this->references_possibly_bound_to[$reference_id])
-                    && isset($this->references_detached_by_blocks[$reference_id]))
+                && !in_array(true, $this->references_possibly_bound_to[$reference_id] ?? [], true)
                 && $reference_location = $statements_analyzer->getFirstAppearance($reference_id)
             ) {
                 $this->references_possibly_from_confusing_scope[$reference_id] = $reference_location;
@@ -778,8 +770,8 @@ final class Context
 
             while (!isset($seen[$referenced_id])) {
                 $seen[$referenced_id] = true;
-                $this->references_possibly_bound_to[$reference_id][$referenced_id] = true;
-                $this->references_possibly_bound_to[$referenced_id][$reference_id] = true;
+                $this->references_possibly_bound_to[$reference_id][$referenced_id] ??= false;
+                $this->references_possibly_bound_to[$referenced_id][$reference_id] ??= false;
 
                 if (!isset($block_context->references_in_scope[$referenced_id])) {
                     break;
@@ -791,11 +783,11 @@ final class Context
 
         // those of the blocks nested in it
         foreach ($block_context->references_possibly_bound_to as $var_id => $target_ids) {
-            $this->references_possibly_bound_to[$var_id] = ($this->references_possibly_bound_to[$var_id] ?? [])
-                + $target_ids;
+            foreach ($target_ids as $target_id => $detached) {
+                $this->references_possibly_bound_to[$var_id][$target_id] =
+                    ($this->references_possibly_bound_to[$var_id][$target_id] ?? false) || $detached;
+            }
         }
-
-        $this->references_detached_by_blocks += $block_context->references_detached_by_blocks;
     }
 
     /**
@@ -903,8 +895,6 @@ final class Context
             unset($this->references_in_scope[$reference_id]);
             $this->references_possibly_bound_to[$reference_id][$referenced_id] = true;
             $this->references_possibly_bound_to[$referenced_id][$reference_id] = true;
-            $this->references_detached_by_blocks[$reference_id] = true;
-            $this->references_detached_by_blocks[$referenced_id] = true;
 
             if (isset($this->vars_in_scope[$reference_id])) {
                 // the entry is a PHP reference to the one of the variable it was bound to

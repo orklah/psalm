@@ -1117,6 +1117,27 @@ final class ReferenceTest extends TestCase
                         return $total + $sub;
                     }',
             ],
+            'referenceThatWasOneBeforeTheLoopIsReboundThenBoundBackInAnIfAndReboundInAnother' => [
+                'code' => '<?php
+                    /** @param list<int> $keys */
+                    function f(array $keys): int {
+                        $a = 1;
+                        $b = 2;
+                        $c = 3;
+                        $x = &$a;
+                        foreach ($keys as $_) {
+                            $x = &$b;
+                        }
+                        if (rand(0, 1)) {
+                            $x = &$a;
+                        }
+                        if (rand(0, 1)) {
+                            $x = &$c;
+                        }
+                        $x = 4;
+                        return $a + $b + $c;
+                    }',
+            ],
             'referenceThatWasOneBeforeTheIfIsReboundToTheSameTargetInBothBranches' => [
                 'code' => '<?php
                     /** @param array<string, int> $a */
@@ -3038,6 +3059,31 @@ final class ReferenceTest extends TestCase
                     }
                 ',
                 'error_message' => 'ReferenceReusedFromConfusingScope - src' . DIRECTORY_SEPARATOR . 'somefile.php:13:25',
+            ],
+            'referenceReuseOfVariableReleasedSinceALoopRebindingItDetachedIt' => [
+                'code' => '<?php
+                    /** @param list<string> $keys */
+                    function f(array $keys): array {
+                        $a = 0;
+                        $x = &$a;
+                        foreach ($keys as $_) {
+                            $x = &$keys;
+                        }
+                        unset($x);
+                        $x = 1;
+                        $z = 2;
+                        $out = [];
+                        foreach ($keys as $k) {
+                            $out[$k] = &$x;
+                        }
+                        foreach ($keys as $_k) {
+                            $x = &$z;
+                        }
+                        $x = "z";
+                        return [$out, $z, $a];
+                    }
+                ',
+                'error_message' => 'ReferenceReusedFromConfusingScope - src' . DIRECTORY_SEPARATOR . 'somefile.php:19:25',
             ],
         ];
     }
