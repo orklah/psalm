@@ -236,11 +236,11 @@ final class IfAnalyzer
             $new_possibly_assigned_var_ids,
         );
 
-        $outer_context->references_rebound_in_blocks
+        $if_scope->references_rebound_in_blocks
             += $outer_context->mergeConstraintsOfReferencesReboundIn($if_context, $stmt->stmts, $codebase);
 
         foreach ($if_context->byref_constraints as $var_id => $byref_constraint) {
-            if (isset($outer_context->references_rebound_in_blocks[$var_id])) {
+            if (isset($if_scope->references_rebound_in_blocks[$var_id])) {
                 continue;
             }
 

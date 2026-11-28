@@ -175,11 +175,11 @@ final class ElseAnalyzer
         $else_context->possibly_assigned_var_ids += $pre_possibly_assigned_var_ids;
 
         if ($else) {
-            $outer_context->references_rebound_in_blocks
+            $if_scope->references_rebound_in_blocks
                 += $outer_context->mergeConstraintsOfReferencesReboundIn($else_context, $else->stmts, $codebase);
 
             foreach ($else_context->byref_constraints as $var_id => $byref_constraint) {
-                if (isset($outer_context->references_rebound_in_blocks[$var_id])) {
+                if (isset($if_scope->references_rebound_in_blocks[$var_id])) {
                     continue;
                 }
 

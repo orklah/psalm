@@ -202,8 +202,6 @@ final class IfElseAnalyzer
             $changed_var_ids,
         );
 
-        $references_rebound_before = $context->references_rebound_in_blocks;
-
         // check the if
         if (IfAnalyzer::analyze(
             $statements_analyzer,
@@ -275,8 +273,6 @@ final class IfElseAnalyzer
         ) === false) {
             return false;
         }
-
-        $context->references_rebound_in_blocks = $references_rebound_before;
 
         $statements_analyzer->node_data->setImplicitElseImpossible($stmt, $if_scope->implicit_else_is_impossible);
 

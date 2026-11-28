@@ -1641,7 +1641,6 @@ abstract class FunctionLikeAnalyzer extends SourceAnalyzer
         unset(
             $context->bound_globals[$var_id],
             $context->byref_constraints[$var_id],
-            $context->references_rebound_in_blocks[$var_id],
         );
 
         if (isset($context->by_ref_param_out_nodes[$var_id])) {

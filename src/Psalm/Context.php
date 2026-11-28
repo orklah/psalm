@@ -426,14 +426,6 @@ final class Context
     public array $byref_constraints = [];
 
     /**
-     * Variables a branch of the if/else being analysed rebinds: their constraints are merged by
-     * mergeConstraintsOfReferencesReboundIn(), not by the merge of the constraints the branches add
-     *
-     * @var array<string, true>
-     */
-    public array $references_rebound_in_blocks = [];
-
-    /**
      * A list of vars that have been assigned to
      *
      * @var array<string, int>

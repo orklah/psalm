@@ -1258,6 +1258,94 @@ final class ReferenceConstraintTest extends TestCase
                     }',
                 'error_message' => 'ReferenceConstraintViolation',
             ],
+            'byRefParamReboundInABranchIsConstrainedByALaterBranch' => [
+                'code' => '<?php
+                    function takesInt(int &$i): void {}
+
+                    function f(int &$i, bool $b, bool $c): void {
+                        if ($b) {
+                            $local = 0;
+                            $i = &$local;
+                        }
+                        if ($c) {
+                            takesInt($i);
+                        }
+                        $i = "a";
+                        echo $i;
+                    }',
+                'error_message' => 'ReferenceConstraintViolation - src' . DIRECTORY_SEPARATOR . 'somefile.php:12:25',
+            ],
+            'constraintFromAnIfInAnElseifAfterAnEarlierBranchBoundTheVariable' => [
+                'code' => '<?php
+                    final class A {
+                        public int $i = 0;
+                    }
+
+                    function takesInt(int &$i): void {}
+
+                    function f(A $a, bool $b, bool $c): void {
+                        $x = 0;
+                        if ($b) {
+                            $x = &$a->i;
+                        } elseif (rand(0, 1)) {
+                            if ($c) {
+                                takesInt($x);
+                            }
+                            $x = [];
+                        }
+                    }',
+                'error_message' => 'ReferenceConstraintViolation - src' . DIRECTORY_SEPARATOR . 'somefile.php:16:29',
+            ],
+            'constraintFromAnIfInALoopInAnElseAfterAnEarlierBranchBoundTheVariable' => [
+                'code' => '<?php
+                    final class A {
+                        public int $i = 0;
+                    }
+
+                    function takesInt(int &$i): void {}
+
+                    /** @param list<int> $list */
+                    function f(A $a, bool $b, array $list): void {
+                        $x = 0;
+                        if ($b) {
+                            $x = &$a->i;
+                        } else {
+                            foreach ($list as $item) {
+                                $x = 0;
+                                if ($item > 0) {
+                                    takesInt($x);
+                                }
+                                $x = [];
+                            }
+                        }
+                    }',
+                'error_message' => 'ReferenceConstraintViolation - src' . DIRECTORY_SEPARATOR . 'somefile.php:19:33',
+            ],
+            'constraintFromAnIfInAClosureInAnElseAfterAnEarlierBranchBoundTheVariable' => [
+                'code' => '<?php
+                    final class A {
+                        public int $i = 0;
+                    }
+
+                    function takesInt(int &$i): void {}
+
+                    function f(A $a, bool $b): void {
+                        $x = 0;
+                        if ($b) {
+                            $x = &$a->i;
+                        } else {
+                            $fn = function (bool $c): void {
+                                $x = 0;
+                                if ($c) {
+                                    takesInt($x);
+                                }
+                                $x = [];
+                            };
+                            $fn(true);
+                        }
+                    }',
+                'error_message' => 'ReferenceConstraintViolation - src' . DIRECTORY_SEPARATOR . 'somefile.php:18:33',
+            ],
             'referenceToPropertyReboundToTheSamePropertyInNestedBranchesNamesItOnce' => [
                 'code' => '<?php
                     final class A {

@@ -31,6 +31,14 @@ final class IfScope
     public array $unknown_offsets = [];
 
     /**
+     * Variables a branch rebinds: their constraints are merged by mergeConstraintsOfReferencesReboundIn(), not by the
+     * merge of the constraints the branches add
+     *
+     * @var array<string, true>
+     */
+    public array $references_rebound_in_blocks = [];
+
+    /**
      * Types of the variables some branches define but not all, combined over the branches that define them
      *
      * @var array<string, Union>
